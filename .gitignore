@@ -1,0 +1,3 @@
+relays-rs/target/
+*.log
+.DS_Store

@@ -1,0 +1,140 @@
+{
+  "id": "conradKiAgent001",
+  "name": "Conrad KI - Local 4B Agent Router (Webhook + Strict JSON)",
+  "nodes": [
+    {
+      "id": "wh-agent-in",
+      "name": "Webhook Eingabe",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 300],
+      "webhookId": "conrad-ki-agent-v1",
+      "parameters": {
+        "path": "conrad-agent",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-guard-in",
+      "name": "Input Guard & Schema Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst body = raw.body ?? raw;\nconst query = String(body.message || body.text || '').trim();\nconst llmUrl = String(body.llm_url || 'http://ollama:11434/v1/chat/completions');\nconst model = String(body.model || 'conrad-n8n-agent:4b');\nconst injectionRe = /(ignore all previous|system prompt|override rules|developer mode|jailbreak|tool_call.*exfil)/i;\nconst blocked = !query || injectionRe.test(query);\nreturn [{\n  json: {\n    query,\n    llmUrl,\n    model,\n    blocked,\n    now_iso: new Date().toISOString(),\n    tenant: String(body.tenant || 'conrad-ki')\n  }\n}];"
+      }
+    },
+    {
+      "id": "if-safe",
+      "name": "Anfrage Sicher?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-safe",
+              "leftValue": "={{ $json.blocked }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "http-llm-call",
+      "name": "Conrad 4B Agent Anfrage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 200],
+      "continueOnFail": true,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.llmUrl }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.model, temperature: 0.1, max_tokens: 700, response_format: { type: 'json_object' }, messages: [ { role: 'system', content: 'Du bist der n8n KI-Assistent von Conrad KI. Antworte ausschliesslich als valides rohes JSON ohne Markdown-Fences mit exakt diesen 5 Keys: status (\"ok\"|\"klaerung\"|\"fehler\"), intent (kurzer Bezeichner), summary_de (kurze deutsche Zusammenfassung), draft_only (boolean, immer true), next_action (genau einer der 4 Werte: \"create_draft\", \"notify_team\", \"ask_user\" oder \"none\"). Erfinde niemals Fakten.' }, { role: 'user', content: 'Zeitstempel: ' + $json.now_iso + ' | Mandant: ' + $json.tenant + '\\nAnfrage: ' + $json.query } ] }) }}",
+        "options": {
+          "timeout": 45000
+        }
+      }
+    },
+    {
+      "id": "code-parse-json",
+      "name": "Try-Catch JSON Validator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1140, 200],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nif (item.error) {\n  return [{ json: { ok: false, status: 'fehler', next_action: 'fallback', summary_de: 'LLM nicht erreichbar: ' + String(item.error.message || item.error), draft_only: true } }];\n}\nlet raw = String(item?.choices?.[0]?.message?.content ?? item?.message?.content ?? '').trim();\nraw = raw.replace(/<think>[\\s\\S]*?<\\/think>/gi, '').replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/```$/i, '').trim();\nconst m = raw.match(/\\{[\\s\\S]*\\}/);\nconst candidate = m ? m[0] : raw;\ntry {\n  const parsed = JSON.parse(candidate);\n  const allowed = new Set(['create_draft', 'notify_team', 'ask_user', 'none']);\n  const action = allowed.has(parsed.next_action) ? parsed.next_action : 'fallback';\n  return [{\n    json: {\n      ok: true,\n      status: parsed.status || 'ok',\n      intent: parsed.intent || 'general',\n      summary_de: parsed.summary_de || '',\n      draft_only: true,\n      next_action: action\n    }\n  }];\n} catch (err) {\n  return [{\n    json: {\n      ok: false,\n      status: 'fehler',\n      intent: 'parse_error',\n      summary_de: 'Ungueltiges Modell-JSON abgefangen: ' + raw.slice(0, 140),\n      draft_only: true,\n      next_action: 'fallback'\n    }\n  }];\n}"
+      }
+    },
+    {
+      "id": "resp-ok",
+      "name": "Webhook Antwort OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1380, 200],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "resp-blocked",
+      "name": "Webhook Blockiert",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 420],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\": false, \"status\": \"blocked\", \"summary_de\": \"Anfrage abgelehnt oder leer.\", \"draft_only\": true, \"next_action\": \"none\"}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Eingabe": {
+      "main": [[{ "node": "Input Guard & Schema Prep", "type": "main", "index": 0 }]]
+    },
+    "Input Guard & Schema Prep": {
+      "main": [[{ "node": "Anfrage Sicher?", "type": "main", "index": 0 }]]
+    },
+    "Anfrage Sicher?": {
+      "main": [
+        [{ "node": "Conrad 4B Agent Anfrage", "type": "main", "index": 0 }],
+        [{ "node": "Webhook Blockiert", "type": "main", "index": 0 }]
+      ]
+    },
+    "Conrad 4B Agent Anfrage": {
+      "main": [[{ "node": "Try-Catch JSON Validator", "type": "main", "index": 0 }]]
+    },
+    "Try-Catch JSON Validator": {
+      "main": [[{ "node": "Webhook Antwort OK", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

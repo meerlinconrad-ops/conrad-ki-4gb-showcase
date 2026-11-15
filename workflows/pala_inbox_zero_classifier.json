@@ -1,0 +1,115 @@
+{
+  "id": "palaInboxZero001",
+  "name": "Inbox Zero - Unread-Safe E-Mail Klassifizierung & Entwurf (4B Agent)",
+  "nodes": [
+    {
+      "id": "inbox-wh",
+      "name": "E-Mail Eingangs-Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "inbox-zero-classify-v1",
+      "parameters": {
+        "path": "inbox-zero-classify",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "inbox-prep",
+      "name": "Normalize & Unread-Lock",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 300],
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body ?? $input.first().json;\nreturn [{\n  json: {\n    messageId: String(b.message_id || 'msg-unknown'),\n    from: String(b.from || ''),\n    subject: String(b.subject || '(Kein Betreff)'),\n    snippet: String(b.text || b.snippet || '').slice(0, 2000),\n    llmUrl: String(b.llm_url || 'http://ollama:11434/v1/chat/completions'),\n    model: String(b.model || 'conrad-n8n-agent:4b'),\n    markAsRead: false\n  }\n}];"
+      }
+    },
+    {
+      "id": "inbox-llm",
+      "name": "4B JSON Klassifizierung",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300],
+      "continueOnFail": true,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.llmUrl }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.model, temperature: 0.1, max_tokens: 900, response_format: { type: 'json_object' }, messages: [ { role: 'system', content: 'Du klassifizierst Geschaefts-E-Mails auf Deutsch. Antworte NUR mit rohem JSON ohne Markdown: {\"kategorie\": \"Rechnung\"|\"Kundenanfrage\"|\"Termin\"|\"Newsletter\"|\"Spam\"|\"Sonstiges\", \"prioritaet\": \"hoch\"|\"mittel\"|\"niedrig\", \"aktion\": \"entwurf_erstellen\"|\"nur_labeln\"|\"manuell_pruefen\", \"label\": string, \"antwort_entwurf_betreff\": string, \"antwort_entwurf_text\": string}. Bei aktion=entwurf_erstellen formuliere in antwort_entwurf_text einen kurzen, hoeflichen Antwort-Entwurf (2-3 Saetze, kein reines Wiederholen des Eingangs). E-Mails werden NIE automatisch gesendet und NIE als gelesen markiert.' }, { role: 'user', content: 'Von: ' + $json.from + '\\nBetreff: ' + $json.subject + '\\nInhalt:\\n' + $json.snippet } ] }) }}",
+        "options": { "timeout": 45000 }
+      }
+    },
+    {
+      "id": "inbox-validate",
+      "name": "Try-Catch Schema Guard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nconst src = $('Normalize & Unread-Lock').first().json;\nconst fallbackOut = {\n  messageId: src.messageId,\n  markAsRead: false,\n  draftOnly: true,\n  kategorie: 'Sonstiges',\n  prioritaet: 'mittel',\n  aktion: 'manuell_pruefen',\n  label: 'KI/Pruefen',\n  antwort_entwurf_betreff: '',\n  antwort_entwurf_text: '',\n  parseOk: false\n};\nif (resp.error) return [{ json: { ...fallbackOut, error: String(resp.error.message || resp.error) } }];\nlet raw = String(resp?.choices?.[0]?.message?.content ?? '').trim();\nraw = raw.replace(/<think>[\\s\\S]*?<\\/think>/gi, '').replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/```$/i, '').trim();\nconst m = raw.match(/\\{[\\s\\S]*\\}/);\nconst candidate = m ? m[0] : raw;\ntry {\n  const d = JSON.parse(candidate);\n  const validKat = new Set(['Rechnung','Kundenanfrage','Termin','Newsletter','Spam','Sonstiges']);\n  const validAkt = new Set(['entwurf_erstellen','nur_labeln','manuell_pruefen']);\n  return [{\n    json: {\n      messageId: src.messageId,\n      markAsRead: false,\n      draftOnly: true,\n      kategorie: validKat.has(d.kategorie) ? d.kategorie : 'Sonstiges',\n      prioritaet: ['hoch','mittel','niedrig'].includes(d.prioritaet) ? d.prioritaet : 'mittel',\n      aktion: validAkt.has(d.aktion) ? d.aktion : 'manuell_pruefen',\n      label: String(d.label || d.kategorie || 'Sonstiges'),\n      antwort_entwurf_betreff: String(d.antwort_entwurf_betreff || ''),\n      antwort_entwurf_text: String(d.antwort_entwurf_text || ''),\n      parseOk: true\n    }\n  }];\n} catch (e) {\n  return [{ json: { ...fallbackOut, rawPreview: raw.slice(0, 120) } }];\n}"
+      }
+    },
+    {
+      "id": "inbox-switch",
+      "name": "Aktions-Router (mit Fallback)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1140, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [{ "id": "sw-draft", "leftValue": "={{ $json.aktion }}", "rightValue": "entwurf_erstellen", "operator": { "type": "string", "operation": "equals" } }],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Entwurf"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [{ "id": "sw-label", "leftValue": "={{ $json.aktion }}", "rightValue": "nur_labeln", "operator": { "type": "string", "operation": "equals" } }],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NurLabel"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "inbox-resp",
+      "name": "Webhook Antwort",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1400, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": { "responseCode": 200 }
+      }
+    }
+  ],
+  "connections": {
+    "E-Mail Eingangs-Webhook": { "main": [[{ "node": "Normalize & Unread-Lock", "type": "main", "index": 0 }]] },
+    "Normalize & Unread-Lock": { "main": [[{ "node": "4B JSON Klassifizierung", "type": "main", "index": 0 }]] },
+    "4B JSON Klassifizierung": { "main": [[{ "node": "Try-Catch Schema Guard", "type": "main", "index": 0 }]] },
+    "Try-Catch Schema Guard": { "main": [[{ "node": "Aktions-Router (mit Fallback)", "type": "main", "index": 0 }]] },
+    "Aktions-Router (mit Fallback)": {
+      "main": [
+        [{ "node": "Webhook Antwort", "type": "main", "index": 0 }],
+        [{ "node": "Webhook Antwort", "type": "main", "index": 0 }],
+        [{ "node": "Webhook Antwort", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false
+}
