@@ -3,7 +3,7 @@ name = "conrad-crm"
 version = "0.1.0"
 edition = "2021"
 authors = ["Merlin Conrad <merlin@conrad-ki.com>"]
-description = "1:1 Pure-Rust Twenty CRM, n8n Workflow Engine & Local Tiny-AI (0.6B/270M/1.2B) in a single static binary (~21 MB RAM, SQLite WAL)."
+description = "Ultra-lightweight, high-volume self-hosted CRM, DMS, Twenty-Kopie & n8n-Engine in pure Rust with native MCP server and local copilot."
 license = "MIT"
 
 [dependencies]
@@ -14,11 +14,21 @@ rusqlite = { version = "0.32", features = ["bundled"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
 uuid = { version = "1.10", features = ["v4", "serde"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 async-trait = "0.1"
 anyhow = "1.0"
+thiserror = "1.0"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 sha2 = "0.10"
+sha1 = "0.10"
+md-5 = "0.10"
+hmac = "0.12"
+aes = "0.8"
+cbc = "0.1"
+base64 = "0.22"
 hex = "0.4"
+rand = "0.8"
+rquickjs = { version = "0.6.2", features = ["parallel"] }

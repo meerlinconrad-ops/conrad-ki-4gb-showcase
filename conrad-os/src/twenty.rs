@@ -229,8 +229,79 @@ fn create_schema(conn: &Connection) -> anyhow::Result<()> {
         CREATE INDEX IF NOT EXISTS idx_twenty_notes_ws ON twenty_notes(workspace, company_id, person_id, opportunity_id);
         CREATE INDEX IF NOT EXISTS idx_twenty_tasks_ws ON twenty_tasks(workspace, status, company_id);
         CREATE INDEX IF NOT EXISTS idx_twenty_tl_ws ON twenty_timeline(workspace, happens_at);
+
+        CREATE TABLE IF NOT EXISTS twenty_field_metadata (
+            id TEXT PRIMARY KEY,
+            workspace TEXT NOT NULL DEFAULT 'all',
+            object_name TEXT NOT NULL,
+            name TEXT NOT NULL,
+            label TEXT NOT NULL,
+            field_type TEXT NOT NULL DEFAULT 'TEXT',
+            options_json TEXT NOT NULL DEFAULT '[]',
+            default_value TEXT NOT NULL DEFAULT '',
+            is_custom INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS twenty_views (
+            id TEXT PRIMARY KEY,
+            workspace TEXT NOT NULL DEFAULT 'conrad-ki',
+            object_name TEXT NOT NULL,
+            name TEXT NOT NULL,
+            layout TEXT NOT NULL DEFAULT 'table',
+            filter_json TEXT NOT NULL DEFAULT '{}',
+            sort_json TEXT NOT NULL DEFAULT '{}',
+            columns_json TEXT NOT NULL DEFAULT '[]',
+            position INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS twenty_favorites (
+            id TEXT PRIMARY KEY,
+            workspace TEXT NOT NULL DEFAULT 'conrad-ki',
+            label TEXT NOT NULL,
+            target_type TEXT NOT NULL DEFAULT 'object',
+            target_id TEXT NOT NULL,
+            position INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS twenty_webhooks (
+            id TEXT PRIMARY KEY,
+            workspace TEXT NOT NULL DEFAULT 'conrad-ki',
+            target_url TEXT NOT NULL,
+            event_pattern TEXT NOT NULL DEFAULT '*',
+            description TEXT NOT NULL DEFAULT '',
+            active INTEGER NOT NULL DEFAULT 1,
+            secret TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS twenty_api_keys (
+            id TEXT PRIMARY KEY,
+            workspace TEXT NOT NULL DEFAULT 'conrad-ki',
+            name TEXT NOT NULL,
+            key_prefix TEXT NOT NULL,
+            key_hash TEXT NOT NULL,
+            expires_at TEXT,
+            created_at TEXT NOT NULL
+        );
         ",
     )?;
+
+    for tbl in [
+        "twenty_companies",
+        "twenty_people",
+        "twenty_opportunities",
+        "twenty_notes",
+        "twenty_tasks",
+    ] {
+        let _ = conn.execute(
+            &format!("ALTER TABLE {tbl} ADD COLUMN custom_fields_json TEXT NOT NULL DEFAULT '{{}}'"),
+            [],
+        );
+    }
 
     let now = Utc::now().to_rfc3339();
     conn.execute(
@@ -242,6 +313,60 @@ fn create_schema(conn: &Connection) -> anyhow::Result<()> {
         params!["pala", "Pala Marketing", "pala.crm.conrad-ki.com", now],
     )?;
     Ok(())
+}
+
+fn attach_custom_fields(mut obj: Value, r: &rusqlite::Row<'_>) -> Value {
+    let raw = r
+        .get::<_, Option<String>>("custom_fields_json")
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "{}".to_string());
+    let custom: serde_json::Map<String, Value> = serde_json::from_str(&raw).unwrap_or_default();
+    if let Some(m) = obj.as_object_mut() {
+        for (k, v) in &custom {
+            if !m.contains_key(k) {
+                m.insert(k.clone(), v.clone());
+            }
+        }
+        m.insert("customFields".into(), Value::Object(custom));
+    }
+    obj
+}
+
+fn save_custom_fields_for_record(conn: &Connection, table: &str, object_name: &str, id: &str, v: &Value) {
+    let existing_raw: String = conn
+        .query_row(&format!("SELECT COALESCE(custom_fields_json, '{{}}') FROM {table} WHERE id = ?1"), [id], |r| r.get(0))
+        .unwrap_or_else(|_| "{}".into());
+    let mut map: serde_json::Map<String, Value> = serde_json::from_str(&existing_raw).unwrap_or_default();
+    let mut changed = false;
+
+    if let Some(cf) = v.get("customFields").and_then(|x| x.as_object()) {
+        for (k, val) in cf {
+            map.insert(k.clone(), val.clone());
+            changed = true;
+        }
+    }
+
+    if let Ok(mut st) = conn.prepare("SELECT name FROM twenty_field_metadata WHERE object_name = ?1") {
+        if let Ok(mut rows) = st.query([object_name]) {
+            while let Ok(Some(r)) = rows.next() {
+                if let Ok(fname) = r.get::<_, String>(0) {
+                    if let Some(val) = v.get(&fname) {
+                        map.insert(fname, val.clone());
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if changed {
+        let now = Utc::now().to_rfc3339();
+        let _ = conn.execute(
+            &format!("UPDATE {table} SET custom_fields_json = ?1, updated_at = ?2 WHERE id = ?3"),
+            params![Value::Object(map).to_string(), now, id],
+        );
+    }
 }
 
 fn unescape_pg_copy(raw: &str) -> Option<String> {
@@ -833,82 +958,110 @@ pub async fn get_metadata_handler(
             conn.query_row(&format!("SELECT COUNT(*) FROM {tbl} WHERE workspace = ?1"), [&ws], |r| r.get(0)).unwrap_or(0)
         }
     };
+    let custom_fields_for = |obj_singular: &str| -> Vec<Value> {
+        let mut out = Vec::new();
+        if let Ok(mut st) = conn.prepare(
+            "SELECT id, name, label, field_type, options_json, default_value FROM twenty_field_metadata WHERE object_name = ?1 ORDER BY created_at ASC",
+        ) {
+            if let Ok(mut rows) = st.query([obj_singular]) {
+                while let Ok(Some(r)) = rows.next() {
+                    let opts: Value = serde_json::from_str(&r.get::<_, String>(4).unwrap_or_else(|_| "[]".into())).unwrap_or_else(|_| json!([]));
+                    out.push(json!({
+                        "id": r.get::<_, String>(0).unwrap_or_default(),
+                        "name": r.get::<_, String>(1).unwrap_or_default(),
+                        "label": r.get::<_, String>(2).unwrap_or_default(),
+                        "type": r.get::<_, String>(3).unwrap_or_else(|_| "TEXT".into()),
+                        "options": opts,
+                        "defaultValue": r.get::<_, String>(5).unwrap_or_default(),
+                        "isCustom": true
+                    }));
+                }
+            }
+        }
+        out
+    };
+    let merge_fields = |base: Vec<Value>, obj_singular: &str| -> Vec<Value> {
+        let mut all = base;
+        all.extend(custom_fields_for(obj_singular));
+        all
+    };
+
     Json(json!({
         "workspace": ws,
         "objects": [
             {
                 "nameSingular": "company",
                 "namePlural": "companies",
-                "labelPlural": "Companies",
+                "labelPlural": "Unternehmen",
                 "icon": "IconBuildingSkyscraper",
                 "recordCount": count_tbl("twenty_companies"),
-                "fields": [
-                    {"name": "name", "label": "Name", "type": "TEXT", "isCustom": false},
-                    {"name": "domainName", "label": "Domain Name", "type": "LINKS", "isCustom": false},
-                    {"name": "address", "label": "Address", "type": "ADDRESS", "isCustom": false},
-                    {"name": "employees", "label": "Employees", "type": "NUMBER", "isCustom": false},
-                    {"name": "annualRecurringRevenue", "label": "ARR", "type": "CURRENCY", "isCustom": false},
-                    {"name": "idealCustomerProfile", "label": "ICP", "type": "BOOLEAN", "isCustom": false},
-                    {"name": "linkedinLink", "label": "LinkedIn", "type": "LINKS", "isCustom": false}
-                ]
+                "fields": merge_fields(vec![
+                    json!({"name": "name", "label": "Name", "type": "TEXT", "isCustom": false}),
+                    json!({"name": "domainName", "label": "Domain", "type": "LINKS", "isCustom": false}),
+                    json!({"name": "address", "label": "Adresse", "type": "ADDRESS", "isCustom": false}),
+                    json!({"name": "employees", "label": "Mitarbeiter", "type": "NUMBER", "isCustom": false}),
+                    json!({"name": "annualRecurringRevenue", "label": "ARR", "type": "CURRENCY", "isCustom": false}),
+                    json!({"name": "idealCustomerProfile", "label": "ICP", "type": "BOOLEAN", "isCustom": false}),
+                    json!({"name": "linkedinLink", "label": "LinkedIn", "type": "LINKS", "isCustom": false})
+                ], "company")
             },
             {
                 "nameSingular": "person",
                 "namePlural": "people",
-                "labelPlural": "People",
+                "labelPlural": "Kontakte",
                 "icon": "IconUser",
                 "recordCount": count_tbl("twenty_people"),
-                "fields": [
-                    {"name": "name", "label": "Name", "type": "FULL_NAME", "isCustom": false},
-                    {"name": "emails", "label": "Emails", "type": "EMAILS", "isCustom": false},
-                    {"name": "phones", "label": "Phones", "type": "PHONES", "isCustom": false},
-                    {"name": "jobTitle", "label": "Job Title", "type": "TEXT", "isCustom": false},
-                    {"name": "city", "label": "City", "type": "TEXT", "isCustom": false},
-                    {"name": "company", "label": "Company", "type": "RELATION", "isCustom": false}
-                ]
+                "fields": merge_fields(vec![
+                    json!({"name": "name", "label": "Name", "type": "FULL_NAME", "isCustom": false}),
+                    json!({"name": "emails", "label": "E-Mail", "type": "EMAILS", "isCustom": false}),
+                    json!({"name": "phones", "label": "Telefon", "type": "PHONES", "isCustom": false}),
+                    json!({"name": "jobTitle", "label": "Position", "type": "TEXT", "isCustom": false}),
+                    json!({"name": "city", "label": "Stadt", "type": "TEXT", "isCustom": false}),
+                    json!({"name": "company", "label": "Unternehmen", "type": "RELATION", "isCustom": false})
+                ], "person")
             },
             {
                 "nameSingular": "opportunity",
                 "namePlural": "opportunities",
-                "labelPlural": "Opportunities",
+                "labelPlural": "Verkaufschancen",
                 "icon": "IconTargetArrow",
                 "recordCount": count_tbl("twenty_opportunities"),
                 "stages": ["NEW", "SCREENING", "MEETING", "PROPOSAL", "CUSTOMER"],
-                "fields": [
-                    {"name": "name", "label": "Name", "type": "TEXT", "isCustom": false},
-                    {"name": "amount", "label": "Amount", "type": "CURRENCY", "isCustom": false},
-                    {"name": "stage", "label": "Stage", "type": "SELECT", "options": ["NEW","SCREENING","MEETING","PROPOSAL","CUSTOMER"]},
-                    {"name": "closeDate", "label": "Close Date", "type": "DATE_TIME", "isCustom": false},
-                    {"name": "company", "label": "Company", "type": "RELATION", "isCustom": false},
-                    {"name": "pointOfContact", "label": "Point of Contact", "type": "RELATION", "isCustom": false}
-                ]
+                "fields": merge_fields(vec![
+                    json!({"name": "name", "label": "Name", "type": "TEXT", "isCustom": false}),
+                    json!({"name": "amount", "label": "Betrag", "type": "CURRENCY", "isCustom": false}),
+                    json!({"name": "stage", "label": "Phase", "type": "SELECT", "options": ["NEW","SCREENING","MEETING","PROPOSAL","CUSTOMER"], "isCustom": false}),
+                    json!({"name": "closeDate", "label": "Abschlussdatum", "type": "DATE_TIME", "isCustom": false}),
+                    json!({"name": "company", "label": "Unternehmen", "type": "RELATION", "isCustom": false}),
+                    json!({"name": "pointOfContact", "label": "Ansprechpartner", "type": "RELATION", "isCustom": false})
+                ], "opportunity")
             },
             {
                 "nameSingular": "note",
                 "namePlural": "notes",
-                "labelPlural": "Notes",
+                "labelPlural": "Notizen",
                 "icon": "IconNotes",
                 "recordCount": count_tbl("twenty_notes"),
-                "fields": [
-                    {"name": "title", "label": "Title", "type": "TEXT", "isCustom": false},
-                    {"name": "bodyV2", "label": "Body", "type": "RICH_TEXT_V2", "isCustom": false},
-                    {"name": "noteTargets", "label": "Relations", "type": "RELATION", "isCustom": false}
-                ]
+                "fields": merge_fields(vec![
+                    json!({"name": "title", "label": "Titel", "type": "TEXT", "isCustom": false}),
+                    json!({"name": "bodyV2", "label": "Inhalt", "type": "RICH_TEXT_V2", "isCustom": false}),
+                    json!({"name": "noteTargets", "label": "Verknuepfungen", "type": "RELATION", "isCustom": false})
+                ], "note")
             },
             {
                 "nameSingular": "task",
                 "namePlural": "tasks",
-                "labelPlural": "Tasks",
+                "labelPlural": "Aufgaben",
                 "icon": "IconCheckbox",
                 "recordCount": count_tbl("twenty_tasks"),
                 "statuses": ["TODO", "IN_PROGRESS", "DONE"],
-                "fields": [
-                    {"name": "title", "label": "Title", "type": "TEXT", "isCustom": false},
-                    {"name": "status", "label": "Status", "type": "SELECT", "options": ["TODO","IN_PROGRESS","DONE"]},
-                    {"name": "dueAt", "label": "Due Date", "type": "DATE_TIME", "isCustom": false},
-                    {"name": "bodyV2", "label": "Body", "type": "RICH_TEXT_V2", "isCustom": false},
-                    {"name": "taskTargets", "label": "Relations", "type": "RELATION", "isCustom": false}
-                ]
+                "fields": merge_fields(vec![
+                    json!({"name": "title", "label": "Titel", "type": "TEXT", "isCustom": false}),
+                    json!({"name": "status", "label": "Status", "type": "SELECT", "options": ["TODO","IN_PROGRESS","DONE"], "isCustom": false}),
+                    json!({"name": "dueAt", "label": "Faelligkeitsdatum", "type": "DATE_TIME", "isCustom": false}),
+                    json!({"name": "bodyV2", "label": "Beschreibung", "type": "RICH_TEXT_V2", "isCustom": false}),
+                    json!({"name": "taskTargets", "label": "Verknuepfungen", "type": "RELATION", "isCustom": false})
+                ], "task")
             }
         ]
     }))
@@ -931,7 +1084,7 @@ fn company_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
     let domain_label: String = r.get("domain_label")?;
     let linkedin_url: String = r.get("linkedin_url")?;
     let x_url: String = r.get("x_url")?;
-    Ok(json!({
+    Ok(attach_custom_fields(json!({
         "id": r.get::<_, String>("id")?,
         "workspace": r.get::<_, String>("workspace")?,
         "name": r.get::<_, String>("name")?,
@@ -952,7 +1105,7 @@ fn company_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
         "createdBy": { "name": r.get::<_, String>("created_by_name")? },
         "createdAt": r.get::<_, String>("created_at")?,
         "updatedAt": r.get::<_, String>("updated_at")?
-    }))
+    }), r))
 }
 
 fn query_companies_internal(conn: &Connection, ws: &str, q: Option<&str>, limit: i64, offset: i64) -> anyhow::Result<(Vec<Value>, i64)> {
@@ -1084,6 +1237,7 @@ pub fn create_company_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, '', ?9, ?10, ?11, '', ?12, 'EUR', ?13, 0, 'Pure Rust CRM', ?14, ?14)",
         params![id, ws, name, domain_label, domain_url, street1, city, postcode, country, employees, linkedin, arr_micros, icp, now],
     )?;
+    save_custom_fields_for_record(conn, "twenty_companies", "company", &id, v);
     record_timeline(conn, ws, "company.created", Some(&id), None, None, None, None, &format!("Firma erstellt: {}", name));
     let out = conn.query_row("SELECT * FROM twenty_companies WHERE id = ?1", [&id], company_row_to_json)?;
     Ok(out)
@@ -1136,6 +1290,7 @@ pub async fn update_company_handler(
     if let Some(icp) = v.get("idealCustomerProfile").and_then(|x| x.as_bool()) {
         let _ = conn.execute("UPDATE twenty_companies SET icp = ?1, updated_at = ?2 WHERE id = ?3", params![if icp {1} else {0}, now, id]);
     }
+    save_custom_fields_for_record(&conn, "twenty_companies", "company", &id, &v);
     match conn.query_row("SELECT * FROM twenty_companies WHERE id = ?1", [&id], company_row_to_json).optional() {
         Ok(Some(row)) => (StatusCode::OK, Json(row)),
         Ok(None) => (StatusCode::NOT_FOUND, Json(json!({"error": "Not found"}))),
@@ -1154,7 +1309,7 @@ fn person_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
     let last: String = r.get("last_name")?;
     let comp_name: Option<String> = r.get("company_name").ok().flatten();
     let cid: Option<String> = r.get("company_id")?;
-    Ok(json!({
+    Ok(attach_custom_fields(json!({
         "id": r.get::<_, String>("id")?,
         "workspace": r.get::<_, String>("workspace")?,
         "name": { "firstName": first, "lastName": last },
@@ -1173,7 +1328,7 @@ fn person_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
         "createdBy": { "name": r.get::<_, String>("created_by_name")? },
         "createdAt": r.get::<_, String>("created_at")?,
         "updatedAt": r.get::<_, String>("updated_at")?
-    }))
+    }), r))
 }
 
 pub async fn list_people_handler(
@@ -1241,6 +1396,7 @@ pub fn create_person_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow:
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'DE', '+49', ?7, ?8, '', ?9, 0, 'Pure Rust CRM', ?10, ?10)",
         params![id, ws, first, last, email, phone, job, city, company_id, now],
     )?;
+    save_custom_fields_for_record(conn, "twenty_people", "person", &id, v);
     record_timeline(conn, ws, "person.created", company_id.as_deref(), Some(&id), None, None, None, &format!("Kontakt erstellt: {} {}", first, last));
     let out = conn.query_row(
         "SELECT p.*, c.name AS company_name FROM twenty_people p LEFT JOIN twenty_companies c ON p.company_id = c.id WHERE p.id = ?1",
@@ -1289,6 +1445,7 @@ pub async fn update_person_handler(
     if let Some(ct) = v.get("city").and_then(|x| x.as_str()) {
         let _ = conn.execute("UPDATE twenty_people SET city = ?1, updated_at = ?2 WHERE id = ?3", params![ct, now, id]);
     }
+    save_custom_fields_for_record(&conn, "twenty_people", "person", &id, &v);
     match conn.query_row(
         "SELECT p.*, c.name AS company_name FROM twenty_people p LEFT JOIN twenty_companies c ON p.company_id = c.id WHERE p.id = ?1",
         [&id],
@@ -1313,7 +1470,7 @@ fn opportunity_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
     let comp_name: Option<String> = r.get("company_name").ok().flatten();
     let pid: Option<String> = r.get("point_of_contact_id")?;
     let contact_name: Option<String> = r.get("contact_name").ok().flatten();
-    Ok(json!({
+    Ok(attach_custom_fields(json!({
         "id": r.get::<_, String>("id")?,
         "workspace": r.get::<_, String>("workspace")?,
         "name": r.get::<_, String>("name")?,
@@ -1332,7 +1489,7 @@ fn opportunity_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
         "createdBy": { "name": r.get::<_, String>("created_by_name")? },
         "createdAt": r.get::<_, String>("created_at")?,
         "updatedAt": r.get::<_, String>("updated_at")?
-    }))
+    }), r))
 }
 
 pub async fn list_opportunities_handler(
@@ -1413,6 +1570,7 @@ pub fn create_opportunity_internal(conn: &Connection, ws: &str, v: &Value) -> an
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, NULL, 0, 'Pure Rust CRM', ?10, ?10)",
         params![id, ws, name, amount_micros, curr, close_date, stage, company_id, poc_id, now],
     )?;
+    save_custom_fields_for_record(conn, "twenty_opportunities", "opportunity", &id, v);
     record_timeline(conn, ws, "opportunity.created", company_id.as_deref(), poc_id.as_deref(), Some(&id), None, None, &format!("Deal erstellt: {} ({})", name, stage));
     let out = conn.query_row(
         "SELECT o.*, c.name AS company_name, TRIM(COALESCE(p.first_name,'') || ' ' || COALESCE(p.last_name,'')) AS contact_name
@@ -1458,6 +1616,7 @@ pub async fn update_opportunity_handler(
         let cd_opt = if cd.trim().is_empty() { None } else { Some(cd) };
         let _ = conn.execute("UPDATE twenty_opportunities SET close_date = ?1, updated_at = ?2 WHERE id = ?3", params![cd_opt, now, id]);
     }
+    save_custom_fields_for_record(&conn, "twenty_opportunities", "opportunity", &id, &v);
     match conn.query_row(
         "SELECT o.*, c.name AS company_name, TRIM(COALESCE(p.first_name,'') || ' ' || COALESCE(p.last_name,'')) AS contact_name
          FROM twenty_opportunities o LEFT JOIN twenty_companies c ON o.company_id = c.id LEFT JOIN twenty_people p ON o.point_of_contact_id = p.id WHERE o.id = ?1",
@@ -1478,7 +1637,7 @@ pub async fn delete_opportunity_handler(State(state): State<AppState>, Path(id):
 
 fn note_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
     let body: String = r.get("body_markdown")?;
-    Ok(json!({
+    Ok(attach_custom_fields(json!({
         "id": r.get::<_, String>("id")?,
         "workspace": r.get::<_, String>("workspace")?,
         "title": r.get::<_, String>("title")?,
@@ -1491,7 +1650,7 @@ fn note_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
         "createdBy": { "name": r.get::<_, String>("created_by_name")? },
         "createdAt": r.get::<_, String>("created_at")?,
         "updatedAt": r.get::<_, String>("updated_at")?
-    }))
+    }), r))
 }
 
 pub async fn list_notes_handler(
@@ -1564,6 +1723,7 @@ pub fn create_note_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow::R
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 0, 'Pure Rust CRM', ?8, ?8)",
         params![id, ws, title, body, company_id, person_id, opp_id, now],
     )?;
+    save_custom_fields_for_record(conn, "twenty_notes", "note", &id, v);
     record_timeline(conn, ws, "note.created", company_id.as_deref(), person_id.as_deref(), opp_id.as_deref(), Some(&id), None, &title);
     let out = conn.query_row(
         "SELECT n.*, c.name AS company_name FROM twenty_notes n LEFT JOIN twenty_companies c ON n.company_id = c.id WHERE n.id = ?1",
@@ -1600,6 +1760,7 @@ pub async fn update_note_handler(
     if let Some(body) = v.pointer("/bodyV2/markdown").or_else(|| v.get("bodyMarkdown")).or_else(|| v.get("body")).and_then(|x| x.as_str()) {
         let _ = conn.execute("UPDATE twenty_notes SET body_markdown = ?1, updated_at = ?2 WHERE id = ?3", params![body, now, id]);
     }
+    save_custom_fields_for_record(&conn, "twenty_notes", "note", &id, &v);
     match conn.query_row(
         "SELECT n.*, c.name AS company_name FROM twenty_notes n LEFT JOIN twenty_companies c ON n.company_id = c.id WHERE n.id = ?1",
         [&id],
@@ -1619,7 +1780,7 @@ pub async fn delete_note_handler(State(state): State<AppState>, Path(id): Path<S
 
 fn task_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
     let body: String = r.get("body_markdown")?;
-    Ok(json!({
+    Ok(attach_custom_fields(json!({
         "id": r.get::<_, String>("id")?,
         "workspace": r.get::<_, String>("workspace")?,
         "title": r.get::<_, String>("title")?,
@@ -1634,7 +1795,7 @@ fn task_row_to_json(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
         "createdBy": { "name": r.get::<_, String>("created_by_name")? },
         "createdAt": r.get::<_, String>("created_at")?,
         "updatedAt": r.get::<_, String>("updated_at")?
-    }))
+    }), r))
 }
 
 pub async fn list_tasks_handler(
@@ -1703,6 +1864,7 @@ pub fn create_task_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow::R
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, NULL, 0, 'Pure Rust CRM', ?10, ?10)",
         params![id, ws, title, body, status, due_at, company_id, person_id, opp_id, now],
     )?;
+    save_custom_fields_for_record(conn, "twenty_tasks", "task", &id, v);
     record_timeline(conn, ws, "task.created", company_id.as_deref(), person_id.as_deref(), opp_id.as_deref(), None, Some(&id), &title);
     let out = conn.query_row(
         "SELECT t.*, c.name AS company_name FROM twenty_tasks t LEFT JOIN twenty_companies c ON t.company_id = c.id WHERE t.id = ?1",
@@ -1746,6 +1908,7 @@ pub async fn update_task_handler(
     if let Some(due) = v.get("dueAt").and_then(|x| x.as_str()) {
         let _ = conn.execute("UPDATE twenty_tasks SET due_at = ?1, updated_at = ?2 WHERE id = ?3", params![due, now, id]);
     }
+    save_custom_fields_for_record(&conn, "twenty_tasks", "task", &id, &v);
     match conn.query_row(
         "SELECT t.*, c.name AS company_name FROM twenty_tasks t LEFT JOIN twenty_companies c ON t.company_id = c.id WHERE t.id = ?1",
         [&id],
@@ -2988,31 +3151,1081 @@ pub async fn showcase_metrics_handler(State(state): State<AppState>) -> impl Int
                     "category": "Unternehmens-CRM (15 Lizenzen, Workflows & API)",
                     "legacyStack": "Salesforce / HubSpot Enterprise",
                     "legacyEur": 1800,
-                    "rustStack": "Pure-Rust Twenty CRM (/twenty + /graphql, unbegrenzte Nutzer)",
+                    "rustStack": "Conrad CRM (/twenty, bis zu 10× schneller, unbegrenzte Nutzer)",
                     "rustEur": 0
                 },
                 {
                     "category": "Workflow-Automatisierung & Integrationen",
                     "legacyStack": "Zapier Company / Make Enterprise / n8n Cloud",
                     "legacyEur": 850,
-                    "rustStack": "Pure-Rust n8n Engine (/n8n, 58 Workflows) + Relays",
+                    "rustStack": "Conrad Automation (/n8n, 58 Workflows, Echtzeit-Engine)",
                     "rustEur": 0
                 },
                 {
                     "category": "KI-Assistent, Tool Calling & E-Mail-Triage",
                     "legacyStack": "OpenAI / Claude Team + KI-Add-ons",
                     "legacyEur": 1450,
-                    "rustStack": "Nachtrainierte 0.6B / 270M / 1.2B Modelle (Ollama 127.0.0.1)",
+                    "rustStack": "Conrad KI Engine (nachtrainiertes Spezial-Modell, 100 % lokal)",
                     "rustEur": 0
                 },
                 {
                     "category": "Cloud-Datenbank, Node/Docker-Cluster & Hosting",
                     "legacyStack": "Managed PostgreSQL, Redis, Kubernetes-Cluster & Monitoring",
                     "legacyEur": 900,
-                    "rustStack": "1x Hetzner Cloud-Server (<20 €/Monat) + SQLite WAL",
+                    "rustStack": "1x deutscher Server (<20 €/Monat) · bis zu 100× kompakter",
                     "rustEur": 19
                 }
             ]
         }
     }))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MetaQueryParams {
+    pub workspace: Option<String>,
+    pub object: Option<String>,
+    #[serde(rename = "objectName")]
+    pub object_name: Option<String>,
+    pub ids: Option<String>,
+}
+
+fn resolve_twenty_object(raw: &str) -> Option<(&'static str, &'static str)> {
+    match raw.trim().to_lowercase().as_str() {
+        "company" | "companies" | "unternehmen" => Some(("company", "twenty_companies")),
+        "person" | "people" | "personen" => Some(("person", "twenty_people")),
+        "opportunity" | "opportunities" | "verkaufschancen" => {
+            Some(("opportunity", "twenty_opportunities"))
+        }
+        "note" | "notes" | "notizen" => Some(("note", "twenty_notes")),
+        "task" | "tasks" | "aufgaben" => Some(("task", "twenty_tasks")),
+        _ => None,
+    }
+}
+
+fn sanitize_field_identifier(raw: &str) -> String {
+    let mut out = String::new();
+    let mut prev_us = false;
+    for ch in raw.trim().chars() {
+        let mapped = match ch {
+            'ä' | 'Ä' => Some('a'),
+            'ö' | 'Ö' => Some('o'),
+            'ü' | 'Ü' => Some('u'),
+            'ß' => Some('s'),
+            c if c.is_ascii_alphanumeric() => Some(c.to_ascii_lowercase()),
+            _ => None,
+        };
+        if let Some(c) = mapped {
+            out.push(c);
+            prev_us = false;
+        } else if !out.is_empty() && !prev_us {
+            out.push('_');
+            prev_us = true;
+        }
+    }
+    let trimmed = out.trim_matches('_').to_string();
+    if trimmed.is_empty() {
+        "benutzerdefiniertes_feld".to_string()
+    } else if trimmed.chars().next().is_some_and(|c| c.is_ascii_digit()) {
+        format!("feld_{trimmed}")
+    } else {
+        trimmed
+    }
+}
+
+pub async fn create_metadata_field_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    let obj_raw = v
+        .get("objectName")
+        .or_else(|| v.get("object_name"))
+        .or_else(|| v.get("object"))
+        .and_then(|x| x.as_str())
+        .unwrap_or("company");
+    let Some((obj_singular, _)) = resolve_twenty_object(obj_raw) else {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({"error": "Unbekanntes CRM-Objekt"})),
+        );
+    };
+    let label = v
+        .get("label")
+        .and_then(|x| x.as_str())
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or("Neues Feld")
+        .to_string();
+    let name_src = v
+        .get("name")
+        .and_then(|x| x.as_str())
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or(&label);
+    let name = sanitize_field_identifier(name_src);
+    let field_type = v
+        .get("type")
+        .or_else(|| v.get("fieldType"))
+        .or_else(|| v.get("field_type"))
+        .and_then(|x| x.as_str())
+        .unwrap_or("TEXT")
+        .trim()
+        .to_uppercase();
+    let options_val = v.get("options").cloned().unwrap_or_else(|| json!([]));
+    let options_json = if options_val.is_array() {
+        options_val.to_string()
+    } else {
+        "[]".to_string()
+    };
+    let default_value = v
+        .get("defaultValue")
+        .or_else(|| v.get("default_value"))
+        .and_then(|x| x.as_str())
+        .unwrap_or("")
+        .to_string();
+    let ws = v
+        .get("workspace")
+        .and_then(|x| x.as_str())
+        .map(|s| s.trim().to_lowercase())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| {
+            if headers.get("host").is_some() {
+                "all".to_string()
+            } else {
+                "all".to_string()
+            }
+        });
+
+    let conn = state.db.lock_conn();
+    let exists: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM twenty_field_metadata WHERE object_name = ?1 AND name = ?2",
+            params![obj_singular, name],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if exists > 0 {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({"error": format!("Feld '{}' existiert für '{}' bereits", name, obj_singular)})),
+        );
+    }
+
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    if let Err(e) = conn.execute(
+        "INSERT INTO twenty_field_metadata
+         (id, workspace, object_name, name, label, field_type, options_json, default_value, is_custom, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 1, ?9)",
+        params![id, ws, obj_singular, name, label, field_type, options_json, default_value, now],
+    ) {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": e.to_string()})),
+        );
+    }
+
+    let opts: Value = serde_json::from_str(&options_json).unwrap_or_else(|_| json!([]));
+    (
+        StatusCode::CREATED,
+        Json(json!({
+            "id": id,
+            "workspace": ws,
+            "objectName": obj_singular,
+            "name": name,
+            "label": label,
+            "type": field_type,
+            "options": opts,
+            "defaultValue": default_value,
+            "isCustom": true,
+            "createdAt": now
+        })),
+    )
+}
+
+pub async fn delete_metadata_field_handler(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let conn = state.db.lock_conn();
+    let n = conn
+        .execute(
+            "DELETE FROM twenty_field_metadata WHERE id = ?1 AND is_custom = 1",
+            [&id],
+        )
+        .unwrap_or(0);
+    Json(json!({"deleted": n > 0, "id": id}))
+}
+
+pub async fn list_views_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Query(p): Query<MetaQueryParams>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, p.workspace.as_deref());
+    let obj_filter = p
+        .object
+        .as_deref()
+        .or(p.object_name.as_deref())
+        .and_then(resolve_twenty_object)
+        .map(|(s, _)| s.to_string());
+    let conn = state.db.lock_conn();
+    let mut views = Vec::new();
+    let sql = if obj_filter.is_some() {
+        "SELECT id, workspace, object_name, name, layout, filter_json, sort_json, columns_json, position, created_at, updated_at
+         FROM twenty_views WHERE (workspace = ?1 OR workspace = 'all' OR ?1 = 'all') AND object_name = ?2
+         ORDER BY position ASC, created_at ASC"
+    } else {
+        "SELECT id, workspace, object_name, name, layout, filter_json, sort_json, columns_json, position, created_at, updated_at
+         FROM twenty_views WHERE (workspace = ?1 OR workspace = 'all' OR ?1 = 'all')
+         ORDER BY position ASC, created_at ASC"
+    };
+    if let Ok(mut st) = conn.prepare(sql) {
+        let map_row = |r: &rusqlite::Row<'_>| -> rusqlite::Result<Value> {
+            let filters: Value = serde_json::from_str(&r.get::<_, String>(5).unwrap_or_else(|_| "{}".into())).unwrap_or_else(|_| json!({}));
+            let sort: Value = serde_json::from_str(&r.get::<_, String>(6).unwrap_or_else(|_| "{}".into())).unwrap_or_else(|_| json!({}));
+            let columns: Value = serde_json::from_str(&r.get::<_, String>(7).unwrap_or_else(|_| "[]".into())).unwrap_or_else(|_| json!([]));
+            Ok(json!({
+                "id": r.get::<_, String>(0)?,
+                "workspace": r.get::<_, String>(1)?,
+                "objectName": r.get::<_, String>(2)?,
+                "name": r.get::<_, String>(3)?,
+                "layout": r.get::<_, String>(4)?,
+                "filters": filters,
+                "sort": sort,
+                "columns": columns,
+                "position": r.get::<_, i64>(8).unwrap_or(0),
+                "createdAt": r.get::<_, String>(9)?,
+                "updatedAt": r.get::<_, String>(10)?
+            }))
+        };
+        if let Some(obj) = obj_filter.as_deref() {
+            if let Ok(mut rows) = st.query(params![ws, obj]) {
+                while let Ok(Some(r)) = rows.next() {
+                    if let Ok(v) = map_row(r) {
+                        views.push(v);
+                    }
+                }
+            }
+        } else if let Ok(mut rows) = st.query(params![ws]) {
+            while let Ok(Some(r)) = rows.next() {
+                if let Ok(v) = map_row(r) {
+                    views.push(v);
+                }
+            }
+        }
+    }
+    Json(json!({"views": views}))
+}
+
+pub async fn create_view_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, v.get("workspace").and_then(|x| x.as_str()));
+    let obj_raw = v
+        .get("objectName")
+        .or_else(|| v.get("object"))
+        .and_then(|x| x.as_str())
+        .unwrap_or("company");
+    let obj_name = resolve_twenty_object(obj_raw)
+        .map(|(s, _)| s)
+        .unwrap_or("company");
+    let name = v
+        .get("name")
+        .and_then(|x| x.as_str())
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or("Gespeicherte Ansicht")
+        .to_string();
+    let layout = v
+        .get("layout")
+        .and_then(|x| x.as_str())
+        .unwrap_or("table")
+        .to_lowercase();
+    let filters = v.get("filters").cloned().unwrap_or_else(|| json!({}));
+    let sort = v.get("sort").cloned().unwrap_or_else(|| json!({}));
+    let columns = v.get("columns").cloned().unwrap_or_else(|| json!([]));
+    let pos = v.get("position").and_then(|x| x.as_i64()).unwrap_or(0);
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let conn = state.db.lock_conn();
+    if let Err(e) = conn.execute(
+        "INSERT INTO twenty_views (id, workspace, object_name, name, layout, filter_json, sort_json, columns_json, position, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?10)",
+        params![
+            id,
+            ws,
+            obj_name,
+            name,
+            layout,
+            filters.to_string(),
+            sort.to_string(),
+            columns.to_string(),
+            pos,
+            now
+        ],
+    ) {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": e.to_string()})),
+        );
+    }
+    (
+        StatusCode::CREATED,
+        Json(json!({
+            "id": id,
+            "workspace": ws,
+            "objectName": obj_name,
+            "name": name,
+            "layout": layout,
+            "filters": filters,
+            "sort": sort,
+            "columns": columns,
+            "position": pos,
+            "createdAt": now,
+            "updatedAt": now
+        })),
+    )
+}
+
+pub async fn update_view_handler(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    let conn = state.db.lock_conn();
+    let now = Utc::now().to_rfc3339();
+    if let Some(name) = v.get("name").and_then(|x| x.as_str()) {
+        let _ = conn.execute("UPDATE twenty_views SET name = ?1, updated_at = ?2 WHERE id = ?3", params![name.trim(), now, id]);
+    }
+    if let Some(layout) = v.get("layout").and_then(|x| x.as_str()) {
+        let _ = conn.execute("UPDATE twenty_views SET layout = ?1, updated_at = ?2 WHERE id = ?3", params![layout.to_lowercase(), now, id]);
+    }
+    if let Some(filters) = v.get("filters") {
+        let _ = conn.execute("UPDATE twenty_views SET filter_json = ?1, updated_at = ?2 WHERE id = ?3", params![filters.to_string(), now, id]);
+    }
+    if let Some(sort) = v.get("sort") {
+        let _ = conn.execute("UPDATE twenty_views SET sort_json = ?1, updated_at = ?2 WHERE id = ?3", params![sort.to_string(), now, id]);
+    }
+    if let Some(cols) = v.get("columns") {
+        let _ = conn.execute("UPDATE twenty_views SET columns_json = ?1, updated_at = ?2 WHERE id = ?3", params![cols.to_string(), now, id]);
+    }
+    match conn.query_row(
+        "SELECT id, workspace, object_name, name, layout, filter_json, sort_json, columns_json, position, created_at, updated_at
+         FROM twenty_views WHERE id = ?1",
+        [&id],
+        |r| {
+            let filters: Value = serde_json::from_str(&r.get::<_, String>(5).unwrap_or_else(|_| "{}".into())).unwrap_or_else(|_| json!({}));
+            let sort: Value = serde_json::from_str(&r.get::<_, String>(6).unwrap_or_else(|_| "{}".into())).unwrap_or_else(|_| json!({}));
+            let columns: Value = serde_json::from_str(&r.get::<_, String>(7).unwrap_or_else(|_| "[]".into())).unwrap_or_else(|_| json!([]));
+            Ok(json!({
+                "id": r.get::<_, String>(0)?,
+                "workspace": r.get::<_, String>(1)?,
+                "objectName": r.get::<_, String>(2)?,
+                "name": r.get::<_, String>(3)?,
+                "layout": r.get::<_, String>(4)?,
+                "filters": filters,
+                "sort": sort,
+                "columns": columns,
+                "position": r.get::<_, i64>(8).unwrap_or(0),
+                "createdAt": r.get::<_, String>(9)?,
+                "updatedAt": r.get::<_, String>(10)?
+            }))
+        },
+    ).optional() {
+        Ok(Some(row)) => (StatusCode::OK, Json(row)),
+        Ok(None) => (StatusCode::NOT_FOUND, Json(json!({"error": "Ansicht nicht gefunden"}))),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e.to_string()}))),
+    }
+}
+
+pub async fn delete_view_handler(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let conn = state.db.lock_conn();
+    let n = conn.execute("DELETE FROM twenty_views WHERE id = ?1", [&id]).unwrap_or(0);
+    Json(json!({"deleted": n > 0, "id": id}))
+}
+
+pub async fn list_favorites_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Query(p): Query<MetaQueryParams>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, p.workspace.as_deref());
+    let conn = state.db.lock_conn();
+    let mut favorites = Vec::new();
+    if let Ok(mut st) = conn.prepare(
+        "SELECT id, workspace, label, target_type, target_id, position, created_at
+         FROM twenty_favorites WHERE (workspace = ?1 OR ?1 = 'all')
+         ORDER BY position ASC, created_at ASC",
+    ) {
+        if let Ok(mut rows) = st.query([&ws]) {
+            while let Ok(Some(r)) = rows.next() {
+                favorites.push(json!({
+                    "id": r.get::<_, String>(0).unwrap_or_default(),
+                    "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                    "label": r.get::<_, String>(2).unwrap_or_default(),
+                    "targetType": r.get::<_, String>(3).unwrap_or_else(|_| "object".into()),
+                    "targetId": r.get::<_, String>(4).unwrap_or_default(),
+                    "position": r.get::<_, i64>(5).unwrap_or(0),
+                    "createdAt": r.get::<_, String>(6).unwrap_or_default()
+                }));
+            }
+        }
+    }
+    Json(json!({"favorites": favorites}))
+}
+
+pub async fn create_favorite_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, v.get("workspace").and_then(|x| x.as_str()));
+    let label = v.get("label").and_then(|x| x.as_str()).unwrap_or("Favorit").trim().to_string();
+    let target_type = v.get("targetType").or_else(|| v.get("target_type")).and_then(|x| x.as_str()).unwrap_or("object").to_string();
+    let target_id = v.get("targetId").or_else(|| v.get("target_id")).and_then(|x| x.as_str()).unwrap_or("").to_string();
+    let pos = v.get("position").and_then(|x| x.as_i64()).unwrap_or(0);
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let conn = state.db.lock_conn();
+    if let Err(e) = conn.execute(
+        "INSERT INTO twenty_favorites (id, workspace, label, target_type, target_id, position, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        params![id, ws, label, target_type, target_id, pos, now],
+    ) {
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e.to_string()})));
+    }
+    (
+        StatusCode::CREATED,
+        Json(json!({
+            "id": id,
+            "workspace": ws,
+            "label": label,
+            "targetType": target_type,
+            "targetId": target_id,
+            "position": pos,
+            "createdAt": now
+        })),
+    )
+}
+
+pub async fn delete_favorite_handler(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let conn = state.db.lock_conn();
+    let n = conn.execute("DELETE FROM twenty_favorites WHERE id = ?1", [&id]).unwrap_or(0);
+    Json(json!({"deleted": n > 0, "id": id}))
+}
+
+pub async fn list_webhooks_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Query(p): Query<MetaQueryParams>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, p.workspace.as_deref());
+    let conn = state.db.lock_conn();
+    let mut webhooks = Vec::new();
+    if let Ok(mut st) = conn.prepare(
+        "SELECT id, workspace, target_url, event_pattern, description, active, secret, created_at
+         FROM twenty_webhooks WHERE (workspace = ?1 OR ?1 = 'all') ORDER BY created_at DESC",
+    ) {
+        if let Ok(mut rows) = st.query([&ws]) {
+            while let Ok(Some(r)) = rows.next() {
+                let sec = r.get::<_, String>(6).unwrap_or_default();
+                webhooks.push(json!({
+                    "id": r.get::<_, String>(0).unwrap_or_default(),
+                    "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                    "targetUrl": r.get::<_, String>(2).unwrap_or_default(),
+                    "eventPattern": r.get::<_, String>(3).unwrap_or_else(|_| "*".into()),
+                    "description": r.get::<_, String>(4).unwrap_or_default(),
+                    "active": r.get::<_, i64>(5).unwrap_or(1) != 0,
+                    "hasSecret": !sec.is_empty(),
+                    "createdAt": r.get::<_, String>(7).unwrap_or_default()
+                }));
+            }
+        }
+    }
+    Json(json!({"webhooks": webhooks}))
+}
+
+pub async fn create_webhook_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, v.get("workspace").and_then(|x| x.as_str()));
+    let target_url = v
+        .get("targetUrl")
+        .or_else(|| v.get("target_url"))
+        .or_else(|| v.get("url"))
+        .and_then(|x| x.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    if target_url.is_empty() || (!target_url.starts_with("http://") && !target_url.starts_with("https://")) {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({"error": "Gültige http(s):// Ziel-URL erforderlich"})),
+        );
+    }
+    let event_pattern = v
+        .get("eventPattern")
+        .or_else(|| v.get("event_pattern"))
+        .or_else(|| v.get("events"))
+        .and_then(|x| x.as_str())
+        .unwrap_or("*")
+        .trim()
+        .to_string();
+    let description = v.get("description").and_then(|x| x.as_str()).unwrap_or("").trim().to_string();
+    let active = v.get("active").and_then(|x| x.as_bool()).unwrap_or(true);
+    let secret = v
+        .get("secret")
+        .and_then(|x| x.as_str())
+        .filter(|s| !s.trim().is_empty())
+        .map(|s| s.trim().to_string())
+        .unwrap_or_else(|| format!("whsec_{}", Uuid::new_v4().simple()));
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let conn = state.db.lock_conn();
+    if let Err(e) = conn.execute(
+        "INSERT INTO twenty_webhooks (id, workspace, target_url, event_pattern, description, active, secret, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+        params![id, ws, target_url, event_pattern, description, i64::from(active), secret, now],
+    ) {
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e.to_string()})));
+    }
+    (
+        StatusCode::CREATED,
+        Json(json!({
+            "id": id,
+            "workspace": ws,
+            "targetUrl": target_url,
+            "eventPattern": event_pattern,
+            "description": description,
+            "active": active,
+            "secretPreview": format!("{}...", &secret.chars().take(12).collect::<String>()),
+            "createdAt": now
+        })),
+    )
+}
+
+pub async fn delete_webhook_handler(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let conn = state.db.lock_conn();
+    let n = conn.execute("DELETE FROM twenty_webhooks WHERE id = ?1", [&id]).unwrap_or(0);
+    Json(json!({"deleted": n > 0, "id": id}))
+}
+
+pub async fn list_api_keys_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Query(p): Query<MetaQueryParams>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, p.workspace.as_deref());
+    let conn = state.db.lock_conn();
+    let mut keys = Vec::new();
+    if let Ok(mut st) = conn.prepare(
+        "SELECT id, workspace, name, key_prefix, expires_at, created_at
+         FROM twenty_api_keys WHERE (workspace = ?1 OR ?1 = 'all') ORDER BY created_at DESC",
+    ) {
+        if let Ok(mut rows) = st.query([&ws]) {
+            while let Ok(Some(r)) = rows.next() {
+                keys.push(json!({
+                    "id": r.get::<_, String>(0).unwrap_or_default(),
+                    "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                    "name": r.get::<_, String>(2).unwrap_or_default(),
+                    "keyPrefix": r.get::<_, String>(3).unwrap_or_default(),
+                    "expiresAt": r.get::<_, Option<String>>(4).ok().flatten(),
+                    "createdAt": r.get::<_, String>(5).unwrap_or_default()
+                }));
+            }
+        }
+    }
+    Json(json!({"apiKeys": keys}))
+}
+
+pub async fn create_api_key_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    use sha2::{Digest, Sha256};
+    let ws = resolve_workspace(&headers, v.get("workspace").and_then(|x| x.as_str()));
+    let name = v
+        .get("name")
+        .and_then(|x| x.as_str())
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or("API-Schlüssel")
+        .to_string();
+    let expires_at = v
+        .get("expiresAt")
+        .or_else(|| v.get("expires_at"))
+        .and_then(|x| x.as_str())
+        .filter(|s| !s.trim().is_empty())
+        .map(|s| s.to_string());
+    let raw_token = format!("tw_{}_{}", ws, Uuid::new_v4().simple());
+    let key_prefix = format!("{}...", &raw_token.chars().take(12).collect::<String>());
+    let mut hasher = Sha256::new();
+    hasher.update(raw_token.as_bytes());
+    let key_hash = hex::encode(hasher.finalize());
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let conn = state.db.lock_conn();
+    if let Err(e) = conn.execute(
+        "INSERT INTO twenty_api_keys (id, workspace, name, key_prefix, key_hash, expires_at, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        params![id, ws, name, key_prefix, key_hash, expires_at, now],
+    ) {
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e.to_string()})));
+    }
+    (
+        StatusCode::CREATED,
+        Json(json!({
+            "id": id,
+            "workspace": ws,
+            "name": name,
+            "keyPrefix": key_prefix,
+            "token": raw_token,
+            "expiresAt": expires_at,
+            "createdAt": now
+        })),
+    )
+}
+
+pub async fn delete_api_key_handler(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let conn = state.db.lock_conn();
+    let n = conn.execute("DELETE FROM twenty_api_keys WHERE id = ?1", [&id]).unwrap_or(0);
+    Json(json!({"deleted": n > 0, "id": id}))
+}
+
+pub async fn bulk_delete_handler(
+    State(state): State<AppState>,
+    Path(object): Path<String>,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    let Some((_, table)) = resolve_twenty_object(&object) else {
+        return (StatusCode::BAD_REQUEST, Json(json!({"error": "Unbekanntes Objekt"})));
+    };
+    let ids: Vec<String> = v
+        .get("ids")
+        .and_then(|x| x.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|i| i.as_str().map(str::trim).filter(|s| !s.is_empty()).map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    if ids.is_empty() {
+        return (StatusCode::OK, Json(json!({"deleted": 0, "ids": []})));
+    }
+    let conn = state.db.lock_conn();
+    let sql = format!("DELETE FROM {table} WHERE id = ?1");
+    let mut deleted = 0usize;
+    for id in &ids {
+        deleted += conn.execute(&sql, [id]).unwrap_or(0);
+    }
+    (StatusCode::OK, Json(json!({"deleted": deleted, "ids": ids})))
+}
+
+pub async fn bulk_update_handler(
+    State(state): State<AppState>,
+    Path(object): Path<String>,
+    Json(v): Json<Value>,
+) -> impl IntoResponse {
+    let Some((singular, table)) = resolve_twenty_object(&object) else {
+        return (StatusCode::BAD_REQUEST, Json(json!({"error": "Unbekanntes Objekt"})));
+    };
+    let ids: Vec<String> = v
+        .get("ids")
+        .and_then(|x| x.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|i| i.as_str().map(str::trim).filter(|s| !s.is_empty()).map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    if ids.is_empty() {
+        return (StatusCode::OK, Json(json!({"updated": 0})));
+    }
+    let patch = v.get("patch").cloned().unwrap_or_else(|| v.clone());
+    let conn = state.db.lock_conn();
+    let now = Utc::now().to_rfc3339();
+    let mut updated = 0usize;
+    for id in &ids {
+        let mut touched = false;
+        match singular {
+            "company" => {
+                if let Some(icp) = patch.get("icpTarget").or_else(|| patch.get("icp")).and_then(|x| x.as_bool()) {
+                    touched |= conn.execute("UPDATE twenty_companies SET icp = ?1, updated_at = ?2 WHERE id = ?3", params![i64::from(icp), now, id]).unwrap_or(0) > 0;
+                }
+                if let Some(city) = patch.get("city").and_then(|x| x.as_str()) {
+                    touched |= conn.execute("UPDATE twenty_companies SET city = ?1, updated_at = ?2 WHERE id = ?3", params![city, now, id]).unwrap_or(0) > 0;
+                }
+                if let Some(emp) = patch.get("employees").and_then(|x| x.as_i64()) {
+                    touched |= conn.execute("UPDATE twenty_companies SET employees = ?1, updated_at = ?2 WHERE id = ?3", params![emp, now, id]).unwrap_or(0) > 0;
+                }
+            }
+            "person" => {
+                if let Some(city) = patch.get("city").and_then(|x| x.as_str()) {
+                    touched |= conn.execute("UPDATE twenty_people SET city = ?1, updated_at = ?2 WHERE id = ?3", params![city, now, id]).unwrap_or(0) > 0;
+                }
+                if let Some(jt) = patch.get("jobTitle").and_then(|x| x.as_str()) {
+                    touched |= conn.execute("UPDATE twenty_people SET job_title = ?1, updated_at = ?2 WHERE id = ?3", params![jt, now, id]).unwrap_or(0) > 0;
+                }
+            }
+            "opportunity" => {
+                if let Some(st) = patch.get("stage").and_then(|x| x.as_str()) {
+                    touched |= conn.execute("UPDATE twenty_opportunities SET stage = ?1, updated_at = ?2 WHERE id = ?3", params![st.to_uppercase(), now, id]).unwrap_or(0) > 0;
+                }
+            }
+            "task" => {
+                if let Some(st) = patch.get("status").and_then(|x| x.as_str()) {
+                    touched |= conn.execute("UPDATE twenty_tasks SET status = ?1, updated_at = ?2 WHERE id = ?3", params![st.to_uppercase(), now, id]).unwrap_or(0) > 0;
+                }
+            }
+            "note" => {
+                if let Some(t) = patch.get("title").and_then(|x| x.as_str()) {
+                    touched |= conn.execute("UPDATE twenty_notes SET title = ?1, updated_at = ?2 WHERE id = ?3", params![t, now, id]).unwrap_or(0) > 0;
+                }
+            }
+            _ => {}
+        }
+        save_custom_fields_for_record(&conn, table, singular, id, &patch);
+        if touched || patch.get("customFields").is_some() {
+            updated += 1;
+        }
+    }
+    (StatusCode::OK, Json(json!({"updated": updated, "ids": ids})))
+}
+
+fn csv_escape_cell(s: &str) -> String {
+    if s.contains(',') || s.contains('"') || s.contains('\n') || s.contains('\r') {
+        format!("\"{}\"", s.replace('"', "\"\""))
+    } else {
+        s.to_string()
+    }
+}
+
+fn parse_csv_lines(input: &str) -> Vec<Vec<String>> {
+    let mut rows = Vec::new();
+    let mut row = Vec::new();
+    let mut cell = String::new();
+    let mut in_quotes = false;
+    let mut chars = input.trim_start_matches('\u{FEFF}').chars().peekable();
+    while let Some(c) = chars.next() {
+        if in_quotes {
+            if c == '"' {
+                if chars.peek() == Some(&'"') {
+                    chars.next();
+                    cell.push('"');
+                } else {
+                    in_quotes = false;
+                }
+            } else {
+                cell.push(c);
+            }
+        } else {
+            match c {
+                '"' => in_quotes = true,
+                ',' | ';' => {
+                    row.push(cell.trim().to_string());
+                    cell.clear();
+                }
+                '\n' => {
+                    row.push(cell.trim().to_string());
+                    cell.clear();
+                    if row.iter().any(|x| !x.is_empty()) {
+                        rows.push(row);
+                    }
+                    row = Vec::new();
+                }
+                '\r' => {
+                    if chars.peek() == Some(&'\n') {
+                        chars.next();
+                    }
+                    row.push(cell.trim().to_string());
+                    cell.clear();
+                    if row.iter().any(|x| !x.is_empty()) {
+                        rows.push(row);
+                    }
+                    row = Vec::new();
+                }
+                _ => cell.push(c),
+            }
+        }
+    }
+    if !cell.is_empty() || !row.is_empty() {
+        row.push(cell.trim().to_string());
+        if row.iter().any(|x| !x.is_empty()) {
+            rows.push(row);
+        }
+    }
+    rows
+}
+
+pub async fn export_csv_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(object): Path<String>,
+    Query(p): Query<MetaQueryParams>,
+) -> impl IntoResponse {
+    let ws = resolve_workspace(&headers, p.workspace.as_deref());
+    let Some((singular, _)) = resolve_twenty_object(&object) else {
+        return (
+            StatusCode::BAD_REQUEST,
+            [(axum::http::header::CONTENT_TYPE, "text/plain; charset=utf-8".to_string())],
+            "Unbekanntes Objekt".to_string(),
+        )
+            .into_response();
+    };
+    let selected_ids: Vec<String> = p
+        .ids
+        .as_deref()
+        .map(|s| s.split(',').map(str::trim).filter(|x| !x.is_empty()).map(str::to_string).collect())
+        .unwrap_or_default();
+
+    let conn = state.db.lock_conn();
+    let (clause, ws_param) = ws_filter_clause(&ws);
+    let mut custom_fields: Vec<String> = Vec::new();
+    if let Ok(mut st) = conn.prepare("SELECT name FROM twenty_field_metadata WHERE object_name = ?1 ORDER BY created_at ASC") {
+        if let Ok(mut rows) = st.query([singular]) {
+            while let Ok(Some(r)) = rows.next() {
+                if let Ok(n) = r.get::<_, String>(0) {
+                    custom_fields.push(n);
+                }
+            }
+        }
+    }
+
+    let mut records: Vec<Value> = Vec::new();
+    let push_if_selected = |records: &mut Vec<Value>, val: Value| {
+        if selected_ids.is_empty()
+            || val
+                .get("id")
+                .and_then(|x| x.as_str())
+                .is_some_and(|id| selected_ids.iter().any(|s| s == id))
+        {
+            records.push(val);
+        }
+    };
+
+    match singular {
+        "company" => {
+            let sql = format!("SELECT * FROM twenty_companies WHERE {clause} ORDER BY name ASC");
+            if let Ok(mut st) = conn.prepare(&sql) {
+                let mut rows = if ws == "all" { st.query([]) } else { st.query([&ws_param]) };
+                if let Ok(ref mut rset) = rows {
+                    while let Ok(Some(r)) = rset.next() {
+                        if let Ok(v) = company_row_to_json(r) {
+                            push_if_selected(&mut records, v);
+                        }
+                    }
+                }
+            }
+        }
+        "person" => {
+            let sql = format!("SELECT p.*, c.name AS company_name FROM twenty_people p LEFT JOIN twenty_companies c ON p.company_id = c.id WHERE p.{} ORDER BY p.last_name ASC", clause.replace("workspace", "p.workspace"));
+            if let Ok(mut st) = conn.prepare(&sql) {
+                let mut rows = if ws == "all" { st.query([]) } else { st.query([&ws_param]) };
+                if let Ok(ref mut rset) = rows {
+                    while let Ok(Some(r)) = rset.next() {
+                        if let Ok(v) = person_row_to_json(r) {
+                            push_if_selected(&mut records, v);
+                        }
+                    }
+                }
+            }
+        }
+        "opportunity" => {
+            let sql = format!("SELECT o.*, c.name AS company_name, TRIM(COALESCE(p.first_name,'') || ' ' || COALESCE(p.last_name,'')) AS contact_name FROM twenty_opportunities o LEFT JOIN twenty_companies c ON o.company_id = c.id LEFT JOIN twenty_people p ON o.point_of_contact_id = p.id WHERE {} ORDER BY o.created_at DESC", clause.replace("workspace", "o.workspace"));
+            if let Ok(mut st) = conn.prepare(&sql) {
+                let mut rows = if ws == "all" { st.query([]) } else { st.query([&ws_param]) };
+                if let Ok(ref mut rset) = rows {
+                    while let Ok(Some(r)) = rset.next() {
+                        if let Ok(v) = opportunity_row_to_json(r) {
+                            push_if_selected(&mut records, v);
+                        }
+                    }
+                }
+            }
+        }
+        "note" => {
+            let sql = format!("SELECT n.*, c.name AS company_name FROM twenty_notes n LEFT JOIN twenty_companies c ON n.company_id = c.id WHERE {} ORDER BY n.created_at DESC", clause.replace("workspace", "n.workspace"));
+            if let Ok(mut st) = conn.prepare(&sql) {
+                let mut rows = if ws == "all" { st.query([]) } else { st.query([&ws_param]) };
+                if let Ok(ref mut rset) = rows {
+                    while let Ok(Some(r)) = rset.next() {
+                        if let Ok(v) = note_row_to_json(r) {
+                            push_if_selected(&mut records, v);
+                        }
+                    }
+                }
+            }
+        }
+        "task" => {
+            let sql = format!("SELECT t.*, c.name AS company_name FROM twenty_tasks t LEFT JOIN twenty_companies c ON t.company_id = c.id WHERE {} ORDER BY t.created_at DESC", clause.replace("workspace", "t.workspace"));
+            if let Ok(mut st) = conn.prepare(&sql) {
+                let mut rows = if ws == "all" { st.query([]) } else { st.query([&ws_param]) };
+                if let Ok(ref mut rset) = rows {
+                    while let Ok(Some(r)) = rset.next() {
+                        if let Ok(v) = task_row_to_json(r) {
+                            push_if_selected(&mut records, v);
+                        }
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+
+    let mut cols: Vec<String> = match singular {
+        "company" => vec!["id", "name", "domain", "city", "employees", "arrEur", "icpTarget"],
+        "person" => vec!["id", "firstName", "lastName", "email", "phone", "jobTitle", "city", "companyName"],
+        "opportunity" => vec!["id", "name", "stage", "amountEur", "closeDate", "companyName"],
+        "note" => vec!["id", "title", "bodyMarkdown", "companyName", "createdAt"],
+        "task" => vec!["id", "title", "status", "dueAt", "companyName", "bodyMarkdown"],
+        _ => vec!["id"],
+    }
+    .into_iter()
+    .map(String::from)
+    .collect();
+    for cf in custom_fields {
+        if !cols.contains(&cf) {
+            cols.push(cf);
+        }
+    }
+
+    let mut csv_lines = Vec::with_capacity(records.len() + 1);
+    csv_lines.push(cols.iter().map(|c| csv_escape_cell(c)).collect::<Vec<_>>().join(","));
+    for rec in &records {
+        let mut cells = Vec::with_capacity(cols.len());
+        for col in &cols {
+            let s = match col.as_str() {
+                "domain" => rec.pointer("/domainName/primaryLinkUrl").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                "city" => rec.get("city").or_else(|| rec.pointer("/address/addressCity")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                "firstName" => rec.pointer("/name/firstName").or_else(|| rec.get("firstName")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                "lastName" => rec.pointer("/name/lastName").or_else(|| rec.get("lastName")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                "email" => rec.pointer("/emails/primaryEmail").or_else(|| rec.get("email")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                "phone" => rec.pointer("/phones/primaryPhoneNumber").or_else(|| rec.get("phone")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                _ => match rec.get(col).or_else(|| rec.pointer(&format!("/customFields/{col}"))) {
+                    Some(Value::String(s)) => s.clone(),
+                    Some(Value::Number(n)) => n.to_string(),
+                    Some(Value::Bool(b)) => b.to_string(),
+                    Some(Value::Null) | None => String::new(),
+                    Some(other) => other.to_string(),
+                },
+            };
+            cells.push(csv_escape_cell(&s));
+        }
+        csv_lines.push(cells.join(","));
+    }
+
+    (
+        StatusCode::OK,
+        [
+            (axum::http::header::CONTENT_TYPE, "text/csv; charset=utf-8".to_string()),
+            (
+                axum::http::header::CONTENT_DISPOSITION,
+                format!("attachment; filename=\"{singular}.csv\""),
+            ),
+        ],
+        csv_lines.join("\n"),
+    )
+        .into_response()
+}
+
+pub async fn import_csv_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(object): Path<String>,
+    Query(p): Query<MetaQueryParams>,
+    body: axum::body::Bytes,
+) -> impl IntoResponse {
+    let Some((singular, _)) = resolve_twenty_object(&object) else {
+        return (StatusCode::BAD_REQUEST, Json(json!({"error": "Unbekanntes Objekt"})));
+    };
+    let raw_str = String::from_utf8_lossy(&body).to_string();
+    let mut ws = resolve_workspace(&headers, p.workspace.as_deref());
+    let mut row_objs: Vec<Value> = Vec::new();
+
+    if let Ok(json_body) = serde_json::from_str::<Value>(&raw_str) {
+        if let Some(w) = json_body.get("workspace").and_then(|x| x.as_str()) {
+            ws = resolve_workspace(&headers, Some(w));
+        }
+        if let Some(arr) = json_body.get("rows").and_then(|x| x.as_array()) {
+            row_objs = arr.clone();
+        } else if let Some(csv_text) = json_body.get("csv").and_then(|x| x.as_str()) {
+            let parsed = parse_csv_lines(csv_text);
+            if parsed.len() >= 2 {
+                let hdr = &parsed[0];
+                for line in &parsed[1..] {
+                    let mut map = serde_json::Map::new();
+                    for (idx, key) in hdr.iter().enumerate() {
+                        if let Some(val) = line.get(idx) {
+                            if !key.is_empty() && !val.is_empty() {
+                                map.insert(key.clone(), Value::String(val.clone()));
+                            }
+                        }
+                    }
+                    row_objs.push(Value::Object(map));
+                }
+            }
+        }
+    } else {
+        let parsed = parse_csv_lines(&raw_str);
+        if parsed.len() >= 2 {
+            let hdr = &parsed[0];
+            for line in &parsed[1..] {
+                let mut map = serde_json::Map::new();
+                for (idx, key) in hdr.iter().enumerate() {
+                    if let Some(val) = line.get(idx) {
+                        if !key.is_empty() && !val.is_empty() {
+                            map.insert(key.clone(), Value::String(val.clone()));
+                        }
+                    }
+                }
+                row_objs.push(Value::Object(map));
+            }
+        }
+    }
+
+    let conn = state.db.lock_conn();
+    let mut imported = 0usize;
+    let mut errors = Vec::new();
+    for (idx, row) in row_objs.iter().enumerate() {
+        let res = match singular {
+            "company" => create_company_internal(&conn, &ws, row),
+            "person" => create_person_internal(&conn, &ws, row),
+            "opportunity" => create_opportunity_internal(&conn, &ws, row),
+            "note" => create_note_internal(&conn, &ws, row),
+            "task" => create_task_internal(&conn, &ws, row),
+            _ => continue,
+        };
+        match res {
+            Ok(_) => imported += 1,
+            Err(e) => errors.push(json!({"row": idx + 1, "error": e.to_string()})),
+        }
+    }
+
+    (
+        StatusCode::OK,
+        Json(json!({
+            "object": singular,
+            "workspace": ws,
+            "imported": imported,
+            "errors": errors
+        })),
+    )
 }

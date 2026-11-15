@@ -7,10 +7,13 @@ mod gobd;
 mod hubspot;
 mod mcp;
 mod models;
+mod n8n_cipher;
+mod n8n_engine;
+mod n8n_schema;
+mod n8n_vm;
+mod twenty;
 mod ui;
 mod ui_twenty_n8n;
-mod n8n_engine;
-mod twenty;
 mod zugferd;
 
 use axum::{
@@ -18,7 +21,7 @@ use axum::{
     http::{header, HeaderMap, HeaderValue, StatusCode},
     middleware::{self, Next},
     response::{Html, IntoResponse, Response},
-    routing::{get, patch, post},
+    routing::{delete, get, patch, post, put},
     Json, Router,
 };
 use chrono::{Duration as ChronoDuration, Utc};
@@ -227,16 +230,84 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/twenty/tasks", get(twenty::list_tasks_handler).post(twenty::create_task_handler))
         .route("/api/twenty/tasks/:id", patch(twenty::update_task_handler).delete(twenty::delete_task_handler))
         .route("/rest/tasks", get(twenty::list_tasks_handler).post(twenty::create_task_handler))
-        // Pure-Rust n8n Engine & Webhook Dispatcher
+        // Twenty Metadata Engine, Views, Favorites, Webhooks, API Keys & Bulk/CSV Operations
+        .route("/api/twenty/metadata/fields", post(twenty::create_metadata_field_handler))
+        .route("/api/twenty/metadata/fields/:id", delete(twenty::delete_metadata_field_handler))
+        .route("/api/twenty/views", get(twenty::list_views_handler).post(twenty::create_view_handler))
+        .route("/api/twenty/views/:id", put(twenty::update_view_handler).patch(twenty::update_view_handler).delete(twenty::delete_view_handler))
+        .route("/api/twenty/favorites", get(twenty::list_favorites_handler).post(twenty::create_favorite_handler))
+        .route("/api/twenty/favorites/:id", delete(twenty::delete_favorite_handler))
+        .route("/api/twenty/webhooks", get(twenty::list_webhooks_handler).post(twenty::create_webhook_handler))
+        .route("/api/twenty/webhooks/:id", delete(twenty::delete_webhook_handler))
+        .route("/api/twenty/api-keys", get(twenty::list_api_keys_handler).post(twenty::create_api_key_handler))
+        .route("/api/twenty/api-keys/:id", delete(twenty::delete_api_key_handler))
+        .route("/api/twenty/objects/:object/bulk-delete", post(twenty::bulk_delete_handler))
+        .route("/api/twenty/objects/:object/bulk-update", post(twenty::bulk_update_handler))
+        .route("/api/twenty/objects/:object/export-csv", get(twenty::export_csv_handler))
+        .route("/api/twenty/objects/:object/import-csv", post(twenty::import_csv_handler))
+        // Pure-Rust n8n Engine, QuickJS Expression Evaluator, Schemas, Credentials, Variables & Webhooks
+        .route("/types/nodes.json", get(n8n_engine::get_nodes_types_handler))
+        .route("/types/credentials.json", get(n8n_engine::get_credentials_types_handler))
+        .route("/rest/node-types", get(n8n_engine::get_nodes_types_handler))
+        .route("/api/n8n/eval-expression", post(n8n_engine::eval_expression_handler))
         .route("/api/n8n/workflows", get(n8n_engine::list_workflows_handler).post(n8n_engine::create_workflow_handler))
         .route("/api/n8n/workflows/:id", get(n8n_engine::get_workflow_handler).put(n8n_engine::update_workflow_handler).patch(n8n_engine::update_workflow_handler).delete(n8n_engine::delete_workflow_handler))
         .route("/api/n8n/workflows/:id/duplicate", post(n8n_engine::duplicate_workflow_handler))
         .route("/api/n8n/workflows/:id/toggle", post(n8n_engine::toggle_workflow_handler))
         .route("/api/n8n/workflows/:id/execute", post(n8n_engine::execute_workflow_handler))
         .route("/api/n8n/workflows/:id/execute-node", post(n8n_engine::execute_single_node_handler))
+        .route("/rest/workflows", get(n8n_engine::list_workflows_handler).post(n8n_engine::create_workflow_handler))
+        .route("/rest/workflows/:id", get(n8n_engine::get_workflow_handler).put(n8n_engine::update_workflow_handler).patch(n8n_engine::update_workflow_handler).delete(n8n_engine::delete_workflow_handler))
+        .route("/rest/workflows/:id/duplicate", post(n8n_engine::duplicate_workflow_handler))
+        .route("/rest/workflows/:id/toggle", post(n8n_engine::toggle_workflow_handler))
+        .route("/rest/workflows/:id/execute", post(n8n_engine::execute_workflow_handler))
+        .route("/rest/workflows/:id/execute-node", post(n8n_engine::execute_single_node_handler))
+        .route("/api/v1/workflows", get(n8n_engine::list_workflows_handler).post(n8n_engine::create_workflow_handler))
+        .route("/api/v1/workflows/:id", get(n8n_engine::get_workflow_handler).put(n8n_engine::update_workflow_handler).patch(n8n_engine::update_workflow_handler).delete(n8n_engine::delete_workflow_handler))
+        .route("/api/v1/workflows/:id/execute", post(n8n_engine::execute_workflow_handler))
         .route("/api/n8n/executions", get(n8n_engine::list_executions_handler))
+        .route("/api/n8n/executions/:id", get(n8n_engine::get_execution_handler))
+        .route("/api/n8n/executions/:id/retry", post(n8n_engine::retry_execution_handler))
+        .route("/rest/executions", get(n8n_engine::list_executions_handler))
+        .route("/rest/executions/:id", get(n8n_engine::get_execution_handler))
+        .route("/rest/executions/:id/retry", post(n8n_engine::retry_execution_handler))
+        .route("/api/v1/executions", get(n8n_engine::list_executions_handler))
+        .route("/api/v1/executions/:id", get(n8n_engine::get_execution_handler))
+        .route("/api/v1/executions/:id/retry", post(n8n_engine::retry_execution_handler))
+        .route("/api/n8n/credentials", get(n8n_engine::list_credentials_handler).post(n8n_engine::create_credential_handler))
+        .route("/api/n8n/credentials/test", post(n8n_engine::test_credential_handler))
+        .route("/api/n8n/credentials/:id", put(n8n_engine::update_credential_handler).patch(n8n_engine::update_credential_handler).delete(n8n_engine::delete_credential_handler))
+        .route("/rest/credentials", get(n8n_engine::list_credentials_handler).post(n8n_engine::create_credential_handler))
+        .route("/rest/credentials/test", post(n8n_engine::test_credential_handler))
+        .route("/rest/credentials/:id", put(n8n_engine::update_credential_handler).patch(n8n_engine::update_credential_handler).delete(n8n_engine::delete_credential_handler))
+        .route("/api/v1/credentials", get(n8n_engine::list_credentials_handler).post(n8n_engine::create_credential_handler))
+        .route("/api/v1/credentials/:id", put(n8n_engine::update_credential_handler).patch(n8n_engine::update_credential_handler).delete(n8n_engine::delete_credential_handler))
+        .route("/api/n8n/variables", get(n8n_engine::list_variables_handler).post(n8n_engine::create_variable_handler))
+        .route("/api/n8n/variables/:id", put(n8n_engine::update_variable_handler).patch(n8n_engine::update_variable_handler).delete(n8n_engine::delete_variable_handler))
+        .route("/rest/variables", get(n8n_engine::list_variables_handler).post(n8n_engine::create_variable_handler))
+        .route("/rest/variables/:id", put(n8n_engine::update_variable_handler).patch(n8n_engine::update_variable_handler).delete(n8n_engine::delete_variable_handler))
+        .route("/api/v1/variables", get(n8n_engine::list_variables_handler).post(n8n_engine::create_variable_handler))
+        .route("/api/v1/variables/:id", put(n8n_engine::update_variable_handler).patch(n8n_engine::update_variable_handler).delete(n8n_engine::delete_variable_handler))
+        .route("/api/n8n/tags", get(n8n_engine::list_tags_handler).post(n8n_engine::create_tag_handler))
+        .route("/api/n8n/tags/:id", delete(n8n_engine::delete_tag_handler))
+        .route("/rest/tags", get(n8n_engine::list_tags_handler).post(n8n_engine::create_tag_handler))
+        .route("/rest/tags/:id", delete(n8n_engine::delete_tag_handler))
+        .route("/api/v1/tags", get(n8n_engine::list_tags_handler).post(n8n_engine::create_tag_handler))
+        .route("/api/v1/tags/:id", delete(n8n_engine::delete_tag_handler))
+        .route("/api/n8n/data-tables", get(n8n_engine::list_data_tables_handler).post(n8n_engine::create_data_table_handler))
+        .route("/api/n8n/data-tables/:id", delete(n8n_engine::delete_data_table_handler))
+        .route("/api/n8n/data-tables/:id/rows", get(n8n_engine::list_data_table_rows_handler).post(n8n_engine::insert_data_table_row_handler))
+        .route("/api/n8n/data-tables/:id/rows/:row_id", delete(n8n_engine::delete_data_table_row_handler))
+        .route("/rest/data-tables", get(n8n_engine::list_data_tables_handler).post(n8n_engine::create_data_table_handler))
+        .route("/rest/data-tables/:id", delete(n8n_engine::delete_data_table_handler))
+        .route("/rest/data-tables/:id/rows", get(n8n_engine::list_data_table_rows_handler).post(n8n_engine::insert_data_table_row_handler))
+        .route("/rest/data-tables/:id/rows/:row_id", delete(n8n_engine::delete_data_table_row_handler))
         .route("/api/n8n/sync-sqlite", post(n8n_engine::sync_sqlite_handler))
-        .route("/webhook-rust/*path", post(n8n_engine::webhook_dispatch_handler).get(n8n_engine::webhook_dispatch_handler))
+        .route("/webhook-rust/*path", get(n8n_engine::webhook_dispatch_handler).post(n8n_engine::webhook_dispatch_handler).put(n8n_engine::webhook_dispatch_handler).patch(n8n_engine::webhook_dispatch_handler).delete(n8n_engine::webhook_dispatch_handler))
+        .route("/webhook/*path", get(n8n_engine::webhook_dispatch_handler).post(n8n_engine::webhook_dispatch_handler).put(n8n_engine::webhook_dispatch_handler).patch(n8n_engine::webhook_dispatch_handler).delete(n8n_engine::webhook_dispatch_handler))
+        .route("/webhook-test/*path", get(n8n_engine::webhook_dispatch_handler).post(n8n_engine::webhook_dispatch_handler).put(n8n_engine::webhook_dispatch_handler).patch(n8n_engine::webhook_dispatch_handler).delete(n8n_engine::webhook_dispatch_handler))
+        .route("/webhook-waiting/:id", get(n8n_engine::webhook_waiting_handler).post(n8n_engine::webhook_waiting_handler))
+        .route("/form/*path", get(n8n_engine::form_trigger_get_handler).post(n8n_engine::form_trigger_post_handler))
         .route("/health", get(health_handler))
         .route("/manifest.json", get(pwa_manifest_handler))
         .route("/sw.js", get(pwa_service_worker_handler))
