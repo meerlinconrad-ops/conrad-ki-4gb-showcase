@@ -30,7 +30,7 @@ pub struct EmailPayload<'a> {
     pub x_mailer: Option<&'a str>,
 }
 
-fn tls_connector() -> TlsConnector {
+pub(crate) fn tls_connector() -> TlsConnector {
     static CFG: OnceLock<Arc<ClientConfig>> = OnceLock::new();
     let cfg = CFG.get_or_init(|| {
         let mut roots = RootCertStore::empty();
