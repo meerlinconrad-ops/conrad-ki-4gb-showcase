@@ -53,8 +53,9 @@ Typische KI-Setups verschwenden Gigabyte-weise RAM durch unkomprimierte KV-Cache
 
 ---
 
-## 4. Enthaltene Blueprint-Dateien (im `.zip`-Paket)
+## 4. Enthaltene Blueprint- & Service-Dateien
 
+- `conrad-os/` — **Kompletter 1:1 Pure-Rust-Service (`conrad-crm`)**: ersetzt Twenty CRM (`/twenty` + `/graphql`), n8n Workflow Engine & Editor (`/n8n` + `/webhook-rust/*`, 29 Node-Typen) sowie das `/showcase` Live-Dashboard in einer einzelnen statischen Binary (~`21,3 MB` VmRSS RAM, SQLite WAL, lokale Tiny-Models `conrad-n8n-agent:0.6b`, `conrad-gemma:270m`, `conrad-lfm2:1.2b`, inkl. `tests/verify_1to1.py`)
 - `4GB-SHOWCASE-BLUEPRINT.md` — Diese vollständige Dokumentation
 - `relays-rs/` — Bereinigter Pure-Rust-Quellcode (`Cargo.toml`, `main.rs`, `relays.rs`, `imap.rs`, `smtp.rs`, `util.rs`, inkl. 14 Unit-Tests) ohne Zugangsdaten
 - `workflows/` — Drei gehärtete, direkt in n8n importierbare Workflows:

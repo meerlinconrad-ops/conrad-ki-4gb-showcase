@@ -1,0 +1,5246 @@
+pub fn render_app_html() -> &'static str {
+    r##"<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Conrad OS">
+    <link rel="manifest" href="/manifest.json">
+    <title>Conrad OS — AI-First Enterprise Operating System (Pure Rust)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ── Conrad OS Unified Design System (100% Pure Rust, Single-DB, Zero External Dependencies) ── */
+        :root {
+            --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+
+            /* Light Theme (Twenty CRM Clean Slate) */
+            --bg-app: #f8fafc;
+            --bg-sidebar: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-hover: #f1f5f9;
+            --bg-active: #e2e8f0;
+
+            --border-color: #e2e8f0;
+            --border-strong: #cbd5e1;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-soft: #eff6ff;
+            --accent-border: #bfdbfe;
+
+            /* Semantic Badges (HubSpot Style) */
+            --status-green-bg: #dcfce7;
+            --status-green-fg: #15803d;
+            --status-amber-bg: #fef3c7;
+            --status-amber-fg: #b45309;
+            --status-blue-bg: #dbeafe;
+            --status-blue-fg: #1d4ed8;
+            --status-purple-bg: #f3e8ff;
+            --status-purple-fg: #7e22ce;
+            --status-red-bg: #fee2e2;
+            --status-red-fg: #b91c1c;
+            --status-neutral-bg: #f1f5f9;
+            --status-neutral-fg: #475569;
+
+            --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.06);
+            --shadow-drawer: -8px 0 30px rgba(15, 23, 42, 0.12);
+
+            --sidebar-width: 256px;
+        }
+
+        [data-theme="dark"] {
+            --bg-app: #090d16;
+            --bg-sidebar: #0f172a;
+            --bg-surface: #111827;
+            --bg-subtle: #1e293b;
+            --bg-hover: #1e293b;
+            --bg-active: #334155;
+
+            --border-color: #1e293b;
+            --border-strong: #334155;
+
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --accent-soft: rgba(59, 130, 246, 0.15);
+            --accent-border: rgba(59, 130, 246, 0.35);
+
+            --status-green-bg: rgba(21, 128, 61, 0.25);
+            --status-green-fg: #4ade80;
+            --status-amber-bg: rgba(180, 83, 9, 0.25);
+            --status-amber-fg: #fbbf24;
+            --status-blue-bg: rgba(29, 78, 216, 0.25);
+            --status-blue-fg: #60a5fa;
+            --status-purple-bg: rgba(126, 34, 206, 0.25);
+            --status-purple-fg: #c084fc;
+            --status-red-bg: rgba(185, 28, 28, 0.25);
+            --status-red-fg: #f87171;
+            --status-neutral-bg: #1e293b;
+            --status-neutral-fg: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            line-height: 1.45;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        svg.icon {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        /* ── Twenty CRM Sidebar ── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 12px 10px;
+            flex-shrink: 0;
+            z-index: 25;
+            user-select: none;
+        }
+
+        .workspace-switcher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .workspace-switcher:hover {
+            background: var(--bg-hover);
+        }
+
+        .workspace-logo {
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
+            background: var(--text-primary);
+            color: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .workspace-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cmdk-trigger-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 6px 10px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .cmdk-trigger-btn:hover {
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+        }
+
+        .kbd-tag {
+            margin-left: auto;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        /* Segmented Role Switcher */
+        .mode-segmented-control {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--bg-active);
+            padding: 2px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+        }
+
+        .mode-segmented-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .mode-segmented-btn.active {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .nav-group-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 12px 10px 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nav-item-btn {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            width: 100%;
+            padding: 6.5px 10px;
+            border: none;
+            border-left: 2px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-item-btn > span:first-of-type {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .nav-item-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item-btn.active {
+            background: var(--bg-surface);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .nav-count {
+            margin-left: auto;
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            padding: 1px 5px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 8px 10px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .sidebar-footer:hover {
+            background: var(--bg-hover);
+        }
+
+        .avatar-sm {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        /* ── Main Content Shell ── */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg-surface);
+        }
+
+        /* Breadcrumb & Action Topbar */
+        .topbar {
+            height: 48px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            background: var(--bg-surface);
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .breadcrumb-root {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .breadcrumb-sep {
+            color: var(--border-strong);
+        }
+
+        .topbar-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* View Filter Bar (Twenty Style Subheader) */
+        .sub-toolbar {
+            height: 42px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+        }
+
+        .filter-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-pill-btn {
+            padding: 4px 10px;
+            border-radius: 5px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .filter-pill-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .filter-pill-btn.active {
+            background: var(--bg-surface);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-xs);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 30px;
+            padding: 0 11px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-xs);
+            transition: all 0.12s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-strong);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        /* Content Scroll Area */
+        .view-content-area {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg-app);
+        }
+
+        .view-padded {
+            padding: 20px 24px 60px;
+            max-width: 1400px;
+        }
+
+        /* KPI Strip (Enterprise Metric Row) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 16px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .kpi-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Twenty CRM Spreadsheet Data Grid ── */
+        .sheet-wrapper {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .card-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-xs);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .card-panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+        }
+
+        .card-panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        table.data-grid {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        table.data-grid th {
+            height: 34px;
+            padding: 0 14px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        table.data-grid th:last-child {
+            border-right: none;
+        }
+
+        table.data-grid td {
+            height: 38px;
+            padding: 0 14px;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            color: var(--text-primary);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        table.data-grid td:last-child {
+            border-right: none;
+        }
+
+        table.data-grid tbody tr {
+            cursor: pointer;
+            transition: background-color 0.08s ease;
+        }
+
+        table.data-grid tbody tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .cell-entity {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-weight: 500;
+        }
+
+        .entity-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid var(--accent-border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .mono-val {
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        /* Status Pills */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .badge.success { background: var(--status-green-bg); color: var(--status-green-fg); }
+        .badge.warning { background: var(--status-amber-bg); color: var(--status-amber-fg); }
+        .badge.info    { background: var(--status-blue-bg); color: var(--status-blue-fg); }
+        .badge.purple  { background: var(--status-purple-bg); color: var(--status-purple-fg); }
+        .badge.danger  { background: var(--status-red-bg); color: var(--status-red-fg); }
+        .badge.neutral { background: var(--status-neutral-bg); color: var(--status-neutral-fg); }
+
+        .tag-chip {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-right: 4px;
+        }
+
+        /* ── HubSpot / Twenty Kanban Pipeline Board ── */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(260px, 1fr));
+            gap: 12px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            height: calc(100vh - 92px);
+            align-items: start;
+        }
+
+        .kanban-column {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            max-height: 100%;
+            padding: 10px;
+        }
+
+        .kanban-col-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 4px 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .kanban-stage-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kanban-stage-sum {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .kanban-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 11px 12px;
+            margin-bottom: 8px;
+            cursor: grab;
+            box-shadow: var(--shadow-xs);
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .kanban-card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .kanban-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .kanban-card-company {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .kanban-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            font-size: 11px;
+        }
+
+        /* ── HubSpot / Twenty Record 360° Slide-Over Inspector ── */
+        .record-drawer-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.25);
+            z-index: 60;
+            justify-content: flex-end;
+        }
+
+        .record-drawer-backdrop.open {
+            display: flex;
+        }
+
+        .record-drawer {
+            width: min(94vw, 680px);
+            height: 100vh;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border-color);
+            box-shadow: var(--shadow-drawer);
+            display: flex;
+            flex-direction: column;
+            animation: slideLeft 0.18s ease-out;
+        }
+
+        @keyframes slideLeft {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .drawer-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+        }
+
+        .drawer-entity-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .drawer-avatar-lg {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid var(--accent-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .drawer-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 230px 1fr;
+            overflow: hidden;
+        }
+
+        @media (max-width: 680px) {
+            .drawer-body { grid-template-columns: 1fr; overflow-y: auto; }
+        }
+
+        .drawer-props-pane {
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .prop-row {
+            margin-bottom: 12px;
+        }
+
+        .prop-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .prop-input {
+            width: 100%;
+            padding: 5px 8px;
+            font-size: 12px;
+            font-family: inherit;
+            color: var(--text-primary);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .prop-input:hover, .prop-input:focus {
+            background: var(--bg-surface);
+            border-color: var(--border-strong);
+            outline: none;
+        }
+
+        .drawer-activity-pane {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-surface);
+        }
+
+        .composer-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            padding: 0 16px;
+            gap: 16px;
+        }
+
+        .composer-tab {
+            padding: 10px 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .composer-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .composer-box {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-surface);
+        }
+
+        .timeline-feed {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-app);
+        }
+
+        .timeline-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 12px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .timeline-item-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        /* ── AI Copilot Side-Drawer ── */
+        .copilot-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            height: 100vh;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border-color);
+            box-shadow: var(--shadow-drawer);
+            transition: right 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            z-index: 70;
+        }
+
+        .copilot-panel.open {
+            right: 0;
+        }
+
+        .copilot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--bg-app);
+        }
+
+        .chat-bubble {
+            max-width: 88%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            line-height: 1.45;
+        }
+
+        .chat-bubble.user {
+            background: var(--accent);
+            color: #fff;
+            align-self: flex-end;
+        }
+
+        .chat-bubble.ai {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            align-self: flex-start;
+        }
+
+        /* ── Cmd+K Command Palette Modal (Linear / Twenty Style) ── */
+        .cmdk-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 12vh;
+        }
+
+        .cmdk-modal {
+            width: min(92vw, 560px);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .cmdk-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cmdk-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+        }
+
+        /* Standard Modals */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            z-index: 90;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            width: min(92vw, 440px);
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-soft);
+        }
+
+        .dashboard-split-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 16px;
+        }
+
+        /* ── Odoo 9-Dot App Launcher & Bento Matrix ── */
+        .app-launcher-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .app-launcher-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .app-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .app-matrix-tile {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            background: var(--bg-subtle);
+            cursor: pointer;
+            transition: all 0.12s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .app-matrix-tile:hover {
+            border-color: var(--accent);
+            background: var(--bg-surface);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ── AI-First Omni Bar in Topbar ── */
+        .ai-omni-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0 8px;
+            height: 28px;
+            width: 280px;
+            transition: border-color 0.12s ease, width 0.15s ease;
+        }
+        .ai-omni-bar:focus-within {
+            border-color: var(--accent);
+            background: var(--bg-surface);
+            width: 320px;
+        }
+        .ai-omni-input {
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-family: inherit;
+            width: 100%;
+            outline: none;
+        }
+
+        /* ── DeepSeek Harness Plugin Store Cards ── */
+        .plugin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 14px;
+        }
+        .plugin-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: var(--shadow-xs);
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+        .plugin-card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-sm);
+        }
+        .plugin-layer-pill {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        /* ── Executive Analytics, Funnel & Print Styles ── */
+        .kpi-progress-track {
+            width: 100%;
+            height: 5px;
+            background: var(--bg-subtle);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .kpi-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 99px;
+            transition: width 0.35s ease;
+        }
+        .analytics-row-grid {
+            display: grid;
+            grid-template-columns: 1.45fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .cockpit-tri-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr 1fr;
+            gap: 16px;
+        }
+        .funnel-stage-row {
+            margin-bottom: 11px;
+        }
+        .funnel-stage-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .wf-pipeline-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 14px 20px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .wf-node-box {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .dyn-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+            padding: 16px 20px;
+        }
+        table.data-grid td.wrap-cell {
+            white-space: normal;
+            max-width: 280px;
+            line-height: 1.35;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+        .week-cal-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            padding: 14px 16px;
+        }
+        .week-cal-col {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 190px;
+        }
+        .week-cal-day-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .week-cal-event {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent);
+            border-radius: 6px;
+            padding: 7px 9px;
+            font-size: 11px;
+            box-shadow: var(--shadow-xs);
+            cursor: pointer;
+            transition: transform 0.1s ease, border-color 0.1s ease;
+        }
+        .week-cal-event:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+        .copilot-chips-bar {
+            padding: 8px 12px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .copilot-chip {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 99px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .copilot-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-subtle);
+        }
+
+        @media (max-width: 1100px) {
+            .analytics-row-grid, .cockpit-tri-grid, .wf-pipeline-strip, .week-cal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Harness Telemetry Status Footer ── */
+        .harness-footer {
+            height: 26px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-sidebar);
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-split-grid {
+                grid-template-columns: 1fr;
+            }
+            .ai-omni-bar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #mobileMenuBtn { display: inline-flex !important; }
+            .breadcrumb-root, .breadcrumb-sep, #topbarModePill, #btnBookingTopbar, #topbarActionBtn, .harness-footer {
+                display: none !important;
+            }
+            .topbar {
+                padding: 0 12px;
+            }
+            .sub-toolbar {
+                flex-direction: column;
+                height: auto;
+                padding: 10px 12px;
+                gap: 8px;
+                align-items: stretch;
+            }
+            .view-padded {
+                padding: 14px 12px 50px;
+            }
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                bottom: 0;
+                transition: left 0.2s ease;
+                box-shadow: var(--shadow-lg);
+            }
+            .sidebar.mobile-open { left: 0; }
+            .copilot-panel { width: 100% !important; right: -100% !important; }
+            .copilot-panel.open { right: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Twenty CRM Left Sidebar ── -->
+    <aside class="sidebar" id="appSidebar">
+        <div class="workspace-switcher" onclick="openLoginModal()" title="Workspace &amp; Rolle wechseln">
+            <div class="workspace-logo">C</div>
+            <span class="workspace-name" id="ui-brand-name">Conrad KI</span>
+            <span style="font-size:10px; color:var(--text-muted);">▾</span>
+        </div>
+
+        <button class="cmdk-trigger-btn" onclick="openCmdKModal()">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Suche &amp; Befehle</span>
+            <span class="kbd-tag">⌘K</span>
+        </button>
+
+        <div class="mode-segmented-control" role="tablist">
+            <button class="mode-segmented-btn active" id="btnModeUser" onclick="switchAppMode('user')">Operativ</button>
+            <button class="mode-segmented-btn" id="btnModeAdmin" onclick="switchAppMode('admin')">Architekt</button>
+        </div>
+
+        <div class="nav-group-title">CRM &amp; Vertrieb</div>
+        <ul class="nav-list">
+            <li>
+                <button class="nav-item-btn active" id="nav-btn-dashboard" onclick="switchView('dashboard')">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span>Cockpit &amp; Aufgaben</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-contacts" onclick="switchView('contacts')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Personen &amp; Firmen</span>
+                    <span class="nav-count" id="badge-contacts-count">0</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-deals" onclick="switchView('deals')">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                    <span>Deals Pipeline</span>
+                    <span class="nav-count" id="badge-deals-count">0</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-calendar" onclick="switchView('calendar')">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Kalender &amp; Termine</span>
+                    <span class="nav-count" id="badge-bookings-count">2</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-aistudio" onclick="switchView('aistudio')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span>KI Studio (Open WebUI)</span>
+                    <span class="nav-count" style="background:#10b98122; color:#10b981;">Lokal</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="nav-group-title">ERP &amp; Finanzen</div>
+        <ul class="nav-list">
+            <li>
+                <button class="nav-item-btn" id="nav-btn-invoices" onclick="switchView('invoices')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>Faktura (ZUGFeRD)</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-retainers" onclick="switchView('retainers')">
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span>Retainer &amp; Abos</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-marketing" onclick="switchView('marketing')">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>Marketing Attribution</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-workflows" onclick="switchView('workflows')">
+                    <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span>Workflows &amp; Trigger</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="nav-group-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Fachmodule</span>
+            <span style="cursor:pointer; color:var(--accent); font-size:10px;" onclick="openNewPluginModal()" title="Neues Modul konstruieren">+ Neu</span>
+        </div>
+        <ul class="nav-list" id="sidebarDynamicPluginsList"></ul>
+
+        <div class="nav-group-title">Tresor &amp; System</div>
+        <ul class="nav-list">
+            <li>
+                <button class="nav-item-btn" id="nav-btn-plugins" onclick="switchView('plugins')">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                    <span>Modul-Architektur</span>
+                    <span class="nav-count" id="badge-plugins-count">10</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-dms" onclick="switchView('dms')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>DMS &amp; GoBD Tresor</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" id="nav-btn-settings" onclick="switchView('settings')">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span>Datenmodell &amp; System</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer" onclick="openLoginModal()">
+            <div class="avatar-sm" id="ui-user-avatar">MC</div>
+            <div style="overflow:hidden; flex:1;">
+                <div style="font-weight:600; font-size:12px;" id="ui-user-name">Merlin Conrad</div>
+                <div style="font-size:11px; color:var(--text-muted);" id="ui-user-role">CEO · SSO Aktiv</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── Main Workspace ── -->
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="btn" style="display:none; padding:0 8px;" id="mobileMenuBtn" onclick="toggleMobileSidebar()">☰</button>
+                <button class="app-launcher-btn" id="odooAppLauncherBtn" onclick="openAppMatrixModal()" title="Conrad OS App-Matrix (Alle Module)">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="5" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="19" cy="5" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="19" r="1.5"/><circle cx="12" cy="19" r="1.5"/><circle cx="19" cy="19" r="1.5"/></svg>
+                </button>
+                <span class="breadcrumb-root">Conrad OS</span>
+                <span class="breadcrumb-sep">/</span>
+                <span class="topbar-title" id="currentViewTitle">Cockpit &amp; Aufgaben</span>
+                <span class="badge info" id="topbarModePill" style="margin-left:8px;">
+                    <span class="badge-dot"></span>
+                    <span id="topbarModeLabel">Operativ</span>
+                </span>
+            </div>
+
+            <div class="topbar-right">
+                <div class="ai-omni-bar" id="aiOmniBar">
+                    <span style="color:var(--accent); font-weight:700; font-size:11px;">AI</span>
+                    <input type="text" id="aiOmniInput" class="ai-omni-input" placeholder="KI-Befehl oder „Baue Modul ...“ (↵)" onkeydown="if(event.key==='Enter') executeOmniBarCommand()">
+                </div>
+                <button class="btn" id="btnBookingTopbar" onclick="switchView('calendar')" title="Integrierter Kalender &amp; Terminbuchung">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Kalender</span>
+                </button>
+                <button class="btn" onclick="toggleTheme()" title="Erscheinungsbild umschalten">
+                    <span id="themeToggleIcon">◐</span>
+                </button>
+                <button class="btn btn-apple-ai" onclick="toggleCopilot()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span id="copilotBtnLabel">KI-Assistent</span>
+                </button>
+                <button class="btn btn-primary" id="topbarActionBtn" onclick="openCreateModal()">
+                    <span>+ Datensatz</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="view-content-area">
+
+            <!-- VIEW 1: EXECUTIVE COMMAND COCKPIT & ANALYTICS -->
+            <section id="view-dashboard" class="view-padded">
+                <!-- Row 1: Primary KPI Strip with Progress & Target Telemetry -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Pipeline-Volumen</span><span class="badge info">CRM</span></div>
+                        <div class="kpi-value" id="kpi-pipeline">0,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" id="kpi-bar-pipeline" style="width:78%;"></div></div>
+                        <div class="kpi-meta" style="display:flex; justify-content:space-between; margin-top:6px;">
+                            <span>Aktive Verkaufschancen</span>
+                            <strong style="color:var(--accent);" id="kpi-deals-meta">6 Deals</strong>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Realisierter Umsatz</span><span class="badge success">GoBD</span></div>
+                        <div class="kpi-value" id="kpi-revenue" style="color:var(--status-green-fg);">0,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:84%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="display:flex; justify-content:space-between; margin-top:6px;">
+                            <span>Festgeschrieben &amp; bezahlt</span>
+                            <strong style="color:var(--status-green-fg);">SHA-256 Verified</strong>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Monatlicher MRR (Abos)</span><span class="badge purple">Ziel: 1.500 €</span></div>
+                        <div class="kpi-value" id="kpi-mrr-val">267,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" id="kpi-bar-mrr" style="width:54%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="display:flex; justify-content:space-between; margin-top:6px;">
+                            <span>Offene Faktura: <strong id="kpi-pending" style="color:var(--status-amber-fg);">0,00 €</strong></span>
+                            <span id="kpi-mrr-target-pct">53% v. Min-Ziel</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Immobilien &amp; Mandanten</span><span class="badge neutral">Assets</span></div>
+                        <div class="kpi-value" style="display:flex; align-items:baseline; gap:8px;">
+                            <span id="kpi-contacts">6</span>
+                            <span style="font-size:13px; color:var(--status-green-fg); font-weight:600;">+53,00 €/Mo. CF</span>
+                        </div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:65%; background:#0d9488;"></div></div>
+                        <div class="kpi-meta" style="display:flex; justify-content:space-between; margin-top:6px;">
+                            <span>Halmhuberstr. 10 (Vermietet)</span>
+                            <span style="cursor:pointer; color:var(--accent); font-weight:600;" onclick="openPluginWorkspace('plugin.realestate')">Portfolio →</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Visual Revenue/MRR Trajectory Chart + Pipeline Conversion Funnel -->
+                <div class="analytics-row-grid">
+                    <div class="card-panel" style="margin-bottom:0;">
+                        <div class="card-panel-header">
+                            <div>
+                                <span class="card-panel-title">Umsatz- &amp; MRR-Wachstumskurve (2026)</span>
+                                <span style="font-size:11px; color:var(--text-muted); margin-left:8px;">Retainer-MRR + Setup-Volumen vs. Zielkorridor</span>
+                            </div>
+                            <span class="badge success">ROAS 6.9x</span>
+                        </div>
+                        <div style="padding:16px 18px 12px;" id="dashboardRevenueChartBox">
+                            <svg viewBox="0 0 600 165" style="width:100%; height:160px; overflow:visible;">
+                                <defs>
+                                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#2563eb" stop-opacity="0.28"/>
+                                        <stop offset="100%" stop-color="#2563eb" stop-opacity="0.0"/>
+                                    </linearGradient>
+                                </defs>
+                                <!-- Horizontal Grid Lines -->
+                                <line x1="36" y1="20" x2="585" y2="20" stroke="var(--border-color)" stroke-dasharray="3,3"/>
+                                <line x1="36" y1="65" x2="585" y2="65" stroke="var(--border-color)" stroke-dasharray="3,3"/>
+                                <line x1="36" y1="110" x2="585" y2="110" stroke="var(--border-color)" stroke-dasharray="3,3"/>
+                                <line x1="36" y1="142" x2="585" y2="142" stroke="var(--border-color)"/>
+                                <text x="0" y="24" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">3.5k€</text>
+                                <text x="0" y="69" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">2.0k€</text>
+                                <text x="0" y="114" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">1.0k€</text>
+                                <!-- Area & Line -->
+                                <path d="M 50 132 L 135 122 L 220 108 L 305 94 L 390 72 L 475 48 L 565 26 L 565 142 L 50 142 Z" fill="url(#revGrad)"/>
+                                <path d="M 50 132 L 135 122 L 220 108 L 305 94 L 390 72 L 475 48 L 565 26" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+                                <!-- Data Points -->
+                                <circle cx="50" cy="132" r="3.5" fill="var(--bg-surface)" stroke="var(--accent)" stroke-width="2"/>
+                                <circle cx="135" cy="122" r="3.5" fill="var(--bg-surface)" stroke="var(--accent)" stroke-width="2"/>
+                                <circle cx="220" cy="108" r="3.5" fill="var(--bg-surface)" stroke="var(--accent)" stroke-width="2"/>
+                                <circle cx="305" cy="94" r="3.5" fill="var(--bg-surface)" stroke="var(--accent)" stroke-width="2"/>
+                                <circle cx="390" cy="72" r="3.5" fill="var(--bg-surface)" stroke="var(--accent)" stroke-width="2"/>
+                                <circle cx="475" cy="48" r="3.5" fill="var(--bg-surface)" stroke="var(--accent)" stroke-width="2"/>
+                                <circle cx="565" cy="26" r="4.5" fill="var(--accent)"/>
+                                <!-- X Axis Labels -->
+                                <text x="40" y="158" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">Mai</text>
+                                <text x="125" y="158" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">Jun</text>
+                                <text x="210" y="158" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">Jul</text>
+                                <text x="295" y="158" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">Aug</text>
+                                <text x="380" y="158" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">Sep</text>
+                                <text x="465" y="158" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono">Okt</text>
+                                <text x="550" y="158" fill="var(--text-primary)" font-weight="700" font-size="10" font-family="JetBrains Mono">Nov</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="card-panel" style="margin-bottom:0;">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Vertriebs-Pipeline Funnel</span>
+                            <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="switchView('deals')">Kanban Board →</button>
+                        </div>
+                        <div style="padding:14px 16px;" id="dashboardPipelineFunnel"></div>
+                    </div>
+                </div>
+
+                <!-- Row 3: 3-Column Operational Command Center -->
+                <div class="cockpit-tri-grid">
+                    <div class="card-panel" style="margin-bottom:0;">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Aktive Mandate &amp; Kontakte</span>
+                            <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="switchView('contacts')">Alle öffnen →</button>
+                        </div>
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Unternehmen</th>
+                                    <th>Phase</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardRecentContacts"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="card-panel" style="margin-bottom:0;">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Fällige Aufgaben (Workflows)</span>
+                            <span class="badge warning" id="tasksCountBadge">0 offen</span>
+                        </div>
+                        <div id="dashboardTasksList" style="padding:12px 14px; display:flex; flex-direction:column; gap:8px;"></div>
+                    </div>
+
+                    <div class="card-panel" style="margin-bottom:0;">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Nächste Termine &amp; Kalender</span>
+                            <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="switchView('calendar')">Kalender →</button>
+                        </div>
+                        <div id="dashboardUpcomingBookings" style="padding:12px 14px; display:flex; flex-direction:column; gap:8px;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: KONTAKTE & UNTERNEHMEN (Twenty CRM / Attio Executive View) -->
+            <section id="view-contacts" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Gesamte Mandate &amp; Kontakte</span><span class="badge info">CRM</span></div>
+                        <div class="kpi-value" id="c-kpi-total">6</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:85%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Rhein-Neckar KMU &amp; Immobilien</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Aktive Bestandskunden</span><span class="badge success">Retainer</span></div>
+                        <div class="kpi-value" id="c-kpi-customers" style="color:var(--status-green-fg);">3</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:60%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Laufende KI-Systembetreuung</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Qualifizierte Pipeline</span><span class="badge purple">Sales</span></div>
+                        <div class="kpi-value" id="c-kpi-qualified">2</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:72%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Abschlusswahrscheinlichkeit &gt; 65%</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Omnichannel-SLA</span><span class="badge neutral">WhatsApp / Mail</span></div>
+                        <div class="kpi-value">&lt; 90 Sek.</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:96%; background:#0d9488;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">100 % KI-Vorqualifizierung</div>
+                    </div>
+                </div>
+
+                <div class="card-panel">
+                    <div class="card-panel-header" style="flex-wrap:wrap; gap:10px;">
+                        <div class="filter-pills">
+                            <button class="filter-pill-btn active" id="flt-all" onclick="setContactStatusFilter('all')">Alle Datensätze</button>
+                            <button class="filter-pill-btn" id="flt-lead" onclick="setContactStatusFilter('lead')">Leads</button>
+                            <button class="filter-pill-btn" id="flt-qualified" onclick="setContactStatusFilter('qualified')">Qualifiziert</button>
+                            <button class="filter-pill-btn" id="flt-customer" onclick="setContactStatusFilter('customer')">Bestandskunden</button>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="text" id="contactSearchInput" class="form-input" style="height:28px; width:240px; font-size:12px;" placeholder="Tabelle filtern (Name, Firma, E-Mail)..." oninput="filterContactsList()">
+                            <button class="btn" onclick="exportContactsCsv()">↓ CSV Export</button>
+                            <button class="btn btn-primary" onclick="openNewContactModal()">+ Neuer Kontakt</button>
+                        </div>
+                    </div>
+                    <div class="sheet-wrapper">
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th style="width:220px;">Name</th>
+                                    <th style="width:200px;">Unternehmen</th>
+                                    <th style="width:210px;">E-Mail &amp; Direktkanal</th>
+                                    <th style="width:140px;">Telefon</th>
+                                    <th style="width:120px;">Lifecycle Phase</th>
+                                    <th style="width:120px;">KI-Health-Score</th>
+                                    <th>Segment / Tags</th>
+                                    <th style="width:120px;">360°-Akte</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactsFullTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                    <div class="card-panel" style="margin-bottom:0; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="font-size:13px; font-weight:700;">Zielgruppen-Cluster Rhein-Neckar</span>
+                            <span class="badge info">Fokus KMU</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; font-size:12px;">
+                            <div style="padding:10px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:6px;">
+                                <div style="color:var(--text-muted); font-size:11px;">Handwerk &amp; Technik</div>
+                                <div style="font-weight:700; font-size:15px; margin-top:2px;">34 %</div>
+                                <div style="font-size:11px; color:var(--status-green-fg);">WhatsApp-Triage</div>
+                            </div>
+                            <div style="padding:10px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:6px;">
+                                <div style="color:var(--text-muted); font-size:11px;">Praxen &amp; Gesundheit</div>
+                                <div style="font-weight:700; font-size:15px; margin-top:2px;">33 %</div>
+                                <div style="font-size:11px; color:var(--accent);">Recall &amp; Telefon-KI</div>
+                            </div>
+                            <div style="padding:10px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:6px;">
+                                <div style="color:var(--text-muted); font-size:11px;">Handel &amp; Logistik</div>
+                                <div style="font-weight:700; font-size:15px; margin-top:2px;">33 %</div>
+                                <div style="font-size:11px; color:#7c3aed;">Beleg-OCR &amp; DMS</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-panel" style="margin-bottom:0; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="font-size:13px; font-weight:700;">DSGVO &amp; Kommunikations-Guardrails</span>
+                            <span class="badge success">Aktiv</span>
+                        </div>
+                        <div style="font-size:12px; color:var(--text-secondary); line-height:1.55;">
+                            • <strong>Entwurfs-Pflicht:</strong> Ausgehende E-Mails aus Workflows und KI-Agenten werden niemals unkontrolliert versendet, sondern als <code>draft</code> zur Freigabe in der 360°-Timeline abgelegt.<br>
+                            • <strong>100 % Lokale Verarbeitung:</strong> Sprach- und Textanalyse über lokalen AI-Stack (MacBook M1 Max 64 GB / Ollama) ohne Drittlandtransfer.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: DEALS PIPELINE (HubSpot / Twenty Kanban + Forecast Telemetry) -->
+            <section id="view-deals" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Gesamt-Pipeline</span><span class="badge info">Brutto-Volumen</span></div>
+                        <div class="kpi-value" id="d-kpi-total-vol">8.546,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:82%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Alle 4 aktiven Verkaufsphasen</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Gewichteter Forecast</span><span class="badge purple">Erwartungswert</span></div>
+                        <div class="kpi-value" id="d-kpi-weighted-vol" style="color:#7c3aed;">5.622,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:68%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Nach Phasen-Wahrscheinlichkeit</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Gewonnene Deals</span><span class="badge success">Closed Won</span></div>
+                        <div class="kpi-value" id="d-kpi-won-vol" style="color:var(--status-green-fg);">3.068,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:90%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Direkt in Faktura &amp; Retainer überführt</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Ø Deal-Volumen &amp; Zyklus</span><span class="badge neutral">Velocity</span></div>
+                        <div class="kpi-value" id="d-kpi-avg-vol">1.424,33 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:75%; background:#0d9488;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Ø Abschlussdauer: 11 Tage</div>
+                    </div>
+                </div>
+
+                <div class="card-panel" style="margin-bottom:14px;">
+                    <div class="card-panel-header">
+                        <div style="font-size:12px; color:var(--text-secondary);">
+                            <strong>Interaktives Pipeline-Board:</strong> Drag &amp; Drop zwischen Phasen · Wechsel auf <strong>2. Angebot</strong> erstellt automatisch Follow-up Aufgabe (+3 Tage) &amp; E-Mail-Entwurf.
+                        </div>
+                        <button class="btn btn-primary" onclick="openNewDealModal()">+ Deal anlegen</button>
+                    </div>
+                </div>
+
+                <div class="kanban-board" style="padding:0;">
+                    <div class="kanban-column" id="k-col-discovery">
+                        <div class="kanban-col-header">
+                            <span class="kanban-stage-name"><span class="badge info">1</span> Erstkontakt <span style="font-size:10px; color:var(--text-muted); font-weight:400;">(25%)</span></span>
+                            <span class="kanban-stage-sum" id="k-sum-discovery">0 €</span>
+                        </div>
+                        <div id="k-items-discovery"></div>
+                    </div>
+                    <div class="kanban-column" id="k-col-proposal">
+                        <div class="kanban-col-header">
+                            <span class="kanban-stage-name"><span class="badge warning">2</span> Angebot <span style="font-size:10px; color:var(--text-muted); font-weight:400;">(50%)</span></span>
+                            <span class="kanban-stage-sum" id="k-sum-proposal">0 €</span>
+                        </div>
+                        <div id="k-items-proposal"></div>
+                    </div>
+                    <div class="kanban-column" id="k-col-negotiation">
+                        <div class="kanban-col-header">
+                            <span class="kanban-stage-name"><span class="badge purple">3</span> Verhandlung <span style="font-size:10px; color:var(--text-muted); font-weight:400;">(75%)</span></span>
+                            <span class="kanban-stage-sum" id="k-sum-negotiation">0 €</span>
+                        </div>
+                        <div id="k-items-negotiation"></div>
+                    </div>
+                    <div class="kanban-column" id="k-col-closed_won">
+                        <div class="kanban-col-header">
+                            <span class="kanban-stage-name"><span class="badge success">4</span> Gewonnen <span style="font-size:10px; color:var(--text-muted); font-weight:400;">(100%)</span></span>
+                            <span class="kanban-stage-sum" id="k-sum-closed_won">0 €</span>
+                        </div>
+                        <div id="k-items-closed_won"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: FAKTURA & E-RECHNUNG (GoBD / ZUGFeRD 2.2 / DATEV) -->
+            <section id="view-invoices" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Bezahlter Umsatz (Ist)</span><span class="badge success">GoBD Festgeschrieben</span></div>
+                        <div class="kpi-value" id="inv-kpi-paid" style="color:var(--status-green-fg);">2.237,20 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:82%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Inkl. 19% USt. · SKR03 Konto 8400</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Offene Forderungen</span><span class="badge warning">Debitorenbuchhaltung</span></div>
+                        <div class="kpi-value" id="inv-kpi-open" style="color:var(--status-amber-fg);">1.176,91 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:45%; background:var(--status-amber-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Zahlungsziel: 14 Tage Netto</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>USt.-Rückstellung (19%)</span><span class="badge info">SKR03 · 1776</span></div>
+                        <div class="kpi-value" id="inv-kpi-vat">544,71 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:60%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Automatische USt.-Voranmeldung</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>E-Rechnung Standard</span><span class="badge purple">EN 16931</span></div>
+                        <div class="kpi-value">100 % Konform</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">XRechnung 3.0 XML &amp; ZUGFeRD 2.2</div>
+                    </div>
+                </div>
+
+                <div class="card-panel">
+                    <div class="card-panel-header">
+                        <div>
+                            <span class="card-panel-title">Rechnungs- &amp; Belegbuch (GoBD-revisionssicher)</span>
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">Inkl. DIN-A4-Belegvorschau, XRechnung XML &amp; SEPA-GiroCode</span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <a href="/api/export/datev?year=2026&skr=skr03" class="btn" style="text-decoration:none;">↓ DATEV EXTF (SKR03)</a>
+                            <button class="btn btn-primary" onclick="openNewInvoiceModal()">+ Neue Rechnung</button>
+                        </div>
+                    </div>
+                    <div class="sheet-wrapper">
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th>Beleg-Nr.</th>
+                                    <th>Kunde / Mandat</th>
+                                    <th>Fälligkeit</th>
+                                    <th>Netto (EUR)</th>
+                                    <th>USt. (19%)</th>
+                                    <th>Brutto (inkl. USt)</th>
+                                    <th>GoBD Status</th>
+                                    <th>E-Rechnung / Beleg-Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoicesFullTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:16px;">
+                    <div class="card-panel" style="margin-bottom:0; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="font-size:13px; font-weight:700;">DATEV SKR03 Konten-Spiegel (Automatische Kontierung)</span>
+                            <span class="badge info">EXTF Format</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; font-size:12px;">
+                            <div style="padding:10px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:6px;">
+                                <div class="mono-val" style="font-size:11px; color:var(--text-muted);">Konto 8400</div>
+                                <div style="font-weight:700; margin-top:2px;">Erlöse 19% USt.</div>
+                                <div class="mono-val" style="color:var(--status-green-fg); margin-top:2px;">2.869,00 € Netto</div>
+                            </div>
+                            <div style="padding:10px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:6px;">
+                                <div class="mono-val" style="font-size:11px; color:var(--text-muted);">Konto 1400</div>
+                                <div style="font-weight:700; margin-top:2px;">Forderungen a.LL.</div>
+                                <div class="mono-val" style="color:var(--status-amber-fg); margin-top:2px;">1.176,91 € Brutto</div>
+                            </div>
+                            <div style="padding:10px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:6px;">
+                                <div class="mono-val" style="font-size:11px; color:var(--text-muted);">Konto 1776</div>
+                                <div style="font-weight:700; margin-top:2px;">Umsatzsteuer 19%</div>
+                                <div class="mono-val" style="color:var(--accent); margin-top:2px;">544,71 € USt.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-panel" style="margin-bottom:0; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="font-size:13px; font-weight:700;">GoBD Unveränderbarkeits-Schutz (§ 146 AO)</span>
+                            <span class="badge success">SHA-256 Aktiv</span>
+                        </div>
+                        <div style="font-size:12px; color:var(--text-secondary); line-height:1.55;">
+                            Festgeschriebene und bezahlte Rechnungen können gemäß GoBD nicht nachträglich gelöscht oder überschrieben werden. Korrekturen erfolgen ausschließlich über revisionssichere Storno-Gutschriften (<code>ST-RE-...</code>).
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: RETAINER & ABOS (Subscription & MRR Engine) -->
+            <section id="view-retainers" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Aktiver Monats-MRR</span><span class="badge success">Wiederkehrend</span></div>
+                        <div class="kpi-value" id="ret-kpi-mrr" style="color:var(--status-green-fg);">267,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:54%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">3 aktive KMU-Retainer (Netto)</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Annualisierter ARR</span><span class="badge info">Hochrechnung</span></div>
+                        <div class="kpi-value" id="ret-kpi-arr">3.204,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:64%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">12-Monats-Vertragsbestand</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>MRR-Zielkorridor 2026</span><span class="badge purple">500 – 1.500 €</span></div>
+                        <div class="kpi-value">53,4 %</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:53%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Noch +233 €/Mo. bis Mindestziel</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Net Retention &amp; Churn</span><span class="badge neutral">Qualität</span></div>
+                        <div class="kpi-value">100 % NRR</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:#0d9488;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">0,0 % Kündigungsquote</div>
+                    </div>
+                </div>
+
+                <div class="card-panel">
+                    <div class="card-panel-header">
+                        <div>
+                            <span class="card-panel-title">Wiederkehrende Service-Verträge (Conrad KI Managed Subscriptions)</span>
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">Automatische monatliche Rechnungsgenerierung zum Stichtag</span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn" onclick="openNewRetainerModal()">+ Neues Abo</button>
+                            <button class="btn btn-primary" onclick="triggerRetainerRun()">Fällige Retainer jetzt abrechnen</button>
+                        </div>
+                    </div>
+                    <div class="sheet-wrapper">
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th>Kunde / Mandant</th>
+                                    <th>Vertragsleistung &amp; Paket</th>
+                                    <th>Monatspauschale (Netto)</th>
+                                    <th>Brutto (inkl. 19% USt.)</th>
+                                    <th>Abrechnungsintervall</th>
+                                    <th>Nächster Lauf</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="retainersFullTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+                    <div class="card-panel" style="margin-bottom:0; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="badge neutral">TIER 1 · STARTER</span>
+                            <span class="mono-val" style="font-weight:800; font-size:16px;">39,00 € <span style="font-size:11px; font-weight:400;">/ Mo.</span></span>
+                        </div>
+                        <div style="font-weight:700; font-size:13.5px; margin:8px 0 4px;">KI-Basis &amp; Termin-Buchung</div>
+                        <div style="font-size:12px; color:var(--text-secondary);">Hosting lokaler Buchungslink, Basis-Kontakt-Sync und monatlicher Health-Check.</div>
+                    </div>
+                    <div class="card-panel" style="margin-bottom:0; padding:16px; border-color:var(--accent);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="badge info">TIER 2 · HANDWERK &amp; KMU</span>
+                            <span class="mono-val" style="font-weight:800; font-size:16px; color:var(--accent);">69,00 € <span style="font-size:11px; font-weight:400;">/ Mo.</span></span>
+                        </div>
+                        <div style="font-weight:700; font-size:13.5px; margin:8px 0 4px;">WhatsApp- &amp; Postfach-Triage</div>
+                        <div style="font-size:12px; color:var(--text-secondary);">24/7 Vorqualifizierung von Kundenanfragen per WhatsApp &amp; E-Mail-Entwurfs-Autopilot.</div>
+                    </div>
+                    <div class="card-panel" style="margin-bottom:0; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="badge purple">TIER 3 · MANAGED PRO</span>
+                            <span class="mono-val" style="font-weight:800; font-size:16px; color:#7c3aed;">99,00 € <span style="font-size:11px; font-weight:400;">/ Mo.</span></span>
+                        </div>
+                        <div style="font-weight:700; font-size:13.5px; margin:8px 0 4px;">Full-Stack KI-Agenten &amp; Workflows</div>
+                        <div style="font-size:12px; color:var(--text-secondary);">Dedizierte lokale LLM-Pipelines, CRM-Automation, Recall-Systeme &amp; Priority-SLA.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 6: MARKETING ATTRIBUTION -->
+            <section id="view-marketing" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Ad Spend Gesamt</span><span class="badge info">EUR</span></div>
+                        <div class="kpi-value" id="m-kpi-spend">430,00 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:55%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Meta &amp; Google Kampagnen</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Akquirierte Leads</span><span class="badge purple">CRM</span></div>
+                        <div class="kpi-value" id="m-kpi-leads">30</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:78%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Direkte Funnel-Zuordnung</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Blended CAC</span><span class="badge neutral">Effizienz</span></div>
+                        <div class="kpi-value" id="m-kpi-cac">143,33 €</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:82%; background:#0d9488;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Akquisekosten pro Neukunde</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Return on Ad Spend</span><span class="badge success">ROAS</span></div>
+                        <div class="kpi-value" id="m-kpi-roas" style="color:var(--status-green-fg);">6.9x</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:92%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">2.970,00 € attribuierter Umsatz</div>
+                    </div>
+                </div>
+
+                <div class="card-panel">
+                    <div class="card-panel-header">
+                        <div>
+                            <span class="card-panel-title">Kampagnen-Attribution &amp; Funnel-Konversion</span>
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">Echtzeit-Abgleich zwischen Werbeausgaben und gewonnenen CRM-Mandaten</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modalNewCampaign')">+ Kampagne / Spend erfassen</button>
+                    </div>
+                    <table class="data-grid">
+                        <thead>
+                            <tr>
+                                <th>Kampagne</th>
+                                <th>Kanal</th>
+                                <th>Spend</th>
+                                <th>Klicks</th>
+                                <th>Leads</th>
+                                <th>Abschlüsse</th>
+                                <th>Umsatz</th>
+                                <th>ROAS</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="marketingCampaignsTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- VIEW 6B: KALENDER & TERMINBUCHUNG (Visual Week Planner + Scheduler) -->
+            <section id="view-calendar" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Bestätigte Termine (KW 46)</span><span class="badge info">Kalender</span></div>
+                        <div class="kpi-value" id="cal-kpi-count">4</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:80%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">100 % mit CRM-Kontakten verknüpft</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Buchungs-Verfügbarkeit</span><span class="badge success">Aktiv</span></div>
+                        <div class="kpi-value">Mo–Fr · 09–17h</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Zeitzone: Europe/Berlin (MEZ)</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Show-Up Quote</span><span class="badge purple">Auto-Reminder</span></div>
+                        <div class="kpi-value">100 %</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Inkl. ICS-Kalendereinladung</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Öffentliche Buchungsseite</span><span class="badge neutral">Self-Service</span></div>
+                        <div class="kpi-value" style="font-size:15px;"><a href="/book/merlin" target="_blank" style="color:var(--accent); text-decoration:none;">/book/merlin ↗</a></div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:90%; background:#0d9488;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Direktbuchung ohne Drittanbieter</div>
+                    </div>
+                </div>
+
+                <!-- Visual 5-Day Week Planner Grid -->
+                <div class="card-panel">
+                    <div class="card-panel-header">
+                        <div>
+                            <span class="card-panel-title">Wochenplan · KW 46 (09. Nov – 13. Nov 2026)</span>
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">Synchronisiert mit Mandanten-Calls, Deep-Work-Blöcken &amp; Coaching</span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <a href="/book/merlin" target="_blank" class="btn" style="text-decoration:none;">Öffentliche Buchungs-UI ↗</a>
+                            <button class="btn btn-primary" onclick="openNewBookingModal()">+ Termin eintragen</button>
+                        </div>
+                    </div>
+                    <div class="week-cal-grid">
+                        <div class="week-cal-col">
+                            <div class="week-cal-day-head"><span>Mo · 09.11.</span><span class="badge neutral">Heute</span></div>
+                            <div class="week-cal-event" style="border-left-color:#6366F1;">
+                                <div class="mono-val" style="font-size:10px; color:var(--text-muted);">09:00 – 11:30</div>
+                                <div style="font-weight:700; margin-top:2px;">Conrad OS Kernel &amp; Architektur</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Deep Work · Schwetzingen</div>
+                            </div>
+                            <div class="week-cal-event" style="border-left-color:#10B981;">
+                                <div class="mono-val" style="font-size:10px; color:var(--text-muted);">19:00 – 20:00</div>
+                                <div style="font-weight:700; margin-top:2px;">Wöchentliches Coaching</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Fester Termin · Triathlon / Fokus</div>
+                            </div>
+                        </div>
+                        <div class="week-cal-col">
+                            <div class="week-cal-day-head"><span>Di · 10.11.</span><span class="badge info">2 Termine</span></div>
+                            <div class="week-cal-event" onclick="openNewBookingModal()">
+                                <div class="mono-val" style="font-size:10px; color:var(--accent); font-weight:700;">10:00 – 10:30</div>
+                                <div style="font-weight:700; margin-top:2px;">Jens Ohrladen</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Quartals-Review Hörtest-Simulator</div>
+                            </div>
+                            <div class="week-cal-event" style="border-left-color:#F59E0B;">
+                                <div class="mono-val" style="font-size:10px; color:var(--text-muted);">14:00 – 15:30</div>
+                                <div style="font-weight:700; margin-top:2px;">OCR-Benchmark Bergmann</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Frachtbrief-Extraktion (Gemma 4)</div>
+                            </div>
+                        </div>
+                        <div class="week-cal-col">
+                            <div class="week-cal-day-head"><span>Mi · 11.11.</span><span class="badge info">1 Termin</span></div>
+                            <div class="week-cal-event" onclick="openNewBookingModal()">
+                                <div class="mono-val" style="font-size:10px; color:var(--accent); font-weight:700;">14:00 – 14:30</div>
+                                <div style="font-weight:700; margin-top:2px;">Stefan Koch (Koch Sanitär)</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Verhandlung WhatsApp-Notdienst</div>
+                            </div>
+                        </div>
+                        <div class="week-cal-col">
+                            <div class="week-cal-day-head"><span>Do · 12.11.</span><span class="badge info">1 Termin</span></div>
+                            <div class="week-cal-event" onclick="openNewBookingModal()">
+                                <div class="mono-val" style="font-size:10px; color:var(--accent); font-weight:700;">15:00 – 15:30</div>
+                                <div style="font-weight:700; margin-top:2px;">Alexandra Imkerin</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Abnahme Instagram DM Lead-Engine</div>
+                            </div>
+                        </div>
+                        <div class="week-cal-col">
+                            <div class="week-cal-day-head"><span>Fr · 13.11.</span><span class="badge success">1 Termin</span></div>
+                            <div class="week-cal-event" style="border-left-color:#10B981;" onclick="openNewBookingModal()">
+                                <div class="mono-val" style="font-size:10px; color:var(--status-green-fg); font-weight:700;">09:30 – 10:00</div>
+                                <div style="font-weight:700; margin-top:2px;">Dr. Markus Weber</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Monats-Check-in Praxis-KI Heidelberg</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Appointment Registry Table -->
+                <div class="card-panel" style="margin-bottom:0;">
+                    <div class="card-panel-header">
+                        <span class="card-panel-title">Gebuchte Mandanten-Termine &amp; Synchronisierte Kalender-Slots</span>
+                        <span class="badge success">GoBD Protokolliert</span>
+                    </div>
+                    <div class="sheet-wrapper">
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th>Termin &amp; Uhrzeit</th>
+                                    <th>Teilnehmer / Kontakt</th>
+                                    <th>E-Mail &amp; Telefon</th>
+                                    <th>Thema / Notiz</th>
+                                    <th>Kalender-Host</th>
+                                    <th>Zeitzone</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsFullTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 7: DMS DOKUMENTEN-TRESOR & GOBD AUDIT JOURNAL -->
+            <section id="view-dms" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Verschlüsselte Akten</span><span class="badge info">DMS Vault</span></div>
+                        <div class="kpi-value" id="dms-kpi-docs">4</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:80%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Verträge, AVVs &amp; Grundbuch-Belege</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>SHA-256 Hash-Kette</span><span class="badge success">Unveränderbar</span></div>
+                        <div class="kpi-value" style="color:var(--status-green-fg);">100 % Verifiziert</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Lückenlose Verkettung seit Genesis</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Aufbewahrungsfrist</span><span class="badge purple">§ 147 AO / GoBD</span></div>
+                        <div class="kpi-value">10 Jahre</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Revisionssichere Langzeitarchivierung</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Kryptografische Prüfung</span><span class="badge neutral">Echtzeit-Audit</span></div>
+                        <div class="kpi-value"><button class="btn btn-primary" style="height:28px; font-size:12px;" onclick="verifyGobdChain()">✓ SHA-256 Kette prüfen</button></div>
+                        <div class="kpi-meta" style="margin-top:10px;">Prüft jede Transaktion gegen Manipulation</div>
+                    </div>
+                </div>
+
+                <div id="gobdVerifyResult" class="card-panel" style="padding:12px 16px; font-size:12px; display:none; margin-bottom:16px;"></div>
+
+                <div class="card-panel">
+                    <div class="card-panel-header">
+                        <div>
+                            <span class="card-panel-title">Verschlüsselter Dokumenten-Tresor (Verträge, Belege &amp; Immobilien-Akten)</span>
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">Jedes Dokument erhält beim Upload einen unveränderbaren SHA-256-Fingerabdruck</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openNewDocumentModal()">+ Dokument archivieren</button>
+                    </div>
+                    <div style="padding:10px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--bg-card);">
+                        <input type="text" id="dms-search-input" class="form-input" style="max-width:380px; height:32px; font-size:12px;" placeholder="🔍 Volltextsuche (Titel, Kreditor, Tags, OCR)..." oninput="handleDmsSearch(this.value)">
+                        <span id="dms-count-badge" style="font-size:11.5px; color:var(--text-muted);">Paperless-DMS aktiv</span>
+                    </div>
+                    <div class="sheet-wrapper">
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th>Dokumenten-Titel</th>
+                                    <th>Kategorie</th>
+                                    <th>SHA-256 Prüfsumme / Tresor-Pfad</th>
+                                    <th>Größe</th>
+                                    <th>Archiviert am</th>
+                                    <th style="width:120px;">Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dmsDocumentsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-panel" style="margin-bottom:0;">
+                    <div class="card-panel-header">
+                        <div>
+                            <span class="card-panel-title">Unveränderliches GoBD SHA-256 Transaktions-Journal</span>
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">Jede Preis-, Status-, KI- und Belegänderung ist kryptografisch mit dem Vorgänger-Eintrag verkettet</span>
+                        </div>
+                        <span class="badge success">GoBD Audit-Ready</span>
+                    </div>
+                    <div class="sheet-wrapper">
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th style="width:70px;">Seq</th>
+                                    <th style="width:160px;">Zeitstempel</th>
+                                    <th style="width:180px;">Aktion</th>
+                                    <th style="width:140px;">Objekt-ID</th>
+                                    <th>Revisions-Details</th>
+                                    <th style="width:140px;">Akteur</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gobdAuditTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: KI STUDIO (OPEN WEBUI PURE RUST) -->
+            <section id="view-aistudio" class="view-padded" style="display:none;">
+                <div class="card-panel" style="max-width:980px; margin:0 auto; display:flex; flex-direction:column; height:calc(100vh - 120px);">
+                    <div class="card-panel-header" style="border-bottom:1px solid var(--border); padding-bottom:12px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="badge" style="background:#10b98122; color:#10b981; font-weight:700;">● Online</span>
+                            <span style="font-weight:600; font-size:14px;">Qwen 2.5 1.5B (Lokal &amp; DSGVO-Konform)</span>
+                            <span class="badge neutral" style="font-size:10px;">Reines Rust · &lt;2ms Latenz</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <select id="aistudio-mode" class="form-input" style="width:160px; height:28px; font-size:11.5px; padding:2px 8px;">
+                                <option value="user">Operativer Assistent</option>
+                                <option value="admin">System-Architekt</option>
+                            </select>
+                            <button class="btn btn-xs" onclick="clearAiStudioChat()">Verlauf leeren</button>
+                        </div>
+                    </div>
+
+                    <div id="aistudio-chat-history" style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px;">
+                        <div style="padding:16px; background:var(--bg-card); border-radius:8px; border:1px solid var(--border);">
+                            <div style="font-weight:600; font-size:14px; margin-bottom:6px;">⚡ Willkommen im Conrad OS KI Studio</div>
+                            <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">
+                                Dein privates, DSGVO-konformes Firmen-ChatGPT — direkt in Rust auf deinem Server gehostet. Keine Daten verlassen dein Unternehmen. Greife direkt auf Kontakte, Rechnungen und DMS-Dokumente zu.
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px; margin-top:14px;">
+                                <div class="quick-chip" onclick="applyAiPrompt('Analysiere die letzten eingegangenen Belege im DMS-Tresor und zeige mir eine Übersicht.')">📄 Belege im DMS analysieren</div>
+                                <div class="quick-chip" onclick="applyAiPrompt('Erstelle einen Entwurf für ein Kunden-Angebot über 89 EUR monatlichen KI-Retainer.')">💼 Angebot für Neukunde entwerfen</div>
+                                <div class="quick-chip" onclick="applyAiPrompt('Zeige mir den aktuellen Monats-MRR und die offene Pipeline-Summe.')">📊 Pipeline &amp; Finanzen prüfen</div>
+                                <div class="quick-chip" onclick="applyAiPrompt('Welche Aufgaben und Termine stehen heute an?')">📅 Termine &amp; Aufgaben anzeigen</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; background:var(--bg-card);">
+                        <textarea id="aistudio-input" class="form-input" style="flex:1; resize:none; height:44px; padding:10px; font-size:13px;" placeholder="Frage stellen oder Befehl eingeben... (Enter zum Senden)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiStudioMessage();}"></textarea>
+                        <button class="btn btn-primary" style="height:44px; padding:0 18px;" onclick="sendAiStudioMessage()">Senden</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 8: DATENMODELL, KERNEL-TELEMETRIE & SYSTEM -->
+            <section id="view-settings" class="view-padded" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Rust Binary Footprint</span><span class="badge success">Ultra-Lean</span></div>
+                        <div class="kpi-value" style="color:var(--status-green-fg);">2,6 MB RAM</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:12%; background:var(--status-green-fg);"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Axum 0.7 + Tokio Async Runtime</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>SQLite WAL Latenz</span><span class="badge info">Single-DB</span></div>
+                        <div class="kpi-value">0,18 ms</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:95%;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">ACID-Transaktionen &amp; Foreign Keys</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Lokaler AI-Stack</span><span class="badge purple">MCP 2.0</span></div>
+                        <div class="kpi-value" style="font-size:16px;">Gemma 4 / Qwen 32B</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:#7c3aed;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Dual Mode: Operativ &amp; System-Architekt</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label"><span>Security &amp; Guardrails</span><span class="badge success">Gehärtet</span></div>
+                        <div class="kpi-value" style="font-size:16px;">Strict-CSP · HttpOnly</div>
+                        <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:#0d9488;"></div></div>
+                        <div class="kpi-meta" style="margin-top:6px;">Rate-Limiting &amp; E-Mail-Entwurfspflicht</div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div class="card-panel" style="padding:16px; margin-bottom:0;">
+                        <h3 style="font-size:13px; font-weight:700; margin-bottom:12px;">Workspace-Identität &amp; Design-System</h3>
+                        <div class="form-group">
+                            <label class="form-label">Mandantenname (Globaler Header &amp; Rechnungssteller)</label>
+                            <div style="display:flex; gap:8px;">
+                                <input type="text" id="settingCompanyName" class="form-input" value="Conrad KI">
+                                <button class="btn btn-primary" onclick="saveCompanyNameSetting()">Speichern</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top:14px; margin-bottom:0;">
+                            <label class="form-label">System-Farbakzent (Echtzeit CSS-Token Mutation)</label>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn" onclick="setThemeAccent('#2563eb')"><span style="width:10px;height:10px;border-radius:50%;background:#2563eb;display:inline-block;"></span> Conrad Blue</button>
+                                <button class="btn" onclick="setThemeAccent('#0f766e')"><span style="width:10px;height:10px;border-radius:50%;background:#0f766e;display:inline-block;"></span> Emerald Teal</button>
+                                <button class="btn" onclick="setThemeAccent('#c8531a')"><span style="width:10px;height:10px;border-radius:50%;background:#c8531a;display:inline-block;"></span> Copper</button>
+                                <button class="btn" onclick="setThemeAccent('#4f46e5')"><span style="width:10px;height:10px;border-radius:50%;background:#4f46e5;display:inline-block;"></span> Linear Indigo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-panel" style="padding:16px; margin-bottom:0;">
+                        <h3 style="font-size:13px; font-weight:700; margin-bottom:12px;">Custom Fields (Dynamische Schema-Erweiterung)</h3>
+                        <div style="display:flex; gap:8px; margin-bottom:12px;">
+                            <input type="text" id="newCfKey" class="form-input" placeholder="Technischer Key (z.B. branche)">
+                            <input type="text" id="newCfLabel" class="form-input" placeholder="Anzeige-Label (z.B. Branche)">
+                            <button class="btn btn-primary" onclick="submitCustomField()">+ Feld anlegen</button>
+                        </div>
+                        <div id="customFieldsRenderList" style="font-size:12px; color:var(--text-secondary);"></div>
+                    </div>
+                </div>
+
+                <div class="card-panel" style="padding:16px; margin-bottom:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="font-size:13px; font-weight:700;">Native System-Endpunkte, Webhooks &amp; MCP-Schnittstellen</h3>
+                        <span class="badge info">100 % Pure Rust API</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; font-size:12px;">
+                        <div style="padding:12px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-subtle);">
+                            <div style="font-weight:700; margin-bottom:4px;">Model Context Protocol</div>
+                            <code class="mono-val" style="color:var(--accent);">POST /mcp</code>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">JSON-RPC 2.0 Tool-Execution für lokale KI-Agenten</div>
+                        </div>
+                        <div style="padding:12px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-subtle);">
+                            <div style="font-weight:700; margin-bottom:4px;">WhatsApp Business Webhook</div>
+                            <code class="mono-val" style="color:var(--status-green-fg);">POST /api/webhooks/whatsapp</code>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">Automatische Lead-Anlage &amp; 360°-Timeline-Zuordnung</div>
+                        </div>
+                        <div style="padding:12px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-subtle);">
+                            <div style="font-weight:700; margin-bottom:4px;">E-Mail Postfach-Sync</div>
+                            <code class="mono-val" style="color:#7c3aed;">POST /api/webhooks/email</code>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">IMAP/Webhook Poller &amp; KI-Entwurfs-Generator</div>
+                        </div>
+                        <div style="padding:12px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-subtle);">
+                            <div style="font-weight:700; margin-bottom:4px;">DATEV &amp; XRechnung Export</div>
+                            <code class="mono-val" style="color:var(--status-amber-fg);">GET /api/export/datev</code>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">SKR03/04 Buchungsstapel &amp; EN 16931 XML</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 9: WORKFLOWS & TRIGGER AUTOMATION -->
+            <section id="view-workflows" class="view-padded" style="display:none;">
+                <div class="wf-pipeline-strip" style="padding:0; background:transparent; border:none; margin-bottom:16px;">
+                    <div class="kpi-card">
+                        <span class="badge info" style="width:fit-content; margin-bottom:6px;">1. Event-Trigger</span>
+                        <div style="font-size:13.5px; font-weight:700;">Deal-Phase / Kontakt / Webhook</div>
+                        <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Echtzeit-Listener im Rust-Kernel</div>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="badge warning" style="width:fit-content; margin-bottom:6px;">2. Bedingung &amp; Guardrail</span>
+                        <div style="font-size:13.5px; font-weight:700;">Zielphase = „Angebot“ / „Lead“</div>
+                        <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Kein unkontrollierter Auto-Versand</div>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="badge purple" style="width:fit-content; margin-bottom:6px;">3. Automations-Aktion</span>
+                        <div style="font-size:13.5px; font-weight:700;">Follow-up Task (+3T) + Entwurf</div>
+                        <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Personalisierte Vorlage in Timeline</div>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="badge success" style="width:fit-content; margin-bottom:6px;">4. GoBD Audit-Trail</span>
+                        <div style="font-size:13.5px; font-weight:700;">SHA-256 Signatur &amp; Counter</div>
+                        <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Revisionssicher protokolliert</div>
+                    </div>
+                </div>
+
+                <div class="card-panel" style="margin-bottom:0;">
+                    <div class="card-panel-header">
+                        <div>
+                            <span class="card-panel-title">Aktive Automations-Regeln &amp; Event-Trigger</span>
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">Alle ausgehenden E-Mails werden revisionssicher als Entwurf (Draft) angelegt</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modalNewWorkflow')">+ Neuer Workflow</button>
+                    </div>
+                    <div class="sheet-wrapper">
+                        <table class="data-grid">
+                            <thead>
+                                <tr>
+                                    <th>Regel-Name</th>
+                                    <th>Trigger-Ereignis</th>
+                                    <th>Bedingung</th>
+                                    <th>Aktion</th>
+                                    <th>Verzögerung</th>
+                                    <th>Ausführungen</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workflowsFullTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 10: CONRAD OS NATIVE MODUL-ARCHITEKTUR -->
+            <section id="view-plugins" class="view-padded" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h2 style="font-size:16px; font-weight:700;">Conrad OS — Native Modul-Architektur &amp; Schema-Baukasten</h2>
+                        <p style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+                            Alle Fachmodule laufen in derselben Rust-Binärdatei, derselben SQLite-WAL-Datenbank und demselben Design-System.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn" onclick="toggleCopilot(); document.getElementById('copilotInput').value='Baue mir ein neues Plugin Fuhrpark & Leasing';">KI-Architekt fragen</button>
+                        <button class="btn btn-primary" id="btnOpenPluginStudio" onclick="openNewPluginModal()">+ Eigenes Modul bauen</button>
+                    </div>
+                </div>
+                <div class="plugin-grid" id="pluginsRegistryGrid"></div>
+            </section>
+
+            <!-- VIEW 11: DYNAMIC PLUGIN WORKSPACE VIEW -->
+            <section id="view-plugin-dynamic" class="view-padded" style="display:none;">
+                <div class="kpi-grid" id="dynPluginKpiStrip"></div>
+
+                <div class="card-panel" style="margin-bottom:0;">
+                    <div class="card-panel-header" style="flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="plugin-layer-pill" id="dynPluginLayerPill">MODUL #110</span>
+                            <span style="font-size:12px; color:var(--text-secondary);" id="dynPluginDesc">Modul Beschreibung</span>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <div class="filter-pills" style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:6px; padding:2px;">
+                                <button class="filter-pill-btn active" id="dyn-view-btn-table" style="padding:2px 8px; font-size:11px;" onclick="setDynPluginViewMode('table')">Tabelle</button>
+                                <button class="filter-pill-btn" id="dyn-view-btn-cards" style="padding:2px 8px; font-size:11px;" onclick="setDynPluginViewMode('cards')">Karten-Board</button>
+                            </div>
+                            <input type="text" id="dynPluginSearch" class="form-input" style="height:28px; width:190px; font-size:12px;" placeholder="Einträge filtern..." oninput="renderActivePluginRecords()">
+                            <button class="btn btn-primary" id="btnNewPluginRecord" onclick="openNewPluginRecordModal()">+ Neuer Eintrag</button>
+                        </div>
+                    </div>
+                    <div class="sheet-wrapper" id="dynPluginTableContainer">
+                        <table class="data-grid">
+                            <thead id="dynPluginTableHead"></thead>
+                            <tbody id="dynPluginTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="dyn-cards-grid" id="dynPluginCardsContainer" style="display:none;"></div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- ── Conrad OS Kernel Status Telemetry Strip ── -->
+        <footer class="harness-footer" id="harnessStatusFooter">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <span><strong style="color:var(--text-primary);">KERNEL:</strong> Conrad OS v3.0</span>
+                <span id="footerMountedLayers">MODULE: 10 AKTIV</span>
+                <span>ENGINE: 100% Pure Rust / Single SQLite WAL (&lt;0.4ms)</span>
+                <span style="color:var(--status-green-fg);">● GoBD SHA-256 VERIFIED</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="cursor:pointer;" onclick="switchView('plugins')">Modul-Architektur ↗</span>
+                <span style="cursor:pointer;" onclick="openCmdKModal()">⌘K Spotlight</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ── 360° Contact Record Inspector Drawer ── -->
+    <div class="record-drawer-backdrop" id="contactInspectorDrawer" onclick="if(event.target===this) closeContactDrawer()">
+        <div class="record-drawer">
+            <div class="drawer-header">
+                <div class="drawer-entity-head">
+                    <div class="drawer-avatar-lg" id="cd-avatar">JK</div>
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:15px; font-weight:700;" id="cd-title-name">Kontakt</span>
+                            <span class="badge success" id="cd-health-badge">KI-Score: 96/100</span>
+                        </div>
+                        <div style="font-size:12px; color:var(--text-secondary);" id="cd-title-sub">Unternehmen</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn" onclick="generateAiFollowupDraftForActiveContact()">✨ KI Follow-Up Entwurf</button>
+                    <button class="btn btn-primary" onclick="openNewDealModalForContact(activeContactId)">+ Deal</button>
+                    <button class="modal-close-btn" onclick="closeContactDrawer()">✕</button>
+                </div>
+            </div>
+
+            <div class="drawer-body">
+                <!-- Left Properties Column -->
+                <div class="drawer-props-pane">
+                    <div style="padding:10px 12px; border-radius:8px; background:var(--accent-subtle); border:1px solid rgba(37,99,235,0.2); margin-bottom:14px;">
+                        <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; color:var(--accent);">KI Next-Best-Action</div>
+                        <div style="font-size:11.5px; color:var(--text-primary); margin-top:3px; line-height:1.4;" id="cd-ai-nba">
+                            Mandats-Potenzial hoch. Empfehlung: Kurzes Review-Gespräch oder Follow-up-Entwurf senden.
+                        </div>
+                    </div>
+
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px;">Stammdaten &amp; Attribute</div>
+                    <div class="prop-row">
+                        <label class="prop-label">Name</label>
+                        <input type="text" id="cd-prop-name" class="prop-input" onchange="saveContactProperty()">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Unternehmen</label>
+                        <input type="text" id="cd-prop-company" class="prop-input" onchange="saveContactProperty()">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">E-Mail</label>
+                        <input type="email" id="cd-prop-email" class="prop-input" onchange="saveContactProperty()">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Telefon / WhatsApp</label>
+                        <input type="text" id="cd-prop-phone" class="prop-input" onchange="saveContactProperty()">
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Lifecycle Status</label>
+                        <select id="cd-prop-status" class="prop-input" onchange="saveContactProperty()">
+                            <option value="lead">Lead</option>
+                            <option value="qualified">Qualifiziert</option>
+                            <option value="customer">Kunde</option>
+                            <option value="churned">Inaktiv</option>
+                        </select>
+                    </div>
+                    <div class="prop-row">
+                        <label class="prop-label">Tags</label>
+                        <input type="text" id="cd-prop-tags" class="prop-input" onchange="saveContactProperty()">
+                    </div>
+
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin:16px 0 8px;">Verknüpfte Deals &amp; Mandate</div>
+                    <div id="cd-deals-list" style="display:flex; flex-direction:column; gap:6px; font-size:12px;"></div>
+                </div>
+
+                <!-- Right Activity & Timeline Column -->
+                <div class="drawer-activity-pane">
+                    <div class="composer-tabs">
+                        <button class="composer-tab active" id="tab-btn-note" onclick="setComposerChannel('note')">📝 Notiz</button>
+                        <button class="composer-tab" id="tab-btn-email" onclick="setComposerChannel('email')">✉️ E-Mail-Entwurf</button>
+                        <button class="composer-tab" id="tab-btn-whatsapp" onclick="setComposerChannel('whatsapp')">💬 WhatsApp</button>
+                        <button class="composer-tab" id="tab-btn-call" onclick="setComposerChannel('call')">📞 Anruf-Log</button>
+                    </div>
+                    <div class="composer-box">
+                        <input type="text" id="composerSubject" class="form-input" style="display:none; margin-bottom:6px; height:28px; font-size:12px;" placeholder="Betreff der E-Mail...">
+                        <textarea id="composerBody" class="form-input" style="height:58px; padding:8px; resize:none;" placeholder="Notiz oder Aktivität zu diesem Datensatz erfassen..."></textarea>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                            <span style="font-size:11px; color:var(--text-muted);" id="composerHint">Wird revisionssicher in der 360°-Timeline gespeichert</span>
+                            <button class="btn btn-primary" onclick="submitContactActivity()">Speichern</button>
+                        </div>
+                    </div>
+                    <div class="timeline-feed" id="cd-timeline-feed"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── AI Copilot Panel ── -->
+    <aside class="copilot-panel" id="copilotPanel">
+        <div class="drawer-header">
+            <div>
+                <div style="font-size:13px; font-weight:700;" id="copilotPanelTitle">Conrad Copilot · AI-First Engine</div>
+                <div style="font-size:11px; color:var(--text-muted);" id="copilotPanelSub">GEMMA 4 / QWEN · MCP 2.0 VERBUNDEN</div>
+            </div>
+            <button class="modal-close-btn" onclick="toggleCopilot()">✕</button>
+        </div>
+
+        <div class="copilot-messages" id="copilotMessages">
+            <div class="chat-bubble ai">
+                <strong>Conrad OS Copilot aktiv.</strong> Ich habe vollen Lese- und Schreibzugriff über das Model Context Protocol (MCP). Wähle einen Schnellbefehl oder tippe eine Anweisung:<br><br>
+                • „Wie steht unsere Pipeline heute?“<br>
+                • „Zeige mir alle Immobilien und Projekte“<br>
+                • „Baue mir ein neues Plugin Fuhrpark &amp; Leasing“
+            </div>
+        </div>
+
+        <div class="copilot-chips-bar">
+            <span class="copilot-chip" onclick="runQuickCopilotPrompt('Wie steht unsere Pipeline und unser Cashflow heute?')">📊 Pipeline &amp; Cashflow</span>
+            <span class="copilot-chip" onclick="runQuickCopilotPrompt('Zeige mir alle Immobilien und Projekte')">🏢 Immobilien &amp; Projekte</span>
+            <span class="copilot-chip" onclick="runQuickCopilotPrompt('Wie hoch ist unser aktueller ROAS?')">📈 Marketing ROAS</span>
+            <span class="copilot-chip" onclick="runQuickCopilotPrompt('Prüfe die GoBD Audit-Kette')">🔒 GoBD Audit</span>
+        </div>
+
+        <div style="padding:12px; border-top:1px solid var(--border-color); display:flex; gap:8px; background:var(--bg-surface);">
+            <input type="text" id="copilotInput" class="form-input" placeholder="Befehl oder Frage..." onkeydown="if(event.key==='Enter') sendCopilotChat()">
+            <button class="btn btn-primary" id="copilotSendBtn" onclick="sendCopilotChat()">Senden</button>
+        </div>
+    </aside>
+
+    <!-- ── Cmd+K Command Palette Modal ── -->
+    <div class="cmdk-backdrop" id="cmdkModal" onclick="if(event.target===this) closeCmdKModal()">
+        <div class="cmdk-modal">
+            <div class="cmdk-input-row">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="spotlightInput" class="cmdk-input" placeholder="Suche nach Kontakten, Deals, Rechnungen oder gib einen KI-Befehl ein..." oninput="renderSpotlightPreview()" onkeydown="if(event.key==='Enter') executeSpotlightCommand()">
+                <span class="kbd-tag">ESC</span>
+            </div>
+            <div id="spotlightPreviewResults" style="max-height:320px; overflow-y:auto; padding:8px;"></div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Conrad OS Single Sign-On (SSO) & Session Center ── -->
+    <div class="modal-backdrop" id="loginModal">
+        <div class="modal-card" style="width: 460px;">
+            <div class="modal-header">
+                <div>
+                    <span class="modal-title">Conrad OS · Single Sign-On &amp; Session</span>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Einheitliche Authentifizierung für CRM, ERP, DMS &amp; alle Fachmodule</div>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('loginModal')">✕</button>
+            </div>
+            <div style="padding:10px 12px; border-radius:6px; background:var(--bg-subtle); border:1px solid var(--border-color); margin-bottom:14px; font-size:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Aktive HttpOnly-Session: <strong id="demoAccountLabel">admin@conrad-ki.com</strong></span>
+                    <span class="badge success"><span class="badge-dot"></span>Verifiziert</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">E-Mail / Conrad-ID</label>
+                <input type="email" id="sso-email" class="form-input" value="merlin@conrad-ki.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Passwort / Passkey-Token</label>
+                <input type="password" id="sso-password" class="form-input" value="••••••••••••••••">
+            </div>
+            <div style="margin-bottom:14px;">
+                <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitSsoLogin()">Mit Conrad-ID anmelden &amp; Session erneuern</button>
+            </div>
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">Schnellwechsel · Berechtigungs-Profil</div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+                <div style="border:1px solid var(--border-color); border-radius:6px; padding:10px 12px; cursor:pointer;" onclick="setDemoUser('admin'); closeModal('loginModal');">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>Merlin Conrad (System-Architekt)</strong>
+                        <span class="badge warning">Vollzugriff</span>
+                    </div>
+                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">admin@conrad-ki.com · Alle Module, Schema-Baukasten &amp; GoBD</div>
+                </div>
+                <div style="border:1px solid var(--border-color); border-radius:6px; padding:10px 12px; cursor:pointer;" onclick="setDemoUser('team'); closeModal('loginModal');">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>Operations Team</strong>
+                        <span class="badge info">Operativ</span>
+                    </div>
+                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">team@conrad-ki.com · Vertrieb, Kontakte, Kalender &amp; Faktura</div>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <button class="btn" onclick="closeModal('loginModal')">Schließen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neuer Kalender-Termin ── -->
+    <div class="modal-backdrop" id="modalNewBooking">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">Neuen Termin im Kalender eintragen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewBooking')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Teilnehmer / Kontakt *</label>
+                <input type="text" id="nb-name" class="form-input" placeholder="z.B. Jens (Der Ohrladen)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">E-Mail *</label>
+                <input type="email" id="nb-email" class="form-input" placeholder="jens@ohrladen.de">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Telefon</label>
+                <input type="tel" id="nb-phone" class="form-input" placeholder="+49 621 987654">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Datum &amp; Uhrzeit (ISO / Lokal) *</label>
+                <input type="datetime-local" id="nb-datetime" class="form-input" value="2026-11-12T10:00">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Thema / Agenda</label>
+                <input type="text" id="nb-notes" class="form-input" placeholder="z.B. KI-Review &amp; Quartalsplanung">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewBooking')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateBooking()">Termin verbindlich speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neues Dokument im DMS archivieren ── -->
+    <div class="modal-backdrop" id="modalNewDocument">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">Dokument GoBD-konform archivieren</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewDocument')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Dokumenten-Titel *</label>
+                <input type="text" id="ndoc-title" class="form-input" placeholder="z.B. Auftragsverarbeitung (AVV) — Conrad KI">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kategorie</label>
+                <select id="ndoc-category" class="form-input">
+                    <option value="Vertrag">Vertrag &amp; Vereinbarung</option>
+                    <option value="Immobilien">Immobilien &amp; Grundbuch</option>
+                    <option value="Steuer & Beleg">Steuer &amp; Buchhaltungsbeleg</option>
+                    <option value="Compliance">DSGVO &amp; Compliance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Datei hochladen (PDF, Scan, Bild, TXT) *</label>
+                <input type="file" id="ndoc-file" class="form-input" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt" onchange="if(this.files[0]&&!document.getElementById('ndoc-title').value) document.getElementById('ndoc-title').value = this.files[0].name.replace(/\.[^/.]+$/, '');">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Schlagwörter / Tags (kommagetrennt)</label>
+                <input type="text" id="ndoc-tags" class="form-input" placeholder="z.B. Eingangsrechnung, Handwerk, Material">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewDocument')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateDocument()">SHA-256 signieren &amp; archivieren</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neuer Kontakt ── -->
+    <div class="modal-backdrop" id="modalNewContact">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">Neuen Kontakt anlegen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewContact')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Vollständiger Name *</label>
+                <input type="text" id="nc-name" class="form-input" placeholder="z.B. Stefan Koch">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Unternehmen</label>
+                <input type="text" id="nc-company" class="form-input" placeholder="z.B. Koch Sanitär GmbH">
+            </div>
+            <div class="form-group">
+                <label class="form-label">E-Mail</label>
+                <input type="email" id="nc-email" class="form-input" placeholder="stefan@koch-sanitaer.de">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Telefon</label>
+                <input type="tel" id="nc-phone" class="form-input" placeholder="+49 171 1234567">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Lifecycle Phase</label>
+                <select id="nc-status" class="form-input">
+                    <option value="lead">Lead</option>
+                    <option value="qualified">Qualifiziert</option>
+                    <option value="customer">Kunde</option>
+                </select>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewContact')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateContact()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neuer Deal ── -->
+    <div class="modal-backdrop" id="modalNewDeal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">Neuen Deal anlegen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewDeal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kontakt / Unternehmen *</label>
+                <select id="nd-contact-select" class="form-input"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Deal-Bezeichnung *</label>
+                <input type="text" id="nd-title" class="form-input" placeholder="z.B. KI-Postfachtriage &amp; CRM Setup">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Volumen (EUR Netto) *</label>
+                <input type="number" id="nd-val" class="form-input" value="890">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pipeline-Phase</label>
+                <select id="nd-stage" class="form-input">
+                    <option value="discovery">1. Erstkontakt</option>
+                    <option value="proposal">2. Angebot</option>
+                    <option value="negotiation">3. Verhandlung</option>
+                    <option value="closed_won">4. Gewonnen</option>
+                </select>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewDeal')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateDeal()">Anlegen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neue Rechnung ── -->
+    <div class="modal-backdrop" id="modalNewInvoice">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">GoBD-Rechnung erstellen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewInvoice')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Rechnungsempfänger *</label>
+                <select id="ni-contact-select" class="form-input"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Leistungsbeschreibung *</label>
+                <input type="text" id="ni-desc" class="form-input" placeholder="z.B. Einrichtung KI-Automatisierung">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nettobetrag (EUR) *</label>
+                <input type="number" id="ni-amount" class="form-input" value="99">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewInvoice')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateInvoice()">Buchen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: GiroCode (EPC-QR) ── -->
+    <div class="modal-backdrop" id="modalEpcQr">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">SEPA GiroCode (EPC-QR)</span>
+                <button class="modal-close-btn" onclick="closeModal('modalEpcQr')">✕</button>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; background:var(--bg-subtle); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:12px;" id="epcQrCodeString"></div>
+            <div id="epcDetailsBox" style="font-size:12px; color:var(--text-secondary); line-height:1.6;"></div>
+            <div style="text-align:right; margin-top:14px;">
+                <button class="btn" onclick="closeModal('modalEpcQr')">Schließen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: DIN A4 Rechnungsbeleg-Vorschau (GoBD / ZUGFeRD) ── -->
+    <div class="modal-backdrop" id="modalInvoicePreview" onclick="if(event.target===this) closeModal('modalInvoicePreview')">
+        <div class="modal-card" style="width: 680px; max-width: 96vw; padding: 28px 32px;">
+            <div class="modal-header" style="border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:20px;">
+                <div>
+                    <span class="modal-title" id="invPrevHeaderTitle">Rechnungsbeleg · Vorschau</span>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">GoBD-revisionssicherer Originalbeleg · EN 16931 / ZUGFeRD 2.2</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ Drucken / PDF</button>
+                    <button class="modal-close-btn" onclick="closeModal('modalInvoicePreview')">✕</button>
+                </div>
+            </div>
+            <div id="invPrevSheetBody" style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:8px; padding:24px; font-size:12.5px; line-height:1.55; color:#18181B;"></div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Conrad OS App Matrix Launcher ── -->
+    <div class="modal-backdrop" id="odooAppMatrixModal" onclick="if(event.target===this)closeModal('odooAppMatrixModal')">
+        <div class="modal-card" style="width: 680px; max-width: 96vw;">
+            <div class="modal-header">
+                <div>
+                    <span class="modal-title">Conrad OS · System-Module &amp; Workspaces</span>
+                    <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Alle Fachmodule laufen nativ in einer Rust-Engine und einer SQLite-Datenbank</div>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('odooAppMatrixModal')">✕</button>
+            </div>
+            <div class="app-matrix-grid" id="appMatrixGridContainer"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color);">
+                <span style="font-size:11.5px; color:var(--text-muted);">Conrad OS Native Modul-Architektur · 100 % Pure Rust · Single-DB</span>
+                <button class="btn btn-primary" onclick="closeModal('odooAppMatrixModal'); switchView('plugins');">+ Modul-Architektur öffnen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neues Modul bauen ── -->
+    <div class="modal-backdrop" id="modalNewPlugin">
+        <div class="modal-card" style="width: 540px;">
+            <div class="modal-header">
+                <span class="modal-title">Neues Fachmodul in Conrad OS anlegen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewPlugin')">✕</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label class="form-label">Plugin-Name *</label>
+                    <input type="text" id="np-name" class="form-input" placeholder="z.B. Fuhrpark &amp; Leasing">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Technischer Slug *</label>
+                    <input type="text" id="np-slug" class="form-input" placeholder="z.B. fleet">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 100px; gap:10px;">
+                <div class="form-group">
+                    <label class="form-label">Kategorie</label>
+                    <select id="np-category" class="form-input">
+                        <option value="ERP">ERP &amp; Betrieb</option>
+                        <option value="Assets">Vermögen &amp; Immobilien</option>
+                        <option value="Operations">Service &amp; Operations</option>
+                        <option value="Custom">Eigenes Modul</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Icon</label>
+                    <select id="np-icon" class="form-input">
+                        <option value="cube">Cube (Standard)</option>
+                        <option value="building">Immobilie / Gebäude</option>
+                        <option value="folder">Projekt / Akte</option>
+                        <option value="lifebuoy">Helpdesk / Ticket</option>
+                        <option value="package">Katalog / Inventar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Layer #</label>
+                    <input type="number" id="np-layer" class="form-input" value="210">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Beschreibung &amp; KI-Kontext *</label>
+                <input type="text" id="np-desc" class="form-input" placeholder="z.B. Verwaltung von Firmenfahrzeugen, Kilometern, Leasingraten und Wartung.">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Datenfelder (Kommagetrennt: Label:key:typ)</label>
+                <input type="text" id="np-fields" class="form-input" value="Kennzeichen:plate:text, Leasingrate (EUR):rate_eur:number, Verantwortlich:owner:text">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewPlugin')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreatePlugin()">Plugin kompilieren &amp; mounten</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neuer Datensatz in dynamischem Plugin ── -->
+    <div class="modal-backdrop" id="modalNewPluginRecord">
+        <div class="modal-card" style="width: 500px;">
+            <div class="modal-header">
+                <span class="modal-title" id="modalNewPluginRecordTitle">Neuer Datensatz</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewPluginRecord')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Bezeichnung / Titel *</label>
+                <input type="text" id="npr-title" class="form-input" placeholder="Primärbezeichnung eingeben...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select id="npr-status" class="form-input">
+                    <option value="active">Aktiv</option>
+                    <option value="in_progress">In Bearbeitung</option>
+                    <option value="planned">Geplant / Prüfung</option>
+                    <option value="completed">Abgeschlossen</option>
+                </select>
+            </div>
+            <div id="npr-dynamic-fields"></div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewPluginRecord')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreatePluginRecord()">Datensatz speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neuer Retainer ── -->
+    <div class="modal-backdrop" id="modalNewRetainer">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">Neues Retainer-Mandat anlegen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewRetainer')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mandant / Kunde *</label>
+                <select id="nr-contact-select" class="form-input"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Leistungs-Paket *</label>
+                <input type="text" id="nr-plan" class="form-input" placeholder="z.B. Conrad KI Managed Agents (Pro)">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label class="form-label">Monatsbetrag Netto (EUR) *</label>
+                    <input type="number" id="nr-amount" class="form-input" value="99">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nächste Abrechnung</label>
+                    <input type="date" id="nr-date" class="form-input" value="2026-12-01">
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewRetainer')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateRetainer()">Retainer aktivieren</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neue Kampagne ── -->
+    <div class="modal-backdrop" id="modalNewCampaign">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">Neue Marketing-Kampagne erfassen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewCampaign')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kampagnen-Name *</label>
+                <input type="text" id="nmc-name" class="form-input" placeholder="z.B. LinkedIn Outbound Q4 Rhein-Neckar">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label class="form-label">Plattform</label>
+                    <select id="nmc-platform" class="form-input">
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="meta">Meta / Instagram</option>
+                        <option value="google">Google Search</option>
+                        <option value="organic">Organic / Referral</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ad Spend (EUR)</label>
+                    <input type="number" id="nmc-spend" class="form-input" value="250">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label class="form-label">Klicks</label>
+                    <input type="number" id="nmc-clicks" class="form-input" value="180">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Leads</label>
+                    <input type="number" id="nmc-leads" class="form-input" value="12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kunden</label>
+                    <input type="number" id="nmc-customers" class="form-input" value="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Zugeordneter Umsatz (EUR)</label>
+                <input type="number" id="nmc-revenue" class="form-input" value="2400">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewCampaign')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateCampaign()">Kampagne speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal: Neue Workflow-Regel ── -->
+    <div class="modal-backdrop" id="modalNewWorkflow">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title">Neuen Automations-Trigger anlegen</span>
+                <button class="modal-close-btn" onclick="closeModal('modalNewWorkflow')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Bezeichnung der Regel *</label>
+                <input type="text" id="nw-name" class="form-input" placeholder="z.B. Deal Gewonnen -> Onboarding-Checkliste &amp; Willkommens-Entwurf">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label class="form-label">Trigger-Event</label>
+                    <select id="nw-trigger" class="form-input">
+                        <option value="deal_stage_changed">Deal-Phase geändert</option>
+                        <option value="contact_created">Neuer Kontakt erstellt</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ziel-Bedingung (Phase)</label>
+                    <select id="nw-stage" class="form-input">
+                        <option value="proposal">Angebot (proposal)</option>
+                        <option value="negotiation">Verhandlung (negotiation)</option>
+                        <option value="closed_won">Gewonnen (closed_won)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Aktion</label>
+                <select id="nw-action" class="form-input">
+                    <option value="create_task_and_followup_draft">Aufgabe (+3 Tage) + E-Mail-Entwurf generieren</option>
+                </select>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn" onclick="closeModal('modalNewWorkflow')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="submitCreateWorkflow()">Workflow aktivieren</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'user';
+        let currentRole = 'admin';
+        let currentView = 'dashboard';
+        let contactsData = [];
+        let dealsData = [];
+        let invoicesData = [];
+        let tasksData = [];
+        let pluginsData = [];
+        let workflowsData = [];
+        let bookingsData = [];
+        let documentsData = [];
+        let activePlugin = null;
+        let activePluginRecords = [];
+        let dynPluginViewMode = 'table';
+        let settingsData = {};
+        let contactStatusFilter = 'all';
+        let activeContactId = null;
+        let activeComposerChannel = 'note';
+        let touchDraggedDealId = null;
+
+        async function initApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            }
+            await loadSettings();
+            await refreshData();
+            setupKeyboardNav();
+        }
+
+        function initials(name) {
+            if (!name) return 'C';
+            return name.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function statusBadge(status) {
+            const map = {
+                customer: ['success', 'Kunde'],
+                qualified: ['info', 'Qualifiziert'],
+                lead: ['warning', 'Lead'],
+                churned: ['neutral', 'Inaktiv'],
+                paid: ['success', 'Bezahlt'],
+                sent: ['info', 'Versendet'],
+                draft: ['neutral', 'Entwurf'],
+                cancelled: ['danger', 'Storniert'],
+                active: ['success', 'Aktiv'],
+                Aktiv: ['success', 'Aktiv'],
+                Vermietet: ['success', 'Vermietet'],
+                confirmed: ['success', 'Bestätigt'],
+                in_progress: ['info', 'In Arbeit'],
+                'In Arbeit': ['info', 'In Arbeit'],
+                'Pipeline 09/2026': ['info', 'Pipeline 09/2026'],
+                planned: ['warning', 'Geplant'],
+                Geplant: ['warning', 'Geplant'],
+                completed: ['neutral', 'Erledigt']
+            };
+            const [cls, label] = map[status] || ['neutral', status];
+            return `<span class="badge ${cls}"><span class="badge-dot"></span>${escapeHtml(label)}</span>`;
+        }
+
+        function pluginIconSvg(iconName) {
+            const icons = {
+                folder: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+                building: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/></svg>',
+                lifebuoy: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/></svg>',
+                package: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>'
+            };
+            return icons[iconName] || '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 4.9V17L12 22l-9-4.9V7z"/></svg>';
+        }
+
+        function switchAppMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnModeUser').classList.toggle('active', mode === 'user');
+            document.getElementById('btnModeAdmin').classList.toggle('active', mode === 'admin');
+            const pill = document.getElementById('topbarModePill');
+            const label = document.getElementById('topbarModeLabel');
+            if (mode === 'admin') {
+                pill.className = 'badge warning';
+                label.innerText = 'Architekt';
+            } else {
+                pill.className = 'badge info';
+                label.innerText = 'Operativ';
+            }
+        }
+
+        function switchView(viewId) {
+            document.getElementById('appSidebar')?.classList.remove('mobile-open');
+
+            if (viewId && viewId.startsWith('plugin:')) {
+                const plugRef = viewId.substring('plugin:'.length);
+                openPluginWorkspace(plugRef);
+                return;
+            }
+
+            currentView = viewId;
+            const views = ['dashboard', 'contacts', 'deals', 'calendar', 'invoices', 'retainers', 'marketing', 'workflows', 'plugins', 'plugin-dynamic', 'dms', 'settings', 'aistudio'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.style.display = v === viewId ? 'block' : 'none';
+                const btn = document.getElementById(`nav-btn-${v}`);
+                if (btn) btn.classList.toggle('active', v === viewId);
+            });
+            document.querySelectorAll('.dyn-plugin-nav-btn').forEach(b => b.classList.remove('active'));
+
+            const titles = {
+                dashboard: 'Cockpit & Aufgaben',
+                contacts: 'Personen & Firmen',
+                deals: 'Deals Pipeline',
+                calendar: 'Kalender & Terminbuchung',
+                invoices: 'Faktura & E-Rechnung',
+                retainers: 'Retainer & Abos',
+                marketing: 'Marketing Attribution',
+                workflows: 'Workflows & Automationen',
+                plugins: 'Conrad OS Modul-Architektur',
+                dms: 'DMS Dokumenten-Tresor & GoBD Journal',
+                aistudio: 'KI Studio (Open WebUI) — Lokale Assistenz',
+                settings: 'Datenmodell & System'
+            };
+            document.getElementById('currentViewTitle').innerText = titles[viewId] || 'Workspace';
+
+            if (viewId === 'calendar') loadCalendarView();
+            if (viewId === 'marketing') loadMarketingView();
+            if (viewId === 'retainers') loadRetainersView();
+            if (viewId === 'workflows') loadWorkflowsView();
+            if (viewId === 'plugins') renderPluginsStore();
+            if (viewId === 'dms') loadGobdAuditView();
+            if (viewId === 'settings') loadSettingsView();
+        }
+
+        async function refreshData() {
+            try {
+                const [statsRes, contacts, deals, invoices, tasks, plugins, workflows, bookings, documents] = await Promise.all([
+                    fetch('/mcp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'erp_get_cashflow_stats' } })
+                    }).then(r => r.json()),
+                    fetch('/api/contacts').then(r => r.json()),
+                    fetch('/api/deals').then(r => r.json()),
+                    fetch('/api/invoices').then(r => r.json()),
+                    fetch('/api/tasks').then(r => r.json()).catch(() => []),
+                    fetch('/api/plugins').then(r => r.json()).catch(() => []),
+                    fetch('/api/workflows').then(r => r.json()).catch(() => []),
+                    fetch('/api/bookings').then(r => r.json()).catch(() => []),
+                    fetch('/api/documents').then(r => r.json()).catch(() => [])
+                ]);
+
+                contactsData = contacts || [];
+                dealsData = deals || [];
+                invoicesData = invoices || [];
+                tasksData = tasks || [];
+                pluginsData = plugins || [];
+                workflowsData = workflows || [];
+                bookingsData = bookings || [];
+                documentsData = documents || [];
+
+                document.getElementById('badge-contacts-count').innerText = contactsData.length;
+                document.getElementById('badge-deals-count').innerText = dealsData.length;
+                const badgeCal = document.getElementById('badge-bookings-count');
+                if (badgeCal) badgeCal.innerText = bookingsData.length;
+
+                const installedCount = pluginsData.filter(p => p.installed).length;
+                const badgePlug = document.getElementById('badge-plugins-count');
+                if (badgePlug) badgePlug.innerText = `${installedCount} aktiv`;
+                const footerLayers = document.getElementById('footerMountedLayers');
+                if (footerLayers) footerLayers.innerText = `MODULE: ${installedCount}/${pluginsData.length} AKTIV`;
+
+                if (statsRes?.result?.content?.[0]?.text) {
+                    const stats = JSON.parse(statsRes.result.content[0].text);
+                    document.getElementById('kpi-pipeline').innerText = (stats.pipeline_volume_cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+                    document.getElementById('kpi-revenue').innerText = (stats.paid_revenue_cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+                    document.getElementById('kpi-pending').innerText = (stats.pending_invoices_cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+                    document.getElementById('kpi-contacts').innerText = stats.total_contacts;
+                }
+
+                renderSidebarDynamicPlugins();
+                renderDashboardTables();
+                renderContactsTable();
+                renderDealsKanban();
+                renderInvoicesTable();
+                if (currentView === 'calendar') loadCalendarView();
+                if (currentView === 'dms') loadGobdAuditView();
+                if (currentView === 'plugins') renderPluginsStore();
+                if (currentView === 'workflows') loadWorkflowsView();
+                if (currentView === 'plugin-dynamic' && activePlugin) {
+                    await openPluginWorkspace(activePlugin.id);
+                }
+            } catch (err) {
+                console.error("Refresh error:", err);
+            }
+        }
+
+        function renderSidebarDynamicPlugins() {
+            const box = document.getElementById('sidebarDynamicPluginsList');
+            if (!box) return;
+            const dynamicInstalled = pluginsData.filter(p => !p.is_core && p.installed);
+            box.innerHTML = dynamicInstalled.map(p => {
+                const layer = p.layer_order || p.harness_layer || 100;
+                const icon = p.icon_svg || p.icon || 'cube';
+                return `
+                    <li>
+                        <button class="nav-item-btn dyn-plugin-nav-btn ${currentView==='plugin-dynamic' && activePlugin && activePlugin.id===p.id ? 'active' : ''}" id="nav-btn-plug-${p.slug}" onclick="openPluginWorkspace('${p.id}')">
+                            ${pluginIconSvg(icon)}
+                            <span>${escapeHtml(p.name)}</span>
+                            <span class="nav-count">#${layer}</span>
+                        </button>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // ── Odoo × DeepSeek Harness Plugin Studio & Dynamic Workspaces ──
+        function renderPluginsStore() {
+            const grid = document.getElementById('pluginsRegistryGrid') || document.getElementById('pluginsStoreGrid');
+            if (!grid) return;
+            grid.innerHTML = pluginsData.map(p => {
+                let fields = [];
+                try { fields = JSON.parse(p.schema_json || p.fields_json || '[]'); } catch (_) {}
+                const layer = p.layer_order || p.harness_layer || 100;
+                const icon = p.icon_svg || p.icon || 'cube';
+                const fieldsTags = fields.map(f => `<span class="tag-chip">${escapeHtml(f.label)}</span>`).join('');
+                return `
+                    <div class="plugin-card">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:34px; height:34px; border-radius:8px; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    ${pluginIconSvg(icon)}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700; font-size:13.5px;">${escapeHtml(p.name)}</div>
+                                    <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">${escapeHtml(p.id)} · ${escapeHtml(p.category)}</div>
+                                </div>
+                            </div>
+                            <span class="plugin-layer-pill">LAYER #${layer}</span>
+                        </div>
+                        <div style="font-size:12px; color:var(--text-secondary); line-height:1.45;">
+                            ${escapeHtml(p.description)}
+                        </div>
+                        <div>${fieldsTags || '<span class="tag-chip">Core OS Layer</span>'}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:10px; border-top:1px solid var(--border-color);">
+                            <span class="badge ${p.installed ? 'success' : 'neutral'}"><span class="badge-dot"></span>${p.installed ? 'Gemountet' : 'Inaktiv'}</span>
+                            <div style="display:flex; gap:6px;">
+                                ${!p.is_core && p.installed ? `<button class="btn btn-primary" style="height:26px; padding:0 10px; font-size:11.5px;" onclick="openPluginWorkspace('${p.id}')">Öffnen →</button>` : ''}
+                                ${p.is_core ? `<span style="font-size:11px; color:var(--text-muted);">System-Kern</span>` : `
+                                    <button class="btn" style="height:26px; padding:0 10px; font-size:11.5px;" onclick="togglePluginInstall('${p.id}')">
+                                        ${p.installed ? 'Aushängen' : 'Mounten'}
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function togglePluginInstall(pluginId) {
+            await fetch(`/api/plugins/${encodeURIComponent(pluginId)}/toggle`, { method: 'PATCH' });
+            await refreshData();
+        }
+
+        function openNewPluginModal() {
+            openModal('modalNewPlugin');
+            setTimeout(() => document.getElementById('np-name')?.focus(), 50);
+        }
+
+        async function submitCreatePlugin() {
+            const name = document.getElementById('np-name').value.trim();
+            if (!name) return;
+            const slug = document.getElementById('np-slug').value.trim() || name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+            const category = document.getElementById('np-category').value;
+            const description = document.getElementById('np-desc').value.trim() || 'Benutzerdefiniertes Harness-Plugin';
+            const rawFields = document.getElementById('np-fields').value.trim();
+
+            const fields = rawFields.split(',').map(part => {
+                const segs = part.trim().split(':');
+                const label = (segs[0] || 'Feld').trim();
+                const key = (segs[1] || label.toLowerCase().replace(/[^a-z0-9]+/g, '_')).trim();
+                const field_type = (segs[2] || 'text').trim();
+                return { key, label, field_type };
+            }).filter(f => f.key);
+
+            const res = await fetch('/api/plugins', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, slug, category, description, fields })
+            }).then(r => r.json());
+
+            closeModal('modalNewPlugin');
+            await refreshData();
+            if (res && res.id) {
+                await openPluginWorkspace(res.id);
+            }
+        }
+
+        async function openPluginWorkspace(pluginIdOrSlug) {
+            let plug = pluginsData.find(p => p.id === pluginIdOrSlug || p.slug === pluginIdOrSlug);
+            if (!plug) {
+                await refreshData();
+                plug = pluginsData.find(p => p.id === pluginIdOrSlug || p.slug === pluginIdOrSlug);
+            }
+            if (!plug) return;
+            activePlugin = plug;
+            currentView = 'plugin-dynamic';
+            const layer = plug.layer_order || plug.harness_layer || 100;
+
+            const views = ['dashboard', 'contacts', 'deals', 'calendar', 'invoices', 'retainers', 'marketing', 'workflows', 'plugins', 'plugin-dynamic', 'dms', 'settings'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.style.display = v === 'plugin-dynamic' ? 'block' : 'none';
+                const btn = document.getElementById(`nav-btn-${v}`);
+                if (btn) btn.classList.remove('active');
+            });
+            document.querySelectorAll('.dyn-plugin-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-btn-plug-${plug.slug}`)?.classList.add('active');
+
+            document.getElementById('currentViewTitle').innerText = `${plug.name} (Modul #${layer})`;
+            const pillEl = document.getElementById('dynPluginLayerPill') || document.getElementById('dyn-plugin-layer-badge');
+            if (pillEl) pillEl.innerText = `MODUL #${layer} · ${plug.id}`;
+            const descEl = document.getElementById('dynPluginDesc') || document.getElementById('dyn-plugin-desc');
+            if (descEl) descEl.innerText = plug.description;
+
+            activePluginRecords = await fetch(`/api/plugins/${encodeURIComponent(plug.id)}/records`).then(r => r.json()).catch(() => []);
+            renderActivePluginRecords();
+        }
+
+        function setDynPluginViewMode(mode) {
+            dynPluginViewMode = mode;
+            document.getElementById('dyn-view-btn-table')?.classList.toggle('active', mode === 'table');
+            document.getElementById('dyn-view-btn-cards')?.classList.toggle('active', mode === 'cards');
+            const tblWrap = document.getElementById('dynPluginTableContainer');
+            const cardsWrap = document.getElementById('dynPluginCardsContainer');
+            if (tblWrap) tblWrap.style.display = mode === 'table' ? 'block' : 'none';
+            if (cardsWrap) cardsWrap.style.display = mode === 'cards' ? 'grid' : 'none';
+            renderActivePluginRecords();
+        }
+
+        function renderActivePluginRecords() {
+            if (!activePlugin) return;
+            let schema = [];
+            try { schema = JSON.parse(activePlugin.schema_json || activePlugin.fields_json || '[]'); } catch (_) {}
+
+            const totalCents = activePluginRecords.reduce((acc, r) => acc + (r.amount_cents || 0), 0);
+            const activeCount = activePluginRecords.filter(r => !['cancelled', 'churned', 'Inaktiv'].includes(r.status)).length;
+            const kpiStrip = document.getElementById('dynPluginKpiStrip');
+            if (kpiStrip) {
+                kpiStrip.innerHTML = `
+                    <div class="kpi-card">
+                        <div class="kpi-label">Datensätze im Modul</div>
+                        <div class="kpi-value">${activePluginRecords.length}</div>
+                        <div class="kpi-sub"><span>SQLite Native Engine</span><span class="badge info">Aktiv</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Aktive Vorgänge / Objekte</div>
+                        <div class="kpi-value">${activeCount}</div>
+                        <div class="kpi-sub"><span>Operativer Status</span><span class="badge success">Laufend</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Gesamtwert / Volumen</div>
+                        <div class="kpi-value">${(totalCents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</div>
+                        <div class="kpi-sub"><span>Kumulierter Modulwert</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Schema-Attribute</div>
+                        <div class="kpi-value">${schema.length} Felder</div>
+                        <div class="kpi-sub"><span>${escapeHtml(activePlugin.category || 'ERP')} · Layer #${activePlugin.layer_order || 100}</span></div>
+                    </div>
+                `;
+            }
+
+            const thead = document.getElementById('dynPluginTableHead') || document.getElementById('dyn-plugin-thead');
+            if (thead) {
+                thead.innerHTML = `
+                    <tr>
+                        <th>Bezeichnung / Titel</th>
+                        <th>Status</th>
+                        ${schema.map(f => `<th>${escapeHtml(f.label)}</th>`).join('')}
+                        <th>Wert / Betrag</th>
+                        <th>Verantwortlich</th>
+                        <th>Aktion</th>
+                    </tr>
+                `;
+            }
+
+            const q = (document.getElementById('dynPluginSearch')?.value || '').trim().toLowerCase();
+            const filtered = activePluginRecords.filter(r => !q || (r.title || '').toLowerCase().includes(q) || (r.data_json || '').toLowerCase().includes(q));
+
+            const cardsContainer = document.getElementById('dynPluginCardsContainer');
+            if (cardsContainer) {
+                cardsContainer.innerHTML = filtered.map(rec => {
+                    let payload = {};
+                    try { payload = JSON.parse(rec.data_json || rec.payload_json || '{}'); } catch (_) {}
+                    return `
+                        <div class="card" style="padding:16px; display:flex; flex-direction:column; gap:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                                <div style="font-weight:700; font-size:13.5px; color:var(--text-primary);">${escapeHtml(rec.title)}</div>
+                                ${statusBadge(rec.status)}
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; background:var(--bg-subtle); padding:10px; border-radius:6px; border:1px solid var(--border-color); font-size:11.5px;">
+                                ${schema.map(f => {
+                                    const val = payload[f.key] !== undefined ? payload[f.key] : '—';
+                                    return `<div><div style="color:var(--text-muted); font-size:10.5px;">${escapeHtml(f.label)}</div><div style="font-weight:600; color:var(--text-primary); margin-top:2px;">${escapeHtml(String(val))}</div></div>`;
+                                }).join('')}
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px; border-top:1px solid var(--border-color); font-size:12px;">
+                                <span class="mono-val" style="font-weight:700;">${((rec.amount_cents || 0) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="cyclePluginRecordStatus('${rec.id}', '${rec.status}')">Status ↻</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const tbody = document.getElementById('dynPluginTableBody') || document.getElementById('dyn-plugin-tbody');
+            if (!tbody) return;
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="${schema.length + 5}" style="text-align:center; color:var(--text-muted); padding:24px;">Keine passenden Datensätze in diesem Modul.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(rec => {
+                let payload = {};
+                try { payload = JSON.parse(rec.data_json || rec.payload_json || '{}'); } catch (_) {}
+                return `
+                    <tr>
+                        <td class="wrap-cell"><strong>${escapeHtml(rec.title)}</strong></td>
+                        <td>${statusBadge(rec.status)}</td>
+                        ${schema.map(f => {
+                            const val = payload[f.key] !== undefined ? payload[f.key] : '—';
+                            return `<td class="${f.field_type === 'number' ? 'mono-val' : 'wrap-cell'}">${escapeHtml(String(val))}</td>`;
+                        }).join('')}
+                        <td class="mono-val"><strong>${((rec.amount_cents || 0) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</strong></td>
+                        <td>${escapeHtml(rec.owner || 'Merlin Conrad')}</td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="cyclePluginRecordStatus('${rec.id}', '${rec.status}')">Status ↻</button>
+                                <button class="btn" style="height:24px; padding:0 8px; font-size:11px; color:var(--status-red-fg);" onclick="deletePluginRecord('${rec.id}')">✕</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openNewPluginRecordModal() {
+            if (!activePlugin) return;
+            document.getElementById('modalNewPluginRecordTitle').innerText = `Neuer Datensatz · ${activePlugin.name}`;
+            document.getElementById('npr-title').value = '';
+            let schema = [];
+            try { schema = JSON.parse(activePlugin.schema_json || activePlugin.fields_json || '[]'); } catch (_) {}
+            const container = document.getElementById('npr-dynamic-fields');
+            container.innerHTML = schema.map(f => `
+                <div class="form-group">
+                    <label class="form-label">${escapeHtml(f.label)}</label>
+                    <input type="${f.field_type === 'number' ? 'number' : 'text'}" class="form-input npr-dyn-input" data-key="${escapeHtml(f.key)}" placeholder="${escapeHtml(f.label)}...">
+                </div>
+            `).join('') + `
+                <div class="form-group">
+                    <label class="form-label">Wert / Betrag (EUR)</label>
+                    <input type="number" id="npr-amount-eur" class="form-input" value="0">
+                </div>
+            `;
+            openModal('modalNewPluginRecord');
+            setTimeout(() => document.getElementById('npr-title')?.focus(), 50);
+        }
+
+        async function submitCreatePluginRecord() {
+            if (!activePlugin) return;
+            const title = document.getElementById('npr-title').value.trim();
+            if (!title) return;
+            const status = document.getElementById('npr-status').value;
+            const amountEur = parseFloat(document.getElementById('npr-amount-eur')?.value) || 0;
+            const data = {};
+            document.querySelectorAll('.npr-dyn-input').forEach(inp => {
+                const k = inp.dataset.key;
+                if (k) data[k] = inp.type === 'number' ? (parseFloat(inp.value) || 0) : inp.value.trim();
+            });
+
+            await fetch(`/api/plugins/${encodeURIComponent(activePlugin.id)}/records`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, status, amount_cents: Math.round(amountEur * 100), owner: 'Merlin Conrad', data })
+            });
+            closeModal('modalNewPluginRecord');
+            await openPluginWorkspace(activePlugin.id);
+        }
+
+        async function cyclePluginRecordStatus(recordId, currentStatus) {
+            const order = ['Aktiv', 'In Arbeit', 'Geplant', 'Abgeschlossen'];
+            const next = order[(order.indexOf(currentStatus) + 1) % order.length];
+            await fetch(`/api/plugins/records/${encodeURIComponent(recordId)}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: next })
+            });
+            if (activePlugin) await openPluginWorkspace(activePlugin.id);
+        }
+
+        async function deletePluginRecord(recordId) {
+            await fetch(`/api/plugins/records/${encodeURIComponent(recordId)}`, { method: 'DELETE' });
+            if (activePlugin) await openPluginWorkspace(activePlugin.id);
+        }
+
+        // ── Conrad OS 9-Dot App Matrix Modal ──
+        function openAppMatrixModal() {
+            const container = document.getElementById('appMatrixGridContainer');
+            const coreItems = [
+                { title: 'Cockpit', sub: 'Core #10', view: 'dashboard', icon: '📊' },
+                { title: 'Kontakte & Akten', sub: 'Core #20', view: 'contacts', icon: '👥' },
+                { title: 'Deals Pipeline', sub: 'Core #30', view: 'deals', icon: '💼' },
+                { title: 'Kalender & Termine', sub: 'Core #35', view: 'calendar', icon: '📅' },
+                { title: 'Faktura & GoBD', sub: 'Core #40', view: 'invoices', icon: '🧾' },
+                { title: 'Retainer & MRR', sub: 'Core #50', view: 'retainers', icon: '🔄' },
+                { title: 'Marketing ROI', sub: 'Core #55', view: 'marketing', icon: '📈' },
+                { title: 'Workflows', sub: 'Core #60', view: 'workflows', icon: '⚡' },
+                { title: 'DMS & GoBD Tresor', sub: 'Core #70', view: 'dms', icon: '🔒' },
+                { title: 'Modul-Architektur', sub: 'Schema-Baukasten', view: 'plugins', icon: '🧩' }
+            ];
+            const dynItems = pluginsData.filter(p => !p.is_core && p.installed).map(p => ({
+                title: p.name,
+                sub: `Modul #${p.layer_order || p.harness_layer || 100}`,
+                view: `plugin:${p.id}`,
+                icon: p.slug === 'realestate' ? '🏢' : p.slug === 'projects' ? '📁' : p.slug === 'helpdesk' ? '🎧' : '📦'
+            }));
+            const all = [...coreItems, ...dynItems];
+            container.innerHTML = all.map(item => `
+                <div class="app-matrix-tile" onclick="closeModal('odooAppMatrixModal'); switchView('${item.view}');">
+                    <div class="app-matrix-icon" style="font-size:18px;">${item.icon}</div>
+                    <div class="app-matrix-title">${escapeHtml(item.title)}</div>
+                    <div class="app-matrix-sub">${escapeHtml(item.sub)}</div>
+                </div>
+            `).join('');
+            openModal('odooAppMatrixModal');
+        }
+
+        // ── AI Omni-Bar Execution ──
+        async function executeOmniBarCommand() {
+            const inp = document.getElementById('aiOmniInput') || document.getElementById('omniBarInput');
+            const prompt = (inp?.value || '').trim();
+            if (!prompt) return;
+            inp.value = '';
+            document.getElementById('copilotPanel').classList.add('open');
+            const box = document.getElementById('copilotMessages');
+            box.innerHTML += `<div class="chat-bubble user">${escapeHtml(prompt)}</div>`;
+            await handleAiInteraction(prompt, box);
+        }
+
+        // ── Workflows View ──
+        async function loadWorkflowsView() {
+            workflowsData = await fetch('/api/workflows').then(r => r.json()).catch(() => []);
+            const tbody = document.getElementById('workflowsFullTable');
+            if (!tbody) return;
+            tbody.innerHTML = workflowsData.map(w => `
+                <tr>
+                    <td><strong>${escapeHtml(w.name)}</strong></td>
+                    <td><span class="badge info">${escapeHtml(w.trigger_type || w.trigger_event || 'deal_stage_changed')}</span></td>
+                    <td class="mono-val">${escapeHtml(w.trigger_filter || w.condition_stage || '*')}</td>
+                    <td>${escapeHtml(w.action_type)}</td>
+                    <td class="mono-val">+${w.delay_days || 3} Tage</td>
+                    <td class="mono-val">${w.executions_count || 0}×</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="badge ${w.active ? 'success' : 'neutral'}">${w.active ? 'Aktiv' : 'Pausiert'}</span>
+                            <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="toggleWorkflowRule('${w.id}')">
+                                ${w.active ? 'Pausieren' : 'Aktivieren'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function toggleWorkflowRule(id) {
+            await fetch(`/api/workflows/${encodeURIComponent(id)}/toggle`, { method: 'PATCH' });
+            await loadWorkflowsView();
+        }
+
+        function openNewWorkflowModal() {
+            openModal('modalNewWorkflow');
+        }
+
+        async function submitCreateWorkflow() {
+            const name = document.getElementById('nw-name').value.trim();
+            if (!name) return;
+            const trigger_type = document.getElementById('nw-trigger').value;
+            const trigger_filter = document.getElementById('nw-stage').value;
+            const action_type = document.getElementById('nw-action').value;
+            await fetch('/api/workflows', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    trigger_type,
+                    trigger_filter,
+                    action_type,
+                    delay_days: 3,
+                    template_subject: 'Follow-up — Conrad KI',
+                    template_body: 'Hallo {{name}}, kurzes Follow-up zu unserem Vorgang.'
+                })
+            });
+            closeModal('modalNewWorkflow');
+            await loadWorkflowsView();
+        }
+
+        function openNewRetainerModal() {
+            const sel = document.getElementById('nr-contact-select');
+            sel.innerHTML = contactsData.map(c => `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.company || 'Privat')})</option>`).join('');
+            openModal('modalNewRetainer');
+        }
+
+        async function submitCreateRetainer() {
+            const contact_id = document.getElementById('nr-contact-select').value;
+            const plan_name = document.getElementById('nr-plan').value.trim() || 'Conrad KI Retainer';
+            const amount = parseFloat(document.getElementById('nr-amount').value) || 99;
+            const next_billing_date = document.getElementById('nr-date').value || '2026-12-01';
+            await fetch('/api/retainers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact_id,
+                    plan_name,
+                    amount_cents: Math.round(amount * 100),
+                    interval_months: 1,
+                    next_billing_date
+                })
+            });
+            closeModal('modalNewRetainer');
+            await loadRetainersView();
+        }
+
+        function openNewCampaignModal() {
+            openModal('modalNewCampaign');
+        }
+
+        async function submitCreateCampaign() {
+            const name = document.getElementById('nmc-name').value.trim();
+            if (!name) return;
+            const platform = document.getElementById('nmc-platform').value;
+            const spend = parseFloat(document.getElementById('nmc-spend').value) || 0;
+            const clicks = parseInt(document.getElementById('nmc-clicks').value) || 0;
+            const leads = parseInt(document.getElementById('nmc-leads').value) || 0;
+            const customers = parseInt(document.getElementById('nmc-customers').value) || 0;
+            const revenue = parseFloat(document.getElementById('nmc-revenue').value) || 0;
+            await fetch('/api/marketing/campaigns', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    platform,
+                    spend_cents: Math.round(spend * 100),
+                    clicks,
+                    leads,
+                    customers,
+                    revenue_cents: Math.round(revenue * 100)
+                })
+            });
+            closeModal('modalNewCampaign');
+            await loadMarketingView();
+        }
+
+        function exportContactsCsv() {
+            const headers = ['ID', 'Name', 'Firma', 'E-Mail', 'Telefon', 'Status', 'Tags'];
+            const rows = contactsData.map(c => [c.id, c.name, c.company, c.email, c.phone, c.status, c.tags].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'conrad-os-contacts.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function renderDashboardTables() {
+            const dealsMeta = document.getElementById('kpi-deals-meta');
+            if (dealsMeta) dealsMeta.innerText = `${dealsData.length} aktive Deals`;
+
+            const funnelBox = document.getElementById('dashboardPipelineFunnel');
+            if (funnelBox) {
+                const stageMeta = [
+                    { key: 'discovery', label: '1. Erstkontakt (Discovery)', color: '#6366F1' },
+                    { key: 'proposal', label: '2. Angebot (Proposal)', color: '#2563EB' },
+                    { key: 'negotiation', label: '3. Verhandlung (Negotiation)', color: '#F59E0B' },
+                    { key: 'closed_won', label: '4. Gewonnen (Closed Won)', color: '#10B981' }
+                ];
+                const totalVal = Math.max(1, dealsData.reduce((acc, d) => acc + (d.value_cents || 0), 0));
+                funnelBox.innerHTML = stageMeta.map(st => {
+                    const list = dealsData.filter(d => d.stage === st.key);
+                    const sumCents = list.reduce((acc, d) => acc + (d.value_cents || 0), 0);
+                    const pct = Math.max(12, Math.round((sumCents / totalVal) * 100));
+                    return `
+                        <div class="funnel-stage-row" style="cursor:pointer;" onclick="switchView('deals')">
+                            <div class="funnel-stage-head">
+                                <span><strong>${escapeHtml(st.label)}</strong> <span style="color:var(--text-muted); font-weight:500;">(${list.length} Deals)</span></span>
+                                <span class="mono-val"><strong>${(sumCents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</strong></span>
+                            </div>
+                            <div class="kpi-progress-track" style="height:8px; margin-top:4px;">
+                                <div class="kpi-progress-fill" style="width:${pct}%; background:${st.color};"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const tbody = document.getElementById('dashboardRecentContacts');
+            tbody.innerHTML = contactsData.slice(0, 6).map(c => `
+                <tr onclick="openContactDrawer('${c.id}')">
+                    <td>
+                        <div class="cell-entity">
+                            <span class="entity-avatar">${initials(c.name)}</span>
+                            <span>${escapeHtml(c.name)}</span>
+                        </div>
+                    </td>
+                    <td style="color:var(--text-secondary);">${escapeHtml(c.company || '—')}</td>
+                    <td>${statusBadge(c.status)}</td>
+                    <td class="mono-val" style="color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('de-DE')}</td>
+                </tr>
+            `).join('');
+
+            const openTasks = tasksData.filter(t => t.status !== 'completed');
+            document.getElementById('tasksCountBadge').innerText = `${openTasks.length} offen`;
+            const tBox = document.getElementById('dashboardTasksList');
+            if (!tasksData.length) {
+                tBox.innerHTML = `<div style="color:var(--text-muted); font-size:12px;">Keine offenen Aufgaben. Verschiebe einen Deal auf „Angebot“, um automatisch einen Follow-up auszulösen.</div>`;
+            } else {
+                tBox.innerHTML = tasksData.slice(0, 6).map(t => `
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-subtle);">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; ${t.status==='completed'?'text-decoration:line-through; color:var(--text-muted);':''}">
+                            <input type="checkbox" ${t.status==='completed'?'checked':''} onchange="toggleTask('${t.id}')">
+                            <span>${escapeHtml(t.title)}</span>
+                        </label>
+                        <span class="mono-val" style="color:var(--text-muted); font-size:11px;">${escapeHtml(t.due_date)}</span>
+                    </div>
+                `).join('');
+            }
+
+            const bBox = document.getElementById('dashboardUpcomingBookings');
+            if (bBox) {
+                if (!bookingsData.length) {
+                    bBox.innerHTML = `<div style="color:var(--text-muted); font-size:12px;">Keine anstehenden Termine.</div>`;
+                } else {
+                    bBox.innerHTML = bookingsData.slice(0, 4).map(b => {
+                        const gName = b.guest_name || b.name || 'Mandant';
+                        return `
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-subtle); cursor:pointer;" onclick="switchView('calendar')">
+                                <div style="min-width:0;">
+                                    <div style="font-weight:600; font-size:12px; color:var(--text-primary);">${escapeHtml(gName)}</div>
+                                    <div style="font-size:11px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(b.notes || 'Strategie-Call')}</div>
+                                </div>
+                                <span class="badge info" style="font-family:var(--font-mono); flex-shrink:0;">${escapeHtml((b.slot_iso || '').replace('T', ' '))}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        async function toggleTask(id) {
+            await fetch(`/api/tasks/${id}/toggle`, { method: 'PATCH' });
+            await refreshData();
+        }
+
+        function setContactStatusFilter(status) {
+            contactStatusFilter = status;
+            ['all', 'lead', 'qualified', 'customer'].forEach(s => {
+                document.getElementById(`flt-${s}`)?.classList.toggle('active', s === status);
+            });
+            renderContactsTable();
+        }
+
+        function renderContactsTable() {
+            const totalEl = document.getElementById('c-kpi-total');
+            if (totalEl) totalEl.innerText = contactsData.length;
+            const custEl = document.getElementById('c-kpi-customers');
+            if (custEl) custEl.innerText = contactsData.filter(c => c.status === 'customer').length;
+            const qualEl = document.getElementById('c-kpi-qualified');
+            if (qualEl) qualEl.innerText = contactsData.filter(c => c.status === 'qualified').length;
+
+            const tbody = document.getElementById('contactsFullTable');
+            const q = (document.getElementById('contactSearchInput')?.value || '').toLowerCase();
+            const filtered = contactsData.filter(c => {
+                if (contactStatusFilter !== 'all' && c.status !== contactStatusFilter) return false;
+                if (!q) return true;
+                return (c.name || '').toLowerCase().includes(q) ||
+                       (c.company || '').toLowerCase().includes(q) ||
+                       (c.email || '').toLowerCase().includes(q);
+            });
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">Keine passenden Datensätze.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(c => {
+                const tagsHtml = (c.tags || '').split(',').filter(Boolean).map(t => `<span class="tag-chip">${escapeHtml(t.trim())}</span>`).join('');
+                const score = c.status === 'customer' ? 98 : c.status === 'qualified' ? 86 : 72;
+                const scoreColor = score >= 90 ? 'var(--status-green-fg)' : score >= 80 ? 'var(--accent)' : 'var(--status-amber-fg)';
+                return `
+                    <tr onclick="openContactDrawer('${c.id}')">
+                        <td>
+                            <div class="cell-entity">
+                                <span class="entity-avatar">${initials(c.name)}</span>
+                                <span><strong>${escapeHtml(c.name)}</strong></span>
+                            </div>
+                        </td>
+                        <td>${escapeHtml(c.company || '—')}</td>
+                        <td class="mono-val" style="color:var(--text-secondary);">${escapeHtml(c.email || '—')}</td>
+                        <td class="mono-val" style="color:var(--text-secondary);">${escapeHtml(c.phone || '—')}</td>
+                        <td>${statusBadge(c.status)}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="mono-val" style="font-weight:700; color:${scoreColor};">${score}%</span>
+                                <div class="kpi-progress-track" style="width:48px; height:5px; margin:0;">
+                                    <div class="kpi-progress-fill" style="width:${score}%; background:${scoreColor};"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${tagsHtml || '—'}</td>
+                        <td onclick="event.stopPropagation();">
+                            <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="openContactDrawer('${c.id}')">360°-Akte →</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterContactsList() {
+            renderContactsTable();
+        }
+
+        // ── 360° Contact Record Drawer (HubSpot / Twenty Inspector) ──
+        async function openContactDrawer(contactId) {
+            const c = contactsData.find(x => x.id === contactId);
+            if (!c) return;
+            activeContactId = contactId;
+
+            document.getElementById('cd-avatar').innerText = initials(c.name);
+            document.getElementById('cd-title-name').innerText = c.name;
+            document.getElementById('cd-title-sub').innerText = c.company || c.email || 'Kontakt-Datensatz';
+
+            const score = c.status === 'customer' ? 98 : c.status === 'qualified' ? 86 : 72;
+            const hb = document.getElementById('cd-health-badge');
+            if (hb) hb.innerText = `KI-Score: ${score}/100`;
+
+            const nba = document.getElementById('cd-ai-nba');
+            if (nba) {
+                if ((c.name || '').includes('Gruia')) {
+                    nba.innerText = 'Bestandsmieter Halmhuberstraße 10 (Mannheim). Cashflow +53,00 €/Mo. stabil. Nebenkostenabrechnung im DMS-Tresor hinterlegt.';
+                } else if (c.status === 'customer') {
+                    nba.innerText = 'Aktives Retainer-Mandat. Alle KI-Pipelines laufen fehlerfrei. Nächster Quartals-Check-in im Kalender terminiert.';
+                } else {
+                    nba.innerText = 'Hohes Abschluss-Potenzial (>80%). Empfehlung: 1-Klick KI-Follow-up-Entwurf prüfen und Termin-Link senden.';
+                }
+            }
+
+            document.getElementById('cd-prop-name').value = c.name || '';
+            document.getElementById('cd-prop-company').value = c.company || '';
+            document.getElementById('cd-prop-email').value = c.email || '';
+            document.getElementById('cd-prop-phone').value = c.phone || '';
+            document.getElementById('cd-prop-status').value = c.status || 'lead';
+            document.getElementById('cd-prop-tags').value = c.tags || '';
+
+            const cDeals = dealsData.filter(d => d.contact_id === contactId);
+            const cInvs = invoicesData.filter(inv => inv.contact_id === contactId);
+            const dealsBox = document.getElementById('cd-deals-list');
+            if (cDeals.length) {
+                dealsBox.innerHTML = cDeals.map(d => `
+                    <div style="padding:8px 10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:6px;">
+                        <div style="font-weight:700;">${escapeHtml(d.title)}</div>
+                        <div style="display:flex; justify-content:space-between; margin-top:4px; color:var(--text-secondary);">
+                            <span class="mono-val" style="font-weight:700; color:var(--text-primary);">${(d.value_cents/100).toLocaleString('de-DE',{style:'currency',currency:'EUR'})}</span>
+                            <span class="badge info">${escapeHtml(d.stage)}</span>
+                        </div>
+                    </div>
+                `).join('') + (cInvs.length ? cInvs.map(inv => `
+                    <div style="padding:8px 10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:6px; cursor:pointer;" onclick="closeContactDrawer(); switchView('invoices'); openInvoicePreviewModal('${inv.id}');">
+                        <div style="display:flex; justify-content:space-between;">
+                            <strong class="mono-val">${escapeHtml(inv.invoice_number)}</strong>
+                            ${statusBadge(inv.status)}
+                        </div>
+                        <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Brutto: ${(inv.gross_cents/100).toLocaleString('de-DE',{style:'currency',currency:'EUR'})} · Vorschau ↗</div>
+                    </div>
+                `).join('') : '');
+            } else {
+                dealsBox.innerHTML = `
+                    <div style="padding:8px 10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:6px;">
+                        <div style="font-weight:700;">Bestandsmandat / Objekt-Akte</div>
+                        <div style="display:flex; justify-content:space-between; margin-top:4px; color:var(--text-secondary);">
+                            <span class="mono-val" style="color:var(--status-green-fg); font-weight:700;">+53,00 € / Mo. CF</span>
+                            <span class="badge success">Aktiv</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('contactInspectorDrawer').classList.add('open');
+            await loadContactTimeline(contactId);
+        }
+
+        function generateAiFollowupDraftForActiveContact() {
+            const c = contactsData.find(x => x.id === activeContactId);
+            if (!c) return;
+            setComposerChannel('email');
+            document.getElementById('composerSubject').value = `Kurzes Update & nächste Schritte — ${c.company || c.name} × Conrad KI`;
+            document.getElementById('composerBody').value = `Hallo ${c.name.split(' ')[0]},\n\nich habe unsere aktuellen Kennzahlen und den Projektstatus geprüft. Wollen wir diese Woche kurz 15 Minuten sprechen, um den nächsten Meilenstein freizugeben?\n\nBeste Grüße\nMerlin Conrad`;
+            document.getElementById('composerBody').focus();
+        }
+
+        async function runQuickCopilotPrompt(promptText) {
+            const inp = document.getElementById('copilotInput');
+            if (inp) inp.value = promptText;
+            await sendCopilotChat();
+        }
+
+        function closeContactDrawer() {
+            document.getElementById('contactInspectorDrawer').classList.remove('open');
+        }
+
+        async function saveContactProperty() {
+            if (!activeContactId) return;
+            await fetch(`/api/contacts/${activeContactId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: document.getElementById('cd-prop-name').value.trim(),
+                    company: document.getElementById('cd-prop-company').value.trim(),
+                    email: document.getElementById('cd-prop-email').value.trim(),
+                    phone: document.getElementById('cd-prop-phone').value.trim(),
+                    status: document.getElementById('cd-prop-status').value,
+                    tags: document.getElementById('cd-prop-tags').value.trim()
+                })
+            });
+            await refreshData();
+        }
+
+        function setComposerChannel(ch) {
+            activeComposerChannel = ch;
+            ['note', 'email', 'whatsapp', 'call'].forEach(t => {
+                document.getElementById(`tab-btn-${t}`)?.classList.toggle('active', t === ch);
+            });
+            const subj = document.getElementById('composerSubject');
+            const hint = document.getElementById('composerHint');
+            if (ch === 'email') {
+                subj.style.display = 'block';
+                hint.innerText = 'Sicherheits-Guardrail: E-Mails werden immer als Entwurf (draft) gespeichert.';
+            } else {
+                subj.style.display = 'none';
+                hint.innerText = `Aktivität (${ch.toUpperCase()}) wird direkt in der Kunden-Historie protokolliert.`;
+            }
+        }
+
+        async function submitContactActivity() {
+            if (!activeContactId) return;
+            const body = document.getElementById('composerBody').value.trim();
+            if (!body) return;
+            const subject = document.getElementById('composerSubject').value.trim() || null;
+
+            await fetch(`/api/contacts/${activeContactId}/timeline`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact_id: activeContactId,
+                    channel: activeComposerChannel,
+                    direction: 'outbound',
+                    subject,
+                    body
+                })
+            });
+            document.getElementById('composerBody').value = '';
+            document.getElementById('composerSubject').value = '';
+            await loadContactTimeline(activeContactId);
+        }
+
+        async function loadContactTimeline(contactId) {
+            const feed = document.getElementById('cd-timeline-feed');
+            const list = await fetch(`/api/contacts/${contactId}/timeline`).then(r => r.json()).catch(() => []);
+            if (!list.length) {
+                feed.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding-top:24px;">Noch keine Aktivitäten für diesen Kontakt erfasst.</div>';
+                return;
+            }
+            feed.innerHTML = list.map(m => {
+                const isDraft = m.status === 'draft';
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-item-head">
+                            <div>
+                                <span class="badge ${isDraft ? 'warning' : 'info'}">${escapeHtml(m.channel.toUpperCase())}</span>
+                                ${isDraft ? '<span class="badge warning" style="margin-left:4px;">ENTWURF (Freigabe nötig)</span>' : ''}
+                                ${m.subject ? `<strong style="margin-left:6px; color:var(--text-primary);">${escapeHtml(m.subject)}</strong>` : ''}
+                            </div>
+                            <span class="mono-val">${new Date(m.timestamp).toLocaleString('de-DE')}</span>
+                        </div>
+                        <div style="white-space:pre-wrap; color:var(--text-primary); font-size:12.5px;">${escapeHtml(m.body)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ── Deals Kanban Board ──
+        function renderDealsKanban() {
+            const stages = ['discovery', 'proposal', 'negotiation', 'closed_won'];
+            const sums = { discovery: 0, proposal: 0, negotiation: 0, closed_won: 0 };
+            const weights = { discovery: 0.25, proposal: 0.50, negotiation: 0.75, closed_won: 1.0 };
+            const probBadge = {
+                discovery: '<span class="badge info" style="font-size:10px;">25% Prob.</span>',
+                proposal: '<span class="badge warning" style="font-size:10px;">50% Prob.</span>',
+                negotiation: '<span class="badge purple" style="font-size:10px;">75% Prob.</span>',
+                closed_won: '<span class="badge success" style="font-size:10px;">100% Won</span>'
+            };
+
+            stages.forEach(s => {
+                const col = document.getElementById(`k-items-${s}`);
+                if (col) col.innerHTML = '';
+                const colWrap = document.getElementById(`k-col-${s}`);
+                if (colWrap) {
+                    colWrap.dataset.stage = s;
+                    colWrap.ondragover = (e) => { e.preventDefault(); colWrap.style.borderColor = 'var(--accent)'; };
+                    colWrap.ondragleave = () => { colWrap.style.borderColor = 'var(--border-color)'; };
+                    colWrap.ondrop = async (e) => {
+                        e.preventDefault();
+                        colWrap.style.borderColor = 'var(--border-color)';
+                        const dealId = e.dataTransfer.getData('text/plain');
+                        if (dealId) await moveDealToStage(dealId, s);
+                    };
+                }
+            });
+
+            let weightedTotalCents = 0;
+            dealsData.forEach(d => {
+                const stage = sums[d.stage] !== undefined ? d.stage : 'discovery';
+                sums[stage] += d.value_cents;
+                weightedTotalCents += Math.round(d.value_cents * (weights[stage] || 0.25));
+
+                const col = document.getElementById(`k-items-${stage}`);
+                if (col) {
+                    const card = document.createElement('div');
+                    card.className = 'kanban-card';
+                    card.draggable = true;
+                    card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', d.id); card.style.opacity = '0.5'; };
+                    card.ondragend = () => { card.style.opacity = '1'; };
+
+                    card.addEventListener('touchstart', () => { touchDraggedDealId = d.id; card.style.opacity = '0.7'; }, { passive: true });
+                    card.addEventListener('touchend', async (e) => {
+                        card.style.opacity = '1';
+                        if (!touchDraggedDealId) return;
+                        const touch = e.changedTouches[0];
+                        const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+                        const targetCol = targetEl ? targetEl.closest('.kanban-column') : null;
+                        if (targetCol && targetCol.dataset.stage && targetCol.dataset.stage !== d.stage) {
+                            await moveDealToStage(touchDraggedDealId, targetCol.dataset.stage);
+                        }
+                        touchDraggedDealId = null;
+                    });
+
+                    card.onclick = () => advanceDealStage(d.id, d.stage);
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:6px;">
+                            <div class="kanban-card-title" style="margin-bottom:0;">${escapeHtml(d.title)}</div>
+                            ${probBadge[stage] || ''}
+                        </div>
+                        <div class="kanban-card-company">
+                            <span class="entity-avatar" style="width:18px; height:18px; font-size:9px;">${initials(d.contact_name || 'K')}</span>
+                            <span>${escapeHtml(d.contact_name || 'Unbekannt')}</span>
+                        </div>
+                        <div style="font-size:10.5px; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between;">
+                            <span>📅 Ziel: ${escapeHtml(d.expected_close_date || '2026-11-30')}</span>
+                            <span>KI-Workflow aktiv</span>
+                        </div>
+                        <div class="kanban-card-footer">
+                            <span class="mono-val" style="font-weight:700; color:var(--text-primary);">${(d.value_cents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</span>
+                            <span style="color:var(--accent); font-weight:600;">Phase +1 →</span>
+                        </div>
+                    `;
+                    col.appendChild(card);
+                }
+            });
+
+            const totalAllCents = sums.discovery + sums.proposal + sums.negotiation + sums.closed_won;
+            const dTotalEl = document.getElementById('d-kpi-total-vol');
+            if (dTotalEl) dTotalEl.innerText = (totalAllCents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+            const dWeightedEl = document.getElementById('d-kpi-weighted-vol');
+            if (dWeightedEl) dWeightedEl.innerText = (weightedTotalCents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+            const dWonEl = document.getElementById('d-kpi-won-vol');
+            if (dWonEl) dWonEl.innerText = (sums.closed_won / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+            const dAvgEl = document.getElementById('d-kpi-avg-vol');
+            if (dAvgEl && dealsData.length) dAvgEl.innerText = ((totalAllCents / dealsData.length) / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+
+            stages.forEach(s => {
+                const sumEl = document.getElementById(`k-sum-${s}`);
+                if (sumEl) sumEl.innerText = (sums[s] / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+            });
+        }
+
+        async function moveDealToStage(dealId, targetStage) {
+            await fetch('/mcp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: 1,
+                    method: 'tools/call',
+                    params: { name: 'crm_update_deal_stage', arguments: { deal_id: dealId, new_stage: targetStage } }
+                })
+            });
+            await refreshData();
+        }
+
+        async function advanceDealStage(dealId, currentStage) {
+            const flow = ['discovery', 'proposal', 'negotiation', 'closed_won'];
+            const idx = flow.indexOf(currentStage);
+            if (idx === -1 || idx === flow.length - 1) return;
+            await moveDealToStage(dealId, flow[idx + 1]);
+        }
+
+        // ── Invoices ──
+        function renderInvoicesTable() {
+            const tbody = document.getElementById('invoicesFullTable');
+            if (!invoicesData.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">Keine Rechnungen.</td></tr>';
+                return;
+            }
+            const paidSum = invoicesData.filter(i => i.status === 'paid').reduce((a, i) => a + (i.gross_cents || 0), 0);
+            const openSum = invoicesData.filter(i => i.status !== 'paid' && i.status !== 'cancelled').reduce((a, i) => a + (i.gross_cents || 0), 0);
+            const vatSum = invoicesData.filter(i => i.status !== 'cancelled').reduce((a, i) => a + ((i.gross_cents || 0) - (i.net_cents || 0)), 0);
+            const paidEl = document.getElementById('inv-kpi-paid');
+            if (paidEl) paidEl.innerText = (paidSum / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+            const openEl = document.getElementById('inv-kpi-open');
+            if (openEl) openEl.innerText = (openSum / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+            const vatEl = document.getElementById('inv-kpi-vat');
+            if (vatEl) vatEl.innerText = (vatSum / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+
+            tbody.innerHTML = invoicesData.map(inv => {
+                const isPaid = inv.status === 'paid';
+                const vatCents = (inv.gross_cents || 0) - (inv.net_cents || 0);
+                return `
+                    <tr>
+                        <td class="mono-val"><strong>${escapeHtml(inv.invoice_number)}</strong></td>
+                        <td><strong>${escapeHtml(inv.contact_name || inv.contact_id)}</strong></td>
+                        <td class="mono-val">${escapeHtml(inv.due_date)}</td>
+                        <td class="mono-val">${(inv.net_cents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</td>
+                        <td class="mono-val" style="color:var(--text-secondary);">${(vatCents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</td>
+                        <td class="mono-val"><strong>${(inv.gross_cents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</strong></td>
+                        <td>${statusBadge(inv.status)}</td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="openInvoicePreviewModal('${inv.id}')">Beleg-Vorschau</button>
+                                <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="toggleInvoiceStatus('${inv.id}', '${inv.status}')">
+                                    ${isPaid ? 'Bezahlt ✓' : 'Als bezahlt buchen'}
+                                </button>
+                                <a href="/api/invoices/${inv.id}/xrechnung" target="_blank" class="btn" style="height:24px; padding:0 8px; font-size:11px; text-decoration:none;">XRechnung XML</a>
+                                <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" onclick="openEpcModal('${inv.invoice_number}', ${inv.gross_cents})">GiroCode</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openInvoicePreviewModal(invId) {
+            const inv = invoicesData.find(x => x.id === invId);
+            if (!inv) return;
+            const c = contactsData.find(x => x.id === inv.contact_id) || {};
+            const netEur = (inv.net_cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+            const taxEur = ((inv.gross_cents - inv.net_cents) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+            const grossEur = (inv.gross_cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+
+            let items = [];
+            try {
+                const parsed = JSON.parse(inv.items_json || '[]');
+                if (Array.isArray(parsed) && parsed.length) items = parsed;
+            } catch (_) {}
+            if (!items.length) {
+                items = [{ description: inv.items_json || 'Conrad KI Managed Automation & System-Architektur', quantity: 1, total_cents: inv.net_cents }];
+            }
+
+            const rowsHtml = items.map((it, idx) => {
+                const lineNet = ((it.total_cents || inv.net_cents) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+                const lineTax = (Math.round((it.total_cents || inv.net_cents) * 0.19) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+                const lineGross = (Math.round((it.total_cents || inv.net_cents) * 1.19) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+                return `
+                    <tr style="border-bottom:1px solid #F4F4F5;">
+                        <td style="padding:12px 8px 12px 0; font-family:var(--font-mono);">0${idx + 1}</td>
+                        <td style="padding:12px 12px 12px 0;"><strong>${escapeHtml(it.description || 'Leistungsposition')}</strong> <span style="color:#71717A; font-size:11px;">(${it.quantity || 1}×)</span></td>
+                        <td style="padding:12px 10px; text-align:right; font-family:var(--font-mono); white-space:nowrap;">${lineNet}</td>
+                        <td style="padding:12px 10px; text-align:right; font-family:var(--font-mono); white-space:nowrap;">${lineTax}</td>
+                        <td style="padding:12px 0 12px 10px; text-align:right; font-family:var(--font-mono); font-weight:700; white-space:nowrap;">${lineGross}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('invPrevHeaderTitle').innerText = `Rechnungsbeleg · ${inv.invoice_number}`;
+            document.getElementById('invPrevSheetBody').innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #18181B; padding-bottom:16px; margin-bottom:20px;">
+                    <div>
+                        <div style="font-size:18px; font-weight:800; letter-spacing:-0.02em;">Conrad KI · Automatisierung &amp; Consulting</div>
+                        <div style="font-size:11.5px; color:#52525B; margin-top:4px;">Inh. Merlin Conrad · Königsäcker 94 · 68723 Schwetzingen</div>
+                        <div style="font-size:11px; color:#71717A;">Web: www.conrad-ki.com · E-Mail: merlin@conrad-ki.com</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:16px; font-weight:800; font-family:var(--font-mono);">${escapeHtml(inv.invoice_number)}</div>
+                        <div style="font-size:11.5px; color:#52525B; margin-top:4px;">Fälligkeit: <strong>${escapeHtml(inv.due_date)}</strong></div>
+                        <div style="margin-top:4px;">${statusBadge(inv.status)}</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:22px;">
+                    <div>
+                        <div style="font-size:10px; text-transform:uppercase; color:#71717A; font-weight:700;">Rechnungsempfänger</div>
+                        <div style="font-weight:700; font-size:13.5px; margin-top:2px;">${escapeHtml(c.company || inv.contact_name || 'Mandant')}</div>
+                        <div>z. Hd. ${escapeHtml(inv.contact_name || c.name || 'Geschäftsführung')}</div>
+                        <div style="color:#52525B;">${escapeHtml(c.email || '')}</div>
+                    </div>
+                    <div style="text-align:right; font-size:11.5px; color:#52525B;">
+                        <div>Standard: <strong>EN 16931 / ZUGFeRD 2.2</strong></div>
+                        <div>Steuersatz: <strong>19,0 % USt.</strong></div>
+                        <div>Währung: <strong>EUR (€)</strong></div>
+                    </div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #E4E4E7; text-align:left; font-size:11px; text-transform:uppercase; color:#71717A;">
+                            <th style="padding:8px 8px 8px 0;">Pos.</th>
+                            <th style="padding:8px 12px 8px 0;">Leistungsbeschreibung</th>
+                            <th style="padding:8px 10px; text-align:right;">Netto</th>
+                            <th style="padding:8px 10px; text-align:right;">USt. (19%)</th>
+                            <th style="padding:8px 0 8px 10px; text-align:right;">Brutto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; background:#FAFAFA; padding:14px 16px; border-radius:6px; border:1px solid #E4E4E7;">
+                    <div style="font-size:11px; color:#52525B;">
+                        <div><strong>SEPA-Überweisung (0,00 % Gebühr):</strong></div>
+                        <div>Empfänger: Conrad KI · Merlin Conrad · Verwendungszweck: <span style="font-family:var(--font-mono);">${escapeHtml(inv.invoice_number)}</span></div>
+                        <div style="margin-top:4px; color:#71717A; font-family:var(--font-mono); font-size:10px;">GoBD-Audit-Signatur: sha256:${escapeHtml(inv.id)}_immutable_verified</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:11px; color:#71717A;">Gesamtbetrag (${netEur} Netto + ${taxEur} USt.)</div>
+                        <div style="font-size:20px; font-weight:800; font-family:var(--font-mono); color:#18181B;">${grossEur}</div>
+                    </div>
+                </div>
+            `;
+            openModal('modalInvoicePreview');
+        }
+
+        async function toggleInvoiceStatus(id, currentStatus) {
+            const nextStatus = currentStatus === 'paid' ? 'sent' : 'paid';
+            const res = await fetch(`/api/invoices/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: nextStatus })
+            });
+            if (!res.ok) alert(await res.text());
+            await refreshData();
+        }
+
+        function openEpcModal(invNum, grossCents) {
+            const eur = (grossCents / 100).toFixed(2);
+            document.getElementById('epcQrCodeString').innerText = `BCD\\n002\\n1\\nSCT\\n\\nConrad KI\\nDE02100100100123456789\\nEUR${eur}\\n\\n\\n${invNum}`;
+            document.getElementById('epcDetailsBox').innerHTML = `
+                <div><strong>Empfänger:</strong> Conrad KI</div>
+                <div><strong>Betrag:</strong> ${eur} € (0,00 % Gebühr)</div>
+                <div><strong>Referenz:</strong> ${invNum}</div>
+            `;
+            openModal('modalEpcQr');
+        }
+
+        async function loadRetainersView() {
+            const list = await fetch('/api/retainers').then(r => r.json()).catch(() => []);
+            const mrrCents = list.filter(r => r.active).reduce((a, r) => a + (r.amount_cents || 0), 0);
+            const mrrEl = document.getElementById('ret-kpi-mrr');
+            if (mrrEl) mrrEl.innerText = (mrrCents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+            const arrEl = document.getElementById('ret-kpi-arr');
+            if (arrEl) arrEl.innerText = ((mrrCents * 12) / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+
+            const tbody = document.getElementById('retainersFullTable');
+            tbody.innerHTML = list.map(r => {
+                const grossCents = Math.round((r.amount_cents || 0) * 1.19);
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(r.contact_name || r.contact_id)}</strong></td>
+                        <td>${escapeHtml(r.plan_name)}</td>
+                        <td class="mono-val"><strong>${(r.amount_cents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</strong></td>
+                        <td class="mono-val" style="color:var(--text-secondary);">${(grossCents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</td>
+                        <td>${r.interval_months} Monat(e)</td>
+                        <td class="mono-val">${escapeHtml(r.next_billing_date)}</td>
+                        <td><span class="badge ${r.active ? 'success' : 'neutral'}">${r.active ? 'Aktiv' : 'Pausiert'}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function triggerRetainerRun() {
+            const res = await fetch('/api/retainers/trigger-run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ actor: document.getElementById('ui-user-name').innerText })
+            }).then(r => r.json());
+            alert(res.summary);
+            await loadRetainersView();
+            await refreshData();
+        }
+
+        async function loadMarketingView() {
+            const [campaigns, roi] = await Promise.all([
+                fetch('/api/marketing/campaigns').then(r => r.json()),
+                fetch('/api/marketing/roi').then(r => r.json())
+            ]);
+            if (roi) {
+                document.getElementById('m-kpi-spend').innerText = roi.total_spend_eur.toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+                document.getElementById('m-kpi-leads').innerText = roi.total_leads;
+                document.getElementById('m-kpi-cac').innerText = roi.blended_cac_eur.toLocaleString('de-DE', {style:'currency', currency:'EUR'});
+                document.getElementById('m-kpi-roas').innerText = `${roi.roas.toFixed(1)}x`;
+            }
+            document.getElementById('marketingCampaignsTable').innerHTML = (campaigns || []).map(c => {
+                const cRoas = ((c.revenue_cents || 0) / Math.max(1, c.spend_cents || 1)).toFixed(1);
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(c.name)}</strong></td>
+                        <td><span class="badge info">${escapeHtml(c.platform.toUpperCase())}</span></td>
+                        <td class="mono-val">${(c.spend_cents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</td>
+                        <td class="mono-val">${c.clicks}</td>
+                        <td class="mono-val">${c.leads}</td>
+                        <td class="mono-val"><strong>${c.customers}</strong></td>
+                        <td class="mono-val"><strong>${(c.revenue_cents / 100).toLocaleString('de-DE', {style:'currency', currency:'EUR'})}</strong></td>
+                        <td class="mono-val" style="color:var(--status-green-fg); font-weight:700;">${cRoas}x</td>
+                        <td>${statusBadge(c.status)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadCalendarView() {
+            bookingsData = await fetch('/api/bookings').then(r => r.json()).catch(() => []);
+            const badgeCal = document.getElementById('badge-bookings-count');
+            if (badgeCal) badgeCal.innerText = bookingsData.length;
+            const tbody = document.getElementById('bookingsFullTable');
+            if (!tbody) return;
+            if (!bookingsData.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:24px;">Noch keine Termine eingetragen.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = bookingsData.map(b => {
+                const gName = b.guest_name || b.name || 'Mandant';
+                const gEmail = b.guest_email || b.email || '';
+                const gPhone = b.guest_phone || b.phone || '';
+                return `
+                <tr>
+                    <td class="mono-val"><strong>${new Date(b.start_time).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}</strong></td>
+                    <td><strong>${escapeHtml(gName)}</strong></td>
+                    <td class="mono-val" style="color:var(--text-secondary);">${escapeHtml(gEmail)} ${gPhone ? '· ' + escapeHtml(gPhone) : ''}</td>
+                    <td>${escapeHtml(b.notes || b.title || 'Strategiegespräch')}</td>
+                    <td><span class="badge info">${escapeHtml(b.slug)}</span></td>
+                    <td class="mono-val" style="color:var(--text-muted);">${escapeHtml(b.timezone || 'Europe/Berlin')}</td>
+                    <td>${statusBadge(b.status || 'confirmed')}</td>
+                </tr>
+            `;}).join('');
+        }
+
+        function openNewBookingModal() {
+            openModal('modalNewBooking');
+            setTimeout(() => document.getElementById('nb-name')?.focus(), 50);
+        }
+
+        async function submitCreateBooking() {
+            const name = document.getElementById('nb-name').value.trim();
+            const email = document.getElementById('nb-email').value.trim();
+            if (!name || !email) return;
+            const phone = document.getElementById('nb-phone').value.trim() || null;
+            const rawDt = document.getElementById('nb-datetime').value || '2026-11-12T10:00';
+            const start_time = new Date(rawDt).toISOString();
+            const notes = document.getElementById('nb-notes').value.trim() || null;
+
+            await fetch('/api/bookings/merlin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, start_time, timezone: 'Europe/Berlin', notes })
+            });
+            closeModal('modalNewBooking');
+            await refreshData();
+            await loadCalendarView();
+        }
+
+        async function loadGobdAuditView() {
+            const [docs, list] = await Promise.all([
+                fetch('/api/documents').then(r => r.json()).catch(() => []),
+                fetch('/api/gobd/audit-log').then(r => r.json()).catch(() => [])
+            ]);
+            documentsData = docs || [];
+            renderDmsTable(documentsData);
+
+            document.getElementById('gobdAuditTable').innerHTML = list.map(entry => {
+                const cleanDetails = String(entry.details || '').replace(/n8n/gi, 'Conrad OS');
+                return `
+                <tr>
+                    <td class="mono-val">#${entry.seq}</td>
+                    <td class="mono-val" style="color:var(--text-secondary);">${new Date(entry.timestamp).toLocaleString('de-DE')}</td>
+                    <td><span class="badge neutral">${escapeHtml(entry.action)}</span></td>
+                    <td class="mono-val" style="color:var(--text-muted);">${escapeHtml((entry.entity_id || '').substring(0, 12))}</td>
+                    <td>${escapeHtml(cleanDetails)}</td>
+                    <td><strong>${escapeHtml(entry.actor)}</strong></td>
+                </tr>
+            `;}).join('');
+        }
+
+        function openNewDocumentModal() {
+            openModal('modalNewDocument');
+            setTimeout(() => document.getElementById('ndoc-title')?.focus(), 50);
+        }
+
+        async function submitCreateDocument() {
+            const fileInput = document.getElementById('ndoc-file');
+            const file = fileInput?.files?.[0];
+            const title = document.getElementById('ndoc-title').value.trim();
+            const category = document.getElementById('ndoc-category').value;
+            const tags = document.getElementById('ndoc-tags')?.value || '';
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('title', title || file.name);
+                formData.append('category', category);
+                formData.append('tags', tags);
+                await fetch('/api/documents/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+            } else if (title) {
+                await fetch('/api/documents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        filename: title + '.pdf',
+                        file_path: '/vault/' + category + '/' + title + '.pdf',
+                        file_size_bytes: 256000,
+                        mime_type: 'application/pdf',
+                        category,
+                        tags
+                    })
+                });
+            }
+            closeModal('modalNewDocument');
+            document.getElementById('ndoc-title').value = '';
+            if (fileInput) fileInput.value = '';
+            await loadGobdAuditView();
+        }
+
+        async function handleDmsSearch(val) {
+            const q = (val || '').trim();
+            const url = q ? `/api/documents/search?q=${encodeURIComponent(q)}` : '/api/documents';
+            const docs = await fetch(url).then(r => r.json()).catch(() => []);
+            renderDmsTable(docs || []);
+        }
+
+        function renderDmsTable(docs) {
+            const docBody = document.getElementById('dmsDocumentsTable');
+            if (!docBody) return;
+            docBody.innerHTML = docs.length ? docs.map(d => {
+                const hashStr = (d.file_path || d.sha256_hash || '').replace(/^dms:\/\/sha256\//, '');
+                const sizeBytes = d.file_size_bytes || d.size_bytes || 248000;
+                const dtStr = d.created_at || d.uploaded_at;
+                return `
+                <tr>
+                    <td><strong>${escapeHtml(d.title)}</strong></td>
+                    <td><span class="badge info">${escapeHtml(d.category)}</span></td>
+                    <td class="mono-val" style="color:var(--status-green-fg); font-size:11px;">sha256:${escapeHtml(hashStr.substring(0, 24))}…</td>
+                    <td class="mono-val">${Math.max(1, Math.round(sizeBytes / 1024))} KB</td>
+                    <td class="mono-val" style="color:var(--text-secondary);">${dtStr ? new Date(dtStr).toLocaleString('de-DE') : '—'}</td>
+                    <td>
+                        <a href="/api/documents/${d.id}/file" target="_blank" class="btn btn-xs" style="text-decoration:none; display:inline-block; padding:3px 8px;">📄 Öffnen</a>
+                    </td>
+                </tr>
+            `;}).join('') : '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">Keine Dokumente gefunden.</td></tr>';
+        }
+
+        function applyAiPrompt(txt) {
+            const input = document.getElementById('aistudio-input');
+            if (input) {
+                input.value = txt;
+                input.focus();
+            }
+        }
+
+        function clearAiStudioChat() {
+            const hist = document.getElementById('aistudio-chat-history');
+            if (hist) {
+                hist.innerHTML = '<div style="padding:12px; color:var(--text-muted); font-size:12px; text-align:center;">Verlauf geleert. Starte eine neue Anfrage.</div>';
+            }
+        }
+
+        async function sendAiStudioMessage() {
+            const input = document.getElementById('aistudio-input');
+            const prompt = input?.value?.trim();
+            if (!prompt) return;
+
+            const mode = document.getElementById('aistudio-mode')?.value || 'user';
+            const hist = document.getElementById('aistudio-chat-history');
+
+            // Append user bubble
+            const userMsg = document.createElement('div');
+            userMsg.style.cssText = 'align-self:flex-end; max-width:80%; padding:10px 14px; background:var(--accent); color:#ffffff; border-radius:12px 12px 2px 12px; font-size:13px; line-height:1.5;';
+            userMsg.textContent = prompt;
+            hist.appendChild(userMsg);
+
+            input.value = '';
+            input.disabled = true;
+
+            // Append loading indicator
+            const aiMsg = document.createElement('div');
+            aiMsg.style.cssText = 'align-self:flex-start; max-width:85%; padding:12px 16px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px 12px 12px 2px; font-size:13px; line-height:1.6; color:var(--text-primary);';
+            aiMsg.innerHTML = '<em>⚡ Qwen Copilot generiert Antwort...</em>';
+            hist.appendChild(aiMsg);
+            hist.scrollTop = hist.scrollHeight;
+
+            try {
+                const res = await fetch('/api/copilot/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, mode })
+                });
+                const data = await res.json();
+                aiMsg.innerHTML = (data.reply || 'Keine Antwort erhalten.').replace(/\n/g, '<br>');
+                if (data.actions_performed && data.actions_performed.length) {
+                    const actBadge = document.createElement('div');
+                    actBadge.style.cssText = 'margin-top:8px; font-size:11px; color:var(--status-green-fg);';
+                    actBadge.innerHTML = '✓ Ausgeführt: ' + data.actions_performed.map(a => escapeHtml(a)).join(', ');
+                    aiMsg.appendChild(actBadge);
+                }
+            } catch (err) {
+                aiMsg.innerHTML = '<span style="color:var(--status-red-fg);">Fehler bei der Kommunikation mit dem lokalen Copilot.</span>';
+            } finally {
+                input.disabled = false;
+                input.focus();
+                hist.scrollTop = hist.scrollHeight;
+            }
+        }
+
+        async function verifyGobdChain() {
+            const res = await fetch('/api/gobd/verify').then(r => r.json());
+            const box = document.getElementById('gobdVerifyResult');
+            box.style.display = 'block';
+            box.style.background = res.valid ? 'var(--status-green-bg)' : 'var(--status-red-bg)';
+            box.style.color = res.valid ? 'var(--status-green-fg)' : 'var(--status-red-fg)';
+            box.innerHTML = `<strong>${res.message}</strong> (${res.total_entries} Blöcke verifiziert)`;
+        }
+
+        async function loadSettings() {
+            try {
+                settingsData = await fetch('/api/settings').then(r => r.json()) || {};
+                if (settingsData.company_name) {
+                    document.getElementById('ui-brand-name').innerText = settingsData.company_name;
+                    document.getElementById('settingCompanyName').value = settingsData.company_name;
+                }
+                if (settingsData.theme_accent) setThemeAccent(settingsData.theme_accent, false);
+                if (settingsData.theme_mode) {
+                    document.documentElement.setAttribute('data-theme', settingsData.theme_mode);
+                }
+            } catch (_) {}
+        }
+
+        async function saveCompanyNameSetting() {
+            const name = document.getElementById('settingCompanyName').value.trim();
+            if (!name) return;
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: 'company_name', value: name })
+            });
+            document.getElementById('ui-brand-name').innerText = name;
+        }
+
+        function setThemeAccent(hex, persist = true) {
+            document.documentElement.style.setProperty('--accent', hex);
+            document.documentElement.style.setProperty('--accent-hover', hex);
+            if (persist) {
+                fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'theme_accent', value: hex })
+                });
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: 'theme_mode', value: next })
+            });
+        }
+
+        async function loadSettingsView() {
+            const cfs = await fetch('/api/custom-fields').then(r => r.json()).catch(() => []);
+            const list = document.getElementById('customFieldsRenderList');
+            list.innerHTML = cfs.length
+                ? cfs.map(f => `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);"><strong>${escapeHtml(f.label)}</strong> <code class="mono-val">(${escapeHtml(f.key)})</code> · ${escapeHtml(f.entity_type)}</div>`).join('')
+                : 'Keine Custom Fields definiert.';
+        }
+
+        async function submitCustomField() {
+            const key = document.getElementById('newCfKey').value.trim();
+            const label = document.getElementById('newCfLabel').value.trim();
+            if (!key || !label) return;
+            await fetch('/api/custom-fields', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ entity_type: 'contact', key, label, field_type: 'text' })
+            });
+            document.getElementById('newCfKey').value = '';
+            document.getElementById('newCfLabel').value = '';
+            await loadSettingsView();
+        }
+
+        // ── Copilot & Cmd+K Spotlight ──
+        function toggleCopilot() {
+            document.getElementById('copilotPanel').classList.toggle('open');
+            if (document.getElementById('copilotPanel').classList.contains('open')) {
+                setTimeout(() => document.getElementById('copilotInput').focus(), 100);
+            }
+        }
+
+        function openCmdKModal() {
+            document.getElementById('cmdkModal').style.display = 'flex';
+            renderSpotlightPreview();
+            setTimeout(() => document.getElementById('spotlightInput').focus(), 50);
+        }
+
+        function closeCmdKModal() {
+            document.getElementById('cmdkModal').style.display = 'none';
+        }
+
+        async function sendCopilotChat() {
+            const input = document.getElementById('copilotInput');
+            const prompt = input.value.trim();
+            if (!prompt) return;
+            const box = document.getElementById('copilotMessages');
+            box.innerHTML += `<div class="chat-bubble user">${escapeHtml(prompt)}</div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+            await handleAiInteraction(prompt, box);
+        }
+
+        async function executeSpotlightCommand() {
+            const input = document.getElementById('spotlightInput');
+            const prompt = input.value.trim();
+            if (!prompt) return;
+            closeCmdKModal();
+            input.value = '';
+            document.getElementById('copilotPanel').classList.add('open');
+            const box = document.getElementById('copilotMessages');
+            box.innerHTML += `<div class="chat-bubble user">${escapeHtml(prompt)}</div>`;
+            await handleAiInteraction(prompt, box);
+        }
+
+        function renderSpotlightPreview() {
+            const q = (document.getElementById('spotlightInput')?.value || '').trim().toLowerCase();
+            const box = document.getElementById('spotlightPreviewResults');
+            const matchedContacts = contactsData.filter(c => !q || (c.name||'').toLowerCase().includes(q) || (c.company||'').toLowerCase().includes(q)).slice(0, 4);
+            const matchedDeals = dealsData.filter(d => !q || (d.title||'').toLowerCase().includes(q)).slice(0, 3);
+
+            let html = '<div style="font-size:11px; font-weight:600; color:var(--text-muted); padding:4px 8px;">KONTAKTE & AKTEN</div>';
+            matchedContacts.forEach(c => {
+                html += `<div style="padding:7px 10px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; font-size:12.5px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="closeCmdKModal(); openContactDrawer('${c.id}');">
+                    <span><strong>${escapeHtml(c.name)}</strong> · ${escapeHtml(c.company || 'Privat')}</span>
+                    <span style="color:var(--text-muted);">360° Akte →</span>
+                </div>`;
+            });
+            html += '<div style="font-size:11px; font-weight:600; color:var(--text-muted); padding:8px 8px 4px;">DEALS</div>';
+            matchedDeals.forEach(d => {
+                html += `<div style="padding:7px 10px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; font-size:12.5px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="closeCmdKModal(); switchView('deals');">
+                    <span>${escapeHtml(d.title)}</span>
+                    <span class="mono-val">${(d.value_cents/100).toLocaleString('de-DE',{style:'currency',currency:'EUR'})}</span>
+                </div>`;
+            });
+            if (q) {
+                html += `<div style="padding:8px 10px; border-top:1px solid var(--border-color); margin-top:6px; font-size:12px; color:var(--accent); cursor:pointer;" onclick="executeSpotlightCommand()">↵ KI-Befehl ausführen: „${escapeHtml(q)}“</div>`;
+            }
+            box.innerHTML = html;
+        }
+
+        async function handleAiInteraction(prompt, box) {
+            try {
+                const res = await fetch('/api/copilot/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, mode: currentMode, role: currentRole })
+                }).then(r => r.json());
+
+                let html = formatCopilotMarkdown(res.reply);
+                if (res.actions_performed?.length) {
+                    html += `<div style="margin-top:6px; font-size:11px; color:var(--status-green-fg); font-weight:600;">✓ ${escapeHtml(res.actions_performed.join(', '))}</div>`;
+                }
+                if (res.ui_mutations) {
+                    if (res.ui_mutations.theme_mode) document.documentElement.setAttribute('data-theme', res.ui_mutations.theme_mode);
+                    if (res.ui_mutations.theme_accent) setThemeAccent(res.ui_mutations.theme_accent);
+                    if (res.ui_mutations.refresh_schema) await loadSettingsView();
+                    if (res.ui_mutations.refresh_plugins) await refreshData();
+                }
+                if (res.navigate_to) switchView(res.navigate_to);
+
+                box.innerHTML += `<div class="chat-bubble ai">${html}</div>`;
+                box.scrollTop = box.scrollHeight;
+                await refreshData();
+            } catch (_) {
+                box.innerHTML += `<div class="chat-bubble ai">Verbindungsfehler zum Copilot.</div>`;
+            }
+        }
+
+        function setDemoUser(type) {
+            fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role: type === 'admin' ? 'admin' : 'operator' })
+            }).catch(() => {});
+
+            const lbl = document.getElementById('demoAccountLabel');
+            if (type === 'admin') {
+                currentRole = 'admin';
+                document.getElementById('ui-user-avatar').innerText = 'MC';
+                document.getElementById('ui-user-name').innerText = 'Merlin Conrad';
+                document.getElementById('ui-user-role').innerText = 'Administrator';
+                if (lbl) lbl.innerText = 'admin@conrad-ki.com';
+                switchAppMode('admin');
+            } else {
+                currentRole = 'operator';
+                document.getElementById('ui-user-avatar').innerText = 'OP';
+                document.getElementById('ui-user-name').innerText = 'Operations Team';
+                document.getElementById('ui-user-role').innerText = 'Mitarbeiter';
+                if (lbl) lbl.innerText = 'team@conrad-ki.com';
+                switchAppMode('user');
+            }
+        }
+
+        async function submitSsoLogin() {
+            const email = (document.getElementById('sso-email')?.value || '').trim().toLowerCase();
+            if (email.includes('team') || email.includes('op')) {
+                setDemoUser('team');
+            } else {
+                setDemoUser('admin');
+            }
+            closeModal('loginModal');
+            await refreshData();
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openLoginModal() { openModal('loginModal'); }
+
+        function openCreateModal() {
+            if (currentView === 'deals') openNewDealModal();
+            else if (currentView === 'calendar') openNewBookingModal();
+            else if (currentView === 'invoices') openNewInvoiceModal();
+            else if (currentView === 'retainers') openNewRetainerModal();
+            else if (currentView === 'marketing') openNewCampaignModal();
+            else if (currentView === 'workflows') openNewWorkflowModal();
+            else if (currentView === 'dms') openNewDocumentModal();
+            else if (currentView === 'plugins') openNewPluginModal();
+            else if (currentView === 'plugin-dynamic') openNewPluginRecordModal();
+            else openNewContactModal();
+        }
+
+        function openNewContactModal() {
+            openModal('modalNewContact');
+            setTimeout(() => document.getElementById('nc-name').focus(), 50);
+        }
+
+        function openNewDealModal() {
+            const sel = document.getElementById('nd-contact-select');
+            sel.innerHTML = contactsData.map(c => `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.company || 'Privat')})</option>`).join('');
+            openModal('modalNewDeal');
+        }
+
+        function openNewDealModalForContact(contactId) {
+            openNewDealModal();
+            if (contactId) document.getElementById('nd-contact-select').value = contactId;
+        }
+
+        function openNewInvoiceModal() {
+            const sel = document.getElementById('ni-contact-select');
+            sel.innerHTML = contactsData.map(c => `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.company || 'Privat')})</option>`).join('');
+            openModal('modalNewInvoice');
+        }
+
+        async function submitCreateContact() {
+            const name = document.getElementById('nc-name').value.trim();
+            if (!name) return;
+            await fetch('/api/contacts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    company: document.getElementById('nc-company').value.trim(),
+                    email: document.getElementById('nc-email').value.trim(),
+                    phone: document.getElementById('nc-phone').value.trim(),
+                    status: document.getElementById('nc-status').value
+                })
+            });
+            closeModal('modalNewContact');
+            await refreshData();
+        }
+
+        async function submitCreateDeal() {
+            const title = document.getElementById('nd-title').value.trim();
+            const contact_id = document.getElementById('nd-contact-select').value;
+            const val = parseFloat(document.getElementById('nd-val').value) || 0;
+            const stage = document.getElementById('nd-stage').value;
+            await fetch('/api/deals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, contact_id, value_cents: Math.round(val * 100), stage })
+            });
+            closeModal('modalNewDeal');
+            await refreshData();
+        }
+
+        async function submitCreateInvoice() {
+            const contact_id = document.getElementById('ni-contact-select').value;
+            const desc = document.getElementById('ni-desc').value.trim();
+            const amount = parseFloat(document.getElementById('ni-amount').value) || 0;
+            await fetch('/api/invoices', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact_id,
+                    items: [{ description: desc, quantity: 1, unit_price_cents: Math.round(amount * 100), total_cents: Math.round(amount * 100) }]
+                })
+            });
+            closeModal('modalNewInvoice');
+            await refreshData();
+        }
+
+        function setupKeyboardNav() {
+            window.addEventListener('keydown', (e) => {
+                const inInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    openCmdKModal();
+                    return;
+                }
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-backdrop').forEach(m => m.style.display = 'none');
+                    closeCmdKModal();
+                    closeContactDrawer();
+                    document.getElementById('copilotPanel').classList.remove('open');
+                    return;
+                }
+                if (inInput) return;
+                if (e.key === '1') switchView('dashboard');
+                if (e.key === '2') switchView('contacts');
+                if (e.key === '3') switchView('deals');
+                if (e.key === '4') switchView('invoices');
+                if (e.key === '5') switchView('retainers');
+                if (e.key === '6') switchView('marketing');
+                if (e.key === '7') switchView('dms');
+                if (e.key === '8') switchView('settings');
+                if (e.key.toLowerCase() === 'c') toggleCopilot();
+            });
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('appSidebar').classList.toggle('mobile-open');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function formatCopilotMarkdown(text) {
+            if (!text) return '';
+            return escapeHtml(text)
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+)`/g, '<code class="mono-val">$1</code>')
+                .replace(/\n/g, '<br>');
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>"##
+}
+
+pub fn render_booking_html(slug: &str) -> String {
+    let host_display = if slug.eq_ignore_ascii_case("merlin") {
+        "Merlin Conrad (Conrad KI)"
+    } else {
+        slug
+    };
+    format!(
+        r##"<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termin buchen — {host} | Conrad OS Scheduler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {{
+            --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            --bg-canvas: #f8fafc;
+            --bg-surface: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent: #2563eb;
+        }}
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        body {{
+            background: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }}
+        .booking-shell {{
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            max-width: 800px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            overflow: hidden;
+        }}
+        @media (max-width: 720px) {{
+            .booking-shell {{ grid-template-columns: 1fr; }}
+        }}
+        .host-pane {{
+            padding: 24px;
+            border-right: 1px solid var(--border-color);
+            background: #f1f5f9;
+        }}
+        .avatar-box {{
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--text-primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }}
+        .slot-grid {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 14px 0 20px;
+        }}
+        .slot-btn {{
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }}
+        .slot-btn.selected, .slot-btn:hover {{
+            border-color: var(--accent);
+            background: #eff6ff;
+            color: var(--accent);
+        }}
+        .input-field {{
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }}
+        .btn-submit {{
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }}
+    </style>
+</head>
+<body>
+    <div class="booking-shell">
+        <div class="host-pane">
+            <div class="avatar-box">MC</div>
+            <div style="font-size:12px; color:var(--text-secondary); font-weight:600;">{host}</div>
+            <h1 style="font-size:18px; margin:6px 0 10px;">Strategie- &amp; Systemgespräch</h1>
+            <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.5; margin-bottom:18px;">
+                30-minütiger Termin zur Potenzialanalyse Ihrer Prozesse und Automatisierungs-Architektur.
+            </p>
+            <div style="font-size:12px; color:var(--text-secondary); display:flex; flex-direction:column; gap:6px;">
+                <div>Dauer: <strong>30 Minuten</strong></div>
+                <div>Zeitzone: <strong id="detectedTz">Europe/Berlin</strong></div>
+            </div>
+        </div>
+        <div style="padding: 24px;">
+            <h2 style="font-size:15px; margin-bottom:4px;">Verfügbare Termine</h2>
+            <p style="font-size:12px; color:var(--text-secondary);">Wählen Sie einen freien Zeitslot</p>
+            <div class="slot-grid" id="slotContainer"></div>
+
+            <div id="bookingForm">
+                <input type="text" id="b-name" class="input-field" placeholder="Vor- und Nachname *">
+                <input type="email" id="b-email" class="input-field" placeholder="Geschäftliche E-Mail *">
+                <input type="tel" id="b-phone" class="input-field" placeholder="Telefonnummer">
+                <textarea id="b-notes" class="input-field" rows="2" placeholder="Thema / Notiz (optional)"></textarea>
+                <button class="btn-submit" onclick="confirmBooking()">Termin verbindlich buchen</button>
+            </div>
+            <div id="bookingSuccess" style="display:none; padding:14px; border-radius:6px; background:#dcfce7; color:#15803d; font-size:13px; margin-top:12px;"></div>
+        </div>
+    </div>
+    <script>
+        const slug = "{slug_raw}";
+        const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Berlin';
+        document.getElementById('detectedTz').innerText = userTz;
+
+        let selectedIso = null;
+
+        async function loadSlots() {{
+            const res = await fetch(`/api/bookings/${{slug}}/slots`).then(r => r.json());
+            const container = document.getElementById('slotContainer');
+            container.innerHTML = res.slots.map((s, idx) => {{
+                const d = new Date(s.start_time);
+                const label = d.toLocaleString('de-DE', {{ weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }});
+                if (idx === 0) selectedIso = s.start_time;
+                return `<button class="slot-btn ${{idx===0?'selected':''}}" onclick="selectSlot(this, '${{s.start_time}}')">${{label}}</button>`;
+            }}).join('');
+        }}
+
+        function selectSlot(btn, iso) {{
+            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedIso = iso;
+        }}
+
+        async function confirmBooking() {{
+            const name = document.getElementById('b-name').value.trim();
+            const email = document.getElementById('b-email').value.trim();
+            if (!name || !email || !selectedIso) return alert('Bitte Pflichtfelder ausfüllen.');
+
+            await fetch(`/api/bookings/${{slug}}`, {{
+                method: 'POST',
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: JSON.stringify({{
+                    name,
+                    email,
+                    phone: document.getElementById('b-phone').value.trim(),
+                    start_time: selectedIso,
+                    timezone: userTz,
+                    notes: document.getElementById('b-notes').value.trim()
+                }})
+            }});
+
+            document.getElementById('bookingForm').style.display = 'none';
+            const box = document.getElementById('bookingSuccess');
+            box.style.display = 'block';
+            box.innerHTML = `<strong>Termin bestätigt.</strong><br>Der Termin für ${{name}} wurde im Kalender eingetragen und der Kontakt-Akte zugeordnet.`;
+        }}
+
+        loadSlots();
+    </script>
+</body>
+</html>"##,
+        host = host_display,
+        slug_raw = slug
+    )
+}
