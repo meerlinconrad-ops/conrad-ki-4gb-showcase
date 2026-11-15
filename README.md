@@ -4,7 +4,7 @@
 **Autor:** Merlin Conrad · [conrad-ki.com](https://conrad-ki.com) · `info@conrad-ki.com`  
 **Online lesen:** [conrad-ki.com/showcase-doku.html](https://conrad-ki.com/showcase-doku.html) · **GitHub:** [meerlinconrad-ops/conrad-ki-4gb-showcase](https://github.com/meerlinconrad-ops/conrad-ki-4gb-showcase)
 
-Dieses Blueprint-Paket dokumentiert die produktive Architektur von **Conrad KI** auf einem einzelnen **3,7-GiB-RAM-Cloud-Server (2 vCPU)** — inklusive **25 aktiver Docker-Container**, **n8n-Automatisierung**, **Qdrant-Vektorsuche**, **lokaler LLM-Inferenz** und einem in **Rust** neu gebauten Microkernel-Relay (`4,3 MiB` RAM, `< 1 ms` Latenz).
+Dieses Blueprint-Paket dokumentiert die produktive Architektur von **Conrad KI** (`n8n 2.47.7`, `Ollama 0.40.16`, `Qdrant`) auf einem einzelnen **3,7-GiB-RAM-Cloud-Server (2 vCPU)** — inklusive **25 aktiver Docker-Container**, **n8n-Automatisierung**, **Qdrant-Vektorsuche (21 Punkte)**, **lokaler LLM-Inferenz (4,3–17,0 s E2E)** und einem in **Rust** neu gebauten Microkernel-Relay (`4,3 MiB` RAM, `< 1 ms` Latenz).
 
 ---
 
