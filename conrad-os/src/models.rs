@@ -352,7 +352,7 @@ pub struct CopilotResponse {
 }
 
 // =========================================================================
-// Germany Compliance & Holzhey Company OS Extensions
+// Germany Compliance & Conrad Suite Extensions
 // =========================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

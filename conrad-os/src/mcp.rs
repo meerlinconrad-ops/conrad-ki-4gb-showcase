@@ -232,7 +232,7 @@ impl McpServer {
             },
             {
                 "name": "crm_import_hubspot",
-                "description": "Importiert Kontakte oder Deals aus einem HubSpot CSV Export in das Company OS (Holzhey Migration)",
+                "description": "Importiert Kontakte oder Deals aus einem HubSpot CSV Export in Conrad CRM",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -244,7 +244,7 @@ impl McpServer {
             },
             {
                 "name": "consulting_holzhey_savings_report",
-                "description": "Erstellt einen Kostenvergleichs- und Einsparungsbericht für Holzhey Consulting (Conrad Company OS vs. HubSpot Enterprise)",
+                "description": "Erstellt einen Kostenvergleichs- und Einsparungsbericht (Conrad Suite vs. Enterprise SaaS)",
                 "parameters": {
                     "type": "object",
                     "properties": {}
@@ -616,7 +616,7 @@ impl McpServer {
                 let invoice_id = args.get("invoice_id").and_then(|v| v.as_str()).unwrap_or("");
                 let xml = self.db.get_xrechnung_xml(
                     invoice_id,
-                    "Holzhey Consulting GmbH",
+                    "Meisterbetrieb Elektro Weber GmbH",
                     "DE312345678",
                     "DE02100100100123456789",
                     "PBNKDEFFXXX",
@@ -640,7 +640,7 @@ impl McpServer {
                         consultant_number: Some(10001),
                         client_number: Some(20002),
                     },
-                    "Holzhey Consulting GmbH",
+                    "Meisterbetrieb Elektro Weber GmbH",
                 )?;
                 let line_count = csv.lines().count();
                 Ok(json!({
@@ -665,7 +665,7 @@ impl McpServer {
             }
             "consulting_holzhey_savings_report" => {
                 Ok(json!({
-                    "client": "Holzhey Consulting GmbH",
+                    "client": "Mittelstands-Demo-Betrieb GmbH",
                     "previous_crm": "HubSpot Enterprise / Sales Hub",
                     "hubspot_annual_cost_eur": 18400.0,
                     "conrad_os_annual_cost_eur": 120.0,

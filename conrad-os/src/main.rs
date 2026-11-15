@@ -13,6 +13,9 @@ mod n8n_schema;
 mod n8n_vm;
 mod twenty;
 mod ui;
+mod ui_n8n;
+mod ui_showcase;
+mod ui_twenty;
 mod ui_twenty_n8n;
 mod zugferd;
 
@@ -1111,7 +1114,7 @@ async fn import_hubspot_deals_handler(
 
 async fn consulting_savings_report_handler() -> impl IntoResponse {
     Json(json!({
-        "client": "Holzhey Consulting GmbH",
+        "client": "Mittelstands-Demo-Betrieb GmbH",
         "previous_crm": "HubSpot Enterprise / Professional",
         "hubspot_annual_cost_eur": 18400.0,
         "conrad_os_annual_cost_eur": 120.0,

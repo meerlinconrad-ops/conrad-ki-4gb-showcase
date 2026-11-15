@@ -8,10 +8,6 @@ use chrono::Utc;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::Path as StdPath;
 use std::sync::OnceLock;
 use uuid::Uuid;
 
@@ -42,13 +38,13 @@ pub fn default_twenty_model() -> String {
 pub fn resolve_workspace(headers: &HeaderMap, param: Option<&str>) -> String {
     if let Some(ws) = param {
         let low = ws.trim().to_lowercase();
-        if low == "pala" || low == "conrad-ki" || low == "all" {
+        if low == "conrad-ki" || low == "handwerk" || low == "all" {
             return low;
         }
     }
     if let Some(host) = headers.get("host").and_then(|v| v.to_str().ok()) {
-        if host.to_lowercase().contains("pala.") {
-            return "pala".to_string();
+        if host.to_lowercase().contains("handwerk.") {
+            return "handwerk".to_string();
         }
     }
     "conrad-ki".to_string()
@@ -76,21 +72,22 @@ pub fn init_and_seed_twenty(db: &Database) -> anyhow::Result<()> {
         create_schema(&conn)?;
     }
 
-    let existing_companies: i64 = {
+    let needs_reseed = {
         let conn = db.lock_conn();
-        conn.query_row("SELECT COUNT(*) FROM twenty_companies", [], |r| r.get(0))
-            .unwrap_or(0)
+        has_real_twenty_data(&conn)
     };
 
-    if existing_companies == 0 {
-        let stats = sync_all_sql_dumps(db)?;
-        tracing::info!(
-            "Twenty Rust CRM seeded from Postgres dumps: {:?}",
-            stats
-        );
+    if needs_reseed {
+        let stats = seed_twenty_demo_data(db)?;
+        tracing::info!("Conrad CRM Demo-Daten initialisiert/bereinigt: {:?}", stats);
     } else {
+        let existing_companies: i64 = {
+            let conn = db.lock_conn();
+            conn.query_row("SELECT COUNT(*) FROM twenty_companies", [], |r| r.get(0))
+                .unwrap_or(0)
+        };
         tracing::info!(
-            "Twenty Rust CRM ready ({} companies in SQLite)",
+            "Conrad CRM bereit ({} Demo-Firmen in SQLite)",
             existing_companies
         );
     }
@@ -304,13 +301,16 @@ fn create_schema(conn: &Connection) -> anyhow::Result<()> {
     }
 
     let now = Utc::now().to_rfc3339();
+    conn.execute("DELETE FROM twenty_workspaces WHERE id = 'pala'", [])?;
     conn.execute(
-        "INSERT OR IGNORE INTO twenty_workspaces (id, name, domain, locale, created_at) VALUES (?1, ?2, ?3, 'de-DE', ?4)",
-        params!["conrad-ki", "Conrad KI", "crm.conrad-ki.com", now],
+        "INSERT INTO twenty_workspaces (id, name, domain, locale, created_at) VALUES (?1, ?2, ?3, 'de-DE', ?4)
+         ON CONFLICT(id) DO UPDATE SET name = excluded.name, domain = excluded.domain",
+        params!["conrad-ki", "Conrad KI Demo", "crm.conrad-ki.com", now],
     )?;
     conn.execute(
-        "INSERT OR IGNORE INTO twenty_workspaces (id, name, domain, locale, created_at) VALUES (?1, ?2, ?3, 'de-DE', ?4)",
-        params!["pala", "Pala Marketing", "pala.crm.conrad-ki.com", now],
+        "INSERT INTO twenty_workspaces (id, name, domain, locale, created_at) VALUES (?1, ?2, ?3, 'de-DE', ?4)
+         ON CONFLICT(id) DO UPDATE SET name = excluded.name, domain = excluded.domain",
+        params!["handwerk", "Handwerk & Mittelstand Demo", "handwerk.crm.conrad-ki.com", now],
     )?;
     Ok(())
 }
@@ -369,422 +369,420 @@ fn save_custom_fields_for_record(conn: &Connection, table: &str, object_name: &s
     }
 }
 
-fn unescape_pg_copy(raw: &str) -> Option<String> {
-    if raw == r"\N" {
-        return None;
+fn has_real_twenty_data(conn: &Connection) -> bool {
+    let companies_count: i64 = conn
+        .query_row("SELECT COUNT(*) FROM twenty_companies", [], |r| r.get(0))
+        .unwrap_or(0);
+    if companies_count == 0 || companies_count > 60 {
+        return true;
     }
-    if !raw.contains('\\') {
-        return Some(raw.to_string());
+
+    let bad_ws: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM twenty_workspaces WHERE id = 'pala' OR LOWER(name) LIKE '%pala%'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if bad_ws > 0 {
+        return true;
     }
-    let mut out = String::with_capacity(raw.len());
-    let mut chars = raw.chars();
-    while let Some(c) = chars.next() {
-        if c == '\\' {
-            match chars.next() {
-                Some('n') => out.push('\n'),
-                Some('r') => out.push('\r'),
-                Some('t') => out.push('\t'),
-                Some('\\') => out.push('\\'),
-                Some('b') => out.push('\x08'),
-                Some('f') => out.push('\x0c'),
-                Some(other) => {
-                    out.push('\\');
-                    out.push(other);
-                }
-                None => out.push('\\'),
-            }
-        } else {
-            out.push(c);
-        }
+
+    let has_handwerk: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM twenty_workspaces WHERE id = 'handwerk'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if has_handwerk == 0 {
+        return true;
     }
-    Some(out)
+
+    let bad_companies: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM twenty_companies
+             WHERE workspace = 'pala'
+                OR created_by_name IN ('Hermes', 'Pure Rust CRM')
+                OR LOWER(name) LIKE '%ohrladen%'
+                OR LOWER(name) LIKE '%vvs%'
+                OR LOWER(name) LIKE '%pala%'
+                OR LOWER(name) LIKE '%schlossgarten%'
+                OR LOWER(name) LIKE '%imkerei%'
+                OR LOWER(name) LIKE '%gruia%'
+                OR LOWER(name) LIKE '%halmhuber%'
+                OR LOWER(name) LIKE '%a.t.u%'
+                OR LOWER(name) LIKE '%heflott%'
+                OR LOWER(name) LIKE '%schuster%'
+                OR LOWER(domain_url) LIKE '%pala%'
+                OR LOWER(domain_url) LIKE '%vvs%'
+                OR LOWER(domain_url) LIKE '%ohrladen%'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if bad_companies > 0 {
+        return true;
+    }
+
+    let bad_people: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM twenty_people
+             WHERE workspace = 'pala'
+                OR LOWER(email) LIKE '%pala%'
+                OR LOWER(email) LIKE '%vvs%'
+                OR LOWER(email) LIKE '%ohrladen%'
+                OR LOWER(email) LIKE '%online.de%'
+                OR LOWER(email) LIKE '%gmail.com%'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if bad_people > 0 {
+        return true;
+    }
+
+    let bad_members: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM twenty_members
+             WHERE workspace = 'pala'
+                OR LOWER(first_name) LIKE '%pala%'
+                OR LOWER(email) LIKE '%pala%'
+                OR LOWER(email) LIKE '%online.de%'
+                OR LOWER(email) LIKE '%gmail.com%'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if bad_members > 0 {
+        return true;
+    }
+
+    let bad_notes: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM twenty_notes
+             WHERE workspace = 'pala'
+                OR LOWER(title) LIKE '%ohrladen%'
+                OR LOWER(title) LIKE '%vvs%'
+                OR LOWER(title) LIKE '%pala%'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    bad_notes > 0
 }
 
-fn extract_blocknote_text(v: &Value, out: &mut Vec<String>) {
-    match v {
-        Value::Array(arr) => {
-            for item in arr {
-                extract_blocknote_text(item, out);
-            }
-        }
-        Value::Object(map) => {
-            if let Some(Value::String(t)) = map.get("text") {
-                if !t.is_empty() {
-                    out.push(t.clone());
-                }
-            }
-            if let Some(content) = map.get("content") {
-                extract_blocknote_text(content, out);
-            }
-            if let Some(children) = map.get("children") {
-                extract_blocknote_text(children, out);
-            }
-        }
-        _ => {}
-    }
-}
-
-fn resolve_body_markdown(md: Option<&str>, blocknote: Option<&str>) -> String {
-    if let Some(m) = md {
-        if !m.trim().is_empty() {
-            return m.to_string();
-        }
-    }
-    if let Some(bn) = blocknote {
-        if let Ok(v) = serde_json::from_str::<Value>(bn) {
-            let mut parts = Vec::new();
-            extract_blocknote_text(&v, &mut parts);
-            if !parts.is_empty() {
-                return parts.join(" ");
-            }
-        }
-    }
-    String::new()
-}
-
-fn parse_copy_header(line: &str) -> Option<(String, Vec<String>)> {
-    if !line.starts_with("COPY ") || !line.contains(" FROM stdin;") {
-        return None;
-    }
-    let open_paren = line.find('(')?;
-    let close_paren = line.rfind(") FROM stdin;")?;
-    let table_full = line[5..open_paren].trim();
-    let table_name = table_full
-        .split('.')
-        .last()
-        .unwrap_or(table_full)
-        .trim_matches('"')
-        .to_string();
-    let cols: Vec<String> = line[open_paren + 1..close_paren]
-        .split(',')
-        .map(|s| s.trim().trim_matches('"').to_string())
-        .collect();
-    Some((table_name, cols))
-}
-
-struct CopyRow<'a> {
-    idx: &'a HashMap<String, usize>,
-    fields: Vec<Option<String>>,
-}
-
-impl<'a> CopyRow<'a> {
-    fn get(&self, col: &str) -> Option<&str> {
-        self.idx
-            .get(col)
-            .and_then(|&i| self.fields.get(i))
-            .and_then(|o| o.as_deref())
-    }
-    fn get_str(&self, col: &str) -> String {
-        self.get(col).unwrap_or("").to_string()
-    }
-    fn get_i64(&self, col: &str) -> i64 {
-        self.get(col)
-            .and_then(|s| s.trim().parse::<f64>().ok())
-            .map(|f| f as i64)
-            .unwrap_or(0)
-    }
-    fn get_opt_i64(&self, col: &str) -> Option<i64> {
-        self.get(col)
-            .and_then(|s| s.trim().parse::<f64>().ok())
-            .map(|f| f as i64)
-    }
-    fn get_f64(&self, col: &str) -> f64 {
-        self.get(col)
-            .and_then(|s| s.trim().parse::<f64>().ok())
-            .unwrap_or(0.0)
-    }
-    fn is_deleted(&self) -> bool {
-        self.get("deletedAt").map(|s| !s.is_empty()).unwrap_or(false)
-    }
-}
-
-pub fn sync_all_sql_dumps(db: &Database) -> anyhow::Result<Value> {
-    let sources = [
-        ("conrad-ki", "/opt/n8n/conrad-ki-backup-v1.19.0.sql"),
-        ("pala", "/opt/n8n/pala-twenty-backup-v1.19.0.sql"),
-    ];
-
-    let mut summary = serde_json::Map::new();
+pub fn seed_twenty_demo_data(db: &Database) -> anyhow::Result<Value> {
     let mut conn = db.lock_conn();
     let tx = conn.transaction()?;
+    let now = Utc::now().to_rfc3339();
 
-    for (ws, path_str) in sources {
-        let p = StdPath::new(path_str);
-        if !p.exists() {
-            summary.insert(ws.to_string(), json!({"status": "missing_file", "path": path_str}));
-            continue;
-        }
-        let file = File::open(p)?;
-        let reader = BufReader::new(file);
+    for tbl in [
+        "twenty_timeline",
+        "twenty_tasks",
+        "twenty_notes",
+        "twenty_opportunities",
+        "twenty_people",
+        "twenty_companies",
+        "twenty_members",
+        "twenty_favorites",
+        "twenty_views",
+        "twenty_field_metadata",
+        "twenty_webhooks",
+        "twenty_api_keys",
+    ] {
+        tx.execute(&format!("DELETE FROM {tbl}"), [])?;
+    }
 
-        let mut active_table: Option<String> = None;
-        let mut col_map: HashMap<String, usize> = HashMap::new();
+    tx.execute("DELETE FROM twenty_workspaces WHERE id = 'pala'", [])?;
+    tx.execute(
+        "INSERT INTO twenty_workspaces (id, name, domain, locale, created_at)
+         VALUES ('conrad-ki', 'Conrad KI Demo', 'crm.conrad-ki.com', 'de-DE', ?1)
+         ON CONFLICT(id) DO UPDATE SET name = excluded.name, domain = excluded.domain",
+        params![now],
+    )?;
+    tx.execute(
+        "INSERT INTO twenty_workspaces (id, name, domain, locale, created_at)
+         VALUES ('handwerk', 'Handwerk & Mittelstand Demo', 'handwerk.crm.conrad-ki.com', 'de-DE', ?1)
+         ON CONFLICT(id) DO UPDATE SET name = excluded.name, domain = excluded.domain",
+        params![now],
+    )?;
 
-        let mut c_companies = 0i64;
-        let mut c_people = 0i64;
-        let mut c_opps = 0i64;
-        let mut c_notes = 0i64;
-        let mut c_note_targets = 0i64;
-        let mut c_tasks = 0i64;
-        let mut c_task_targets = 0i64;
-        let mut c_members = 0i64;
+    let members = [
+        ("mem-demo-1", "conrad-ki", "Lukas", "Bauer", "lukas.bauer@conrad-ki-demo.de"),
+        ("mem-demo-2", "conrad-ki", "Hannah", "Schaefer", "hannah.schaefer@conrad-ki-demo.de"),
+        ("mem-demo-3", "handwerk", "Tobias", "Hoffmann", "tobias.hoffmann@handwerk-demo.de"),
+        ("mem-demo-4", "handwerk", "Miriam", "Keller", "miriam.keller@handwerk-demo.de"),
+    ];
+    for (id, ws, fnm, lnm, email) in members {
+        tx.execute(
+            "INSERT INTO twenty_members (id, workspace, first_name, last_name, email, avatar_url, locale, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, '', 'de-DE', ?6)",
+            params![id, ws, fnm, lnm, email, now],
+        )?;
+    }
 
-        for line_res in reader.lines() {
-            let line = match line_res {
-                Ok(l) => l,
-                Err(_) => continue,
-            };
+    // Custom Field Metadata fuer Demo-Firmen
+    for (fid, name, label, ftype, opts, def_val) in [
+        (
+            "cf-demo-branche",
+            "branche",
+            "Branche",
+            "SELECT",
+            r#"["Handwerk","Dienstleistung","Kanzlei","Praxis","Produktion","Logistik"]"#,
+            "Handwerk",
+        ),
+        ("cf-demo-paket", "paket", "KI-Paket", "TEXT", "[]", "Wachstum 69 EUR/Mo"),
+        ("cf-demo-score", "kiScore", "KI-Score", "NUMBER", "[]", "85"),
+    ] {
+        tx.execute(
+            "INSERT INTO twenty_field_metadata
+             (id, workspace, object_name, name, label, field_type, options_json, default_value, is_custom, created_at)
+             VALUES (?1, 'all', 'company', ?2, ?3, ?4, ?5, ?6, 1, ?7)",
+            params![fid, name, label, ftype, opts, def_val, now],
+        )?;
+    }
 
-            if active_table.is_none() {
-                if let Some((tbl, cols)) = parse_copy_header(&line) {
-                    if matches!(
-                        tbl.as_str(),
-                        "company"
-                            | "person"
-                            | "opportunity"
-                            | "note"
-                            | "noteTarget"
-                            | "task"
-                            | "taskTarget"
-                            | "workspaceMember"
-                    ) {
-                        col_map.clear();
-                        for (i, c) in cols.into_iter().enumerate() {
-                            col_map.insert(c, i);
-                        }
-                        active_table = Some(tbl);
-                    }
-                }
-                continue;
-            }
+    // 30 fiktive deutsche KMU-Firmen (18 in conrad-ki, 12 in handwerk)
+    let companies: [(&str, &str, &str, &str, &str, &str, &str, &str, i64, i64, i64, &str, &str, i64); 30] = [
+        ("cmp-demo-01", "conrad-ki", "Meisterbetrieb Elektro Weber GmbH", "elektro-weber-demo.de", "Mannheimer Str. 42", "Schwetzingen", "68723", "Baden-Württemberg", 24, 14_400_000_000, 1, "Handwerk", "Pro 99 EUR/Mo", 96),
+        ("cmp-demo-02", "conrad-ki", "SHK Haustechnik Rhein-Neckar GmbH", "shk-rhein-neckar-demo.de", "Kurpfalzring 18", "Mannheim", "68165", "Baden-Württemberg", 38, 24_000_000_000, 1, "Handwerk", "Pro 99 EUR/Mo", 94),
+        ("cmp-demo-03", "conrad-ki", "Kanzlei Dr. Bergmann & Partner", "kanzlei-bergmann-demo.de", "Bergheimer Str. 74", "Heidelberg", "69115", "Baden-Württemberg", 19, 31_200_000_000, 1, "Kanzlei", "Pro 99 EUR/Mo", 93),
+        ("cmp-demo-04", "conrad-ki", "Metallbau Hartmann KG", "metallbau-hartmann-demo.de", "Daimlerstr. 9", "Weinheim", "69469", "Baden-Württemberg", 45, 18_600_000_000, 1, "Produktion", "Wachstum 69 EUR/Mo", 90),
+        ("cmp-demo-05", "conrad-ki", "Zahnarztpraxis am Marktplatz", "praxis-marktplatz-demo.de", "Marktplatz 6", "Wiesloch", "69168", "Baden-Württemberg", 14, 12_400_000_000, 1, "Praxis", "Wachstum 69 EUR/Mo", 91),
+        ("cmp-demo-06", "conrad-ki", "Schreinerei Becker & Söhne GmbH", "schreinerei-becker-demo.de", "Industriestr. 21", "Hockenheim", "68766", "Baden-Württemberg", 16, 9_800_000_000, 1, "Handwerk", "Wachstum 69 EUR/Mo", 88),
+        ("cmp-demo-07", "conrad-ki", "Steuerberatung König & Kollegen", "steuer-koenig-demo.de", "Bismarckstr. 51", "Ludwigshafen", "67059", "Rheinland-Pfalz", 22, 26_500_000_000, 1, "Kanzlei", "Pro 99 EUR/Mo", 95),
+        ("cmp-demo-08", "conrad-ki", "Autohaus Kurpfalz GmbH", "autohaus-kurpfalz-demo.de", "Iggelheimer Str. 33", "Speyer", "67346", "Rheinland-Pfalz", 52, 22_000_000_000, 0, "Dienstleistung", "Wachstum 69 EUR/Mo", 76),
+        ("cmp-demo-09", "conrad-ki", "Bäckerei & Konditorei Lindner GmbH", "baeckerei-lindner-demo.de", "Hauptstr. 14", "Ladenburg", "68526", "Baden-Württemberg", 31, 8_400_000_000, 0, "Produktion", "Basis 39 EUR/Mo", 72),
+        ("cmp-demo-10", "conrad-ki", "Spedition Vogel & Partner GmbH", "spedition-vogel-demo.de", "Rheinau-Ring 102", "Mannheim", "68219", "Baden-Württemberg", 64, 34_500_000_000, 1, "Logistik", "Pro 99 EUR/Mo", 92),
+        ("cmp-demo-11", "conrad-ki", "Optik & Akustik am Rathaus GmbH", "optik-rathaus-demo.de", "Rathausstr. 8", "Heidelberg", "69117", "Baden-Württemberg", 11, 7_900_000_000, 1, "Dienstleistung", "Basis 39 EUR/Mo", 84),
+        ("cmp-demo-12", "conrad-ki", "Physiotherapie Vitalis Rhein-Neckar", "vitalis-physio-demo.de", "Carl-Theodor-Str. 29", "Schwetzingen", "68723", "Baden-Württemberg", 9, 6_200_000_000, 0, "Praxis", "Basis 39 EUR/Mo", 74),
+        ("cmp-demo-13", "conrad-ki", "Dachdeckerei & Zimmerei Krüger GmbH", "dachbau-krueger-demo.de", "Am Industriehof 5", "Viernheim", "68519", "Hessen", 27, 11_900_000_000, 1, "Handwerk", "Wachstum 69 EUR/Mo", 89),
+        ("cmp-demo-14", "conrad-ki", "IT-Systemhaus Neckarblick GmbH", "neckarblick-it-demo.de", "Wieblinger Weg 17", "Heidelberg", "69123", "Baden-Württemberg", 29, 28_400_000_000, 1, "Dienstleistung", "Pro 99 EUR/Mo", 91),
+        ("cmp-demo-15", "conrad-ki", "Malerbetrieb Steinbach Meisterbetrieb", "maler-steinbach-demo.de", "Kirchenstr. 12", "Brühl", "68782", "Baden-Württemberg", 13, 5_400_000_000, 0, "Handwerk", "Basis 39 EUR/Mo", 71),
+        ("cmp-demo-16", "conrad-ki", "Ingenieurbüro Klose & Partner mbB", "ing-klose-demo.de", "Kriegsstr. 88", "Karlsruhe", "76133", "Baden-Württemberg", 34, 29_700_000_000, 1, "Dienstleistung", "Pro 99 EUR/Mo", 90),
+        ("cmp-demo-17", "conrad-ki", "Garten- & Landschaftsbau Sommer GmbH", "galabau-sommer-demo.de", "Neulandstr. 44", "Sinsheim", "74889", "Baden-Württemberg", 21, 8_900_000_000, 0, "Handwerk", "Wachstum 69 EUR/Mo", 77),
+        ("cmp-demo-18", "conrad-ki", "Gebäudetechnik Richter & Co. KG", "gt-richter-demo.de", "Wormser Str. 61", "Frankenthal", "67227", "Rheinland-Pfalz", 41, 19_800_000_000, 1, "Handwerk", "Pro 99 EUR/Mo", 89),
+        ("cmp-demo-19", "handwerk", "Sanitär & Heizung Meisterbetrieb Wolf GmbH", "shk-wolf-demo.de", "Neckarvorlandstr. 19", "Mannheim", "68169", "Baden-Württemberg", 18, 10_500_000_000, 1, "Handwerk", "Wachstum 69 EUR/Mo", 93),
+        ("cmp-demo-20", "handwerk", "Elektrotechnik Braun & Sohn KG", "elektro-braun-demo.de", "Hauptstr. 83", "Eppelheim", "69214", "Baden-Württemberg", 25, 13_800_000_000, 1, "Handwerk", "Pro 99 EUR/Mo", 91),
+        ("cmp-demo-21", "handwerk", "Schlosserei & Stahlbau Neumann GmbH", "stahlbau-neumann-demo.de", "Bahnhofstr. 31", "Neckargemünd", "69151", "Baden-Württemberg", 33, 17_200_000_000, 1, "Produktion", "Pro 99 EUR/Mo", 88),
+        ("cmp-demo-22", "handwerk", "Kälte- & Klimatechnik Albrecht GmbH", "klima-albrecht-demo.de", "Altrottstr. 14", "Walldorf", "69190", "Baden-Württemberg", 22, 15_600_000_000, 1, "Handwerk", "Wachstum 69 EUR/Mo", 90),
+        ("cmp-demo-23", "handwerk", "Fliesen- & Natursteinwerk Lehner", "fliesen-lehner-demo.de", "St.-Ilgener-Str. 27", "Leimen", "69181", "Baden-Württemberg", 12, 6_800_000_000, 0, "Handwerk", "Basis 39 EUR/Mo", 75),
+        ("cmp-demo-24", "handwerk", "Bauunternehmen Kraft & Söhne GmbH", "bau-kraft-demo.de", "Kammerforststr. 5", "Bruchsal", "76646", "Baden-Württemberg", 58, 32_400_000_000, 1, "Produktion", "Pro 99 EUR/Mo", 94),
+        ("cmp-demo-25", "handwerk", "Tischlerei & Innenausbau Brandt", "tischlerei-brandt-demo.de", "Maximilianstr. 40", "Neustadt a.d.W.", "67433", "Rheinland-Pfalz", 15, 7_600_000_000, 0, "Handwerk", "Basis 39 EUR/Mo", 73),
+        ("cmp-demo-26", "handwerk", "Solar & Wärmepumpen Rhein-Pfalz GmbH", "solar-rheinpfalz-demo.de", "Speyerer Str. 9", "Mutterstadt", "67112", "Rheinland-Pfalz", 28, 21_300_000_000, 1, "Handwerk", "Pro 99 EUR/Mo", 95),
+        ("cmp-demo-27", "handwerk", "Kfz-Meisterbetrieb Frank & Kollegen", "kfz-frank-demo.de", "Hockenheimer Str. 71", "Ketsch", "68775", "Baden-Württemberg", 10, 5_900_000_000, 0, "Dienstleistung", "Basis 39 EUR/Mo", 70),
+        ("cmp-demo-28", "handwerk", "Gerüstbau & Fassaden Lorenz GmbH", "geruestbau-lorenz-demo.de", "Chemiestr. 11", "Lampertheim", "68623", "Hessen", 36, 16_400_000_000, 1, "Handwerk", "Wachstum 69 EUR/Mo", 87),
+        ("cmp-demo-29", "handwerk", "Rohr- & Kanalservice Zimmer GmbH", "kanal-zimmer-demo.de", "Hardtwaldring 22", "Oftersheim", "68723", "Baden-Württemberg", 19, 11_200_000_000, 1, "Handwerk", "Wachstum 69 EUR/Mo", 86),
+        ("cmp-demo-30", "handwerk", "Fensterbau & Rollladentechnik Seidel", "fenster-seidel-demo.de", "Bergstr. 53", "Dossenheim", "69221", "Baden-Württemberg", 17, 9_100_000_000, 0, "Handwerk", "Basis 39 EUR/Mo", 78),
+    ];
 
-            if line == r"\." {
-                active_table = None;
-                col_map.clear();
-                continue;
-            }
+    for (idx, (id, ws, name, dom, street, city, zip, state, emp, arr, icp, branche, paket, score)) in companies.iter().enumerate() {
+        let cf = json!({ "branche": branche, "paket": paket, "kiScore": score }).to_string();
+        tx.execute(
+            "INSERT INTO twenty_companies
+             (id, workspace, name, domain_label, domain_url, street1, city, postcode, state, country,
+              employees, linkedin_url, x_url, arr_micros, arr_currency, icp, position, created_by_name, custom_fields_json, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, 'Deutschland', ?10, '', '', ?11, 'EUR', ?12, ?13, 'Demo-Team', ?14, ?15, ?15)",
+            params![id, ws, name, dom, dom, street, city, zip, state, emp, arr, icp, (idx + 1) as f64, cf, now],
+        )?;
+    }
 
-            let fields: Vec<Option<String>> = line.split('\t').map(unescape_pg_copy).collect();
-            let row = CopyRow {
-                idx: &col_map,
-                fields,
-            };
+    // 25 fiktive Ansprechpartner (15 in conrad-ki, 10 in handwerk)
+    let people: [(&str, &str, &str, &str, &str, &str, &str, &str, &str); 25] = [
+        ("per-demo-01", "conrad-ki", "Thomas", "Weber", "t.weber@elektro-weber-demo.de", "+49 6202 5550101", "Geschäftsführer", "Schwetzingen", "cmp-demo-01"),
+        ("per-demo-02", "conrad-ki", "Julia", "Weber", "j.weber@elektro-weber-demo.de", "+49 6202 5550102", "Kaufmännische Leitung", "Schwetzingen", "cmp-demo-01"),
+        ("per-demo-03", "conrad-ki", "Stefan", "Koch", "s.koch@shk-rhein-neckar-demo.de", "+49 621 5550103", "Technischer Leiter", "Mannheim", "cmp-demo-02"),
+        ("per-demo-04", "conrad-ki", "Sabine", "Bergmann", "s.bergmann@kanzlei-bergmann-demo.de", "+49 6221 5550104", "Partnerin & Steuerberaterin", "Heidelberg", "cmp-demo-03"),
+        ("per-demo-05", "conrad-ki", "Martin", "Hartmann", "m.hartmann@metallbau-hartmann-demo.de", "+49 6201 5550105", "Geschäftsführer", "Weinheim", "cmp-demo-04"),
+        ("per-demo-06", "conrad-ki", "Katrin", "Lindemann", "praxis@praxis-marktplatz-demo.de", "+49 6222 5550106", "Praxismanagerin", "Wiesloch", "cmp-demo-05"),
+        ("per-demo-07", "conrad-ki", "Christian", "Becker", "c.becker@schreinerei-becker-demo.de", "+49 6205 5550107", "Meister & Inhaber", "Hockenheim", "cmp-demo-06"),
+        ("per-demo-08", "conrad-ki", "Andreas", "König", "a.koenig@steuer-koenig-demo.de", "+49 621 5550108", "Kanzleipartner", "Ludwigshafen", "cmp-demo-07"),
+        ("per-demo-09", "conrad-ki", "Petra", "Schmitt", "p.schmitt@autohaus-kurpfalz-demo.de", "+49 6232 5550109", "Serviceleitung", "Speyer", "cmp-demo-08"),
+        ("per-demo-10", "conrad-ki", "Frank", "Lindner", "f.lindner@baeckerei-lindner-demo.de", "+49 6203 5550110", "Inhaber", "Ladenburg", "cmp-demo-09"),
+        ("per-demo-11", "conrad-ki", "Matthias", "Vogel", "m.vogel@spedition-vogel-demo.de", "+49 621 5550111", "Dispositionsleitung", "Mannheim", "cmp-demo-10"),
+        ("per-demo-12", "conrad-ki", "Nina", "Bauer", "n.bauer@optik-rathaus-demo.de", "+49 6221 5550112", "Filialleiterin", "Heidelberg", "cmp-demo-11"),
+        ("per-demo-13", "conrad-ki", "Daniel", "Krüger", "d.krueger@dachbau-krueger-demo.de", "+49 6204 5550113", "Dachdeckermeister", "Viernheim", "cmp-demo-13"),
+        ("per-demo-14", "conrad-ki", "Sven", "Albrecht", "s.albrecht@neckarblick-it-demo.de", "+49 6221 5550114", "Leiter Managed Services", "Heidelberg", "cmp-demo-14"),
+        ("per-demo-15", "conrad-ki", "Tobias", "Klose", "t.klose@ing-klose-demo.de", "+49 721 5550115", "Projektleiter TGA", "Karlsruhe", "cmp-demo-16"),
+        ("per-demo-16", "handwerk", "Michael", "Wolf", "m.wolf@shk-wolf-demo.de", "+49 621 5550201", "SHK-Meister", "Mannheim", "cmp-demo-19"),
+        ("per-demo-17", "handwerk", "Jan", "Braun", "j.braun@elektro-braun-demo.de", "+49 6221 5550202", "Elektromeister", "Eppelheim", "cmp-demo-20"),
+        ("per-demo-18", "handwerk", "Holger", "Neumann", "h.neumann@stahlbau-neumann-demo.de", "+49 6223 5550203", "Geschäftsführer", "Neckargemünd", "cmp-demo-21"),
+        ("per-demo-19", "handwerk", "Vanessa", "Albrecht", "v.albrecht@klima-albrecht-demo.de", "+49 6227 5550204", "Büroleitung", "Walldorf", "cmp-demo-22"),
+        ("per-demo-20", "handwerk", "Ralf", "Lehner", "r.lehner@fliesen-lehner-demo.de", "+49 6224 5550205", "Inhaber", "Leimen", "cmp-demo-23"),
+        ("per-demo-21", "handwerk", "Markus", "Kraft", "m.kraft@bau-kraft-demo.de", "+49 7251 5550206", "Bauleiter", "Bruchsal", "cmp-demo-24"),
+        ("per-demo-22", "handwerk", "Lukas", "Brandt", "l.brandt@tischlerei-brandt-demo.de", "+49 6321 5550207", "Tischlermeister", "Neustadt a.d.W.", "cmp-demo-25"),
+        ("per-demo-23", "handwerk", "Sarah", "Winter", "s.winter@solar-rheinpfalz-demo.de", "+49 6234 5550208", "Projektkoordinatorin", "Mutterstadt", "cmp-demo-26"),
+        ("per-demo-24", "handwerk", "Bernd", "Lorenz", "b.lorenz@geruestbau-lorenz-demo.de", "+49 6206 5550209", "Geschäftsführer", "Lampertheim", "cmp-demo-28"),
+        ("per-demo-25", "handwerk", "Patrick", "Zimmer", "p.zimmer@kanal-zimmer-demo.de", "+49 6202 5550210", "Einsatzleiter", "Oftersheim", "cmp-demo-29"),
+    ];
 
-            if row.is_deleted() {
-                continue;
-            }
-            let id = match row.get("id") {
-                Some(v) if !v.is_empty() => v.to_string(),
-                _ => continue,
-            };
+    for (idx, (id, ws, fnm, lnm, email, phone, job, city, cid)) in people.iter().enumerate() {
+        tx.execute(
+            "INSERT INTO twenty_people
+             (id, workspace, first_name, last_name, email, phone, phone_country_code, phone_calling_code,
+              job_title, city, linkedin_url, company_id, position, created_by_name, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'DE', '+49', ?7, ?8, '', ?9, ?10, 'Demo-Team', ?11, ?11)",
+            params![id, ws, fnm, lnm, email, phone, job, city, cid, (idx + 1) as f64, now],
+        )?;
+    }
 
-            match active_table.as_deref() {
-                Some("workspaceMember") => {
-                    tx.execute(
-                        "INSERT OR REPLACE INTO twenty_members
-                         (id, workspace, first_name, last_name, email, avatar_url, locale, created_at)
-                         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-                        params![
-                            id,
-                            ws,
-                            row.get_str("nameFirstName"),
-                            row.get_str("nameLastName"),
-                            row.get_str("userEmail"),
-                            row.get_str("avatarUrl"),
-                            row.get("locale").unwrap_or("de-DE"),
-                            row.get("createdAt").unwrap_or("2026-01-01T00:00:00Z"),
-                        ],
-                    )?;
-                    c_members += 1;
-                }
-                Some("company") => {
-                    let icp = if matches!(row.get("idealCustomerProfile"), Some("t" | "true" | "1")) {
-                        1i64
-                    } else {
-                        0i64
-                    };
-                    tx.execute(
-                        "INSERT OR REPLACE INTO twenty_companies
-                         (id, workspace, name, domain_label, domain_url, street1, city, postcode, state, country,
-                          employees, linkedin_url, x_url, arr_micros, arr_currency, icp, position, created_by_name, created_at, updated_at)
-                         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20)",
-                        params![
-                            id,
-                            ws,
-                            row.get("name").unwrap_or("Unbenannte Firma"),
-                            row.get_str("domainNamePrimaryLinkLabel"),
-                            row.get_str("domainNamePrimaryLinkUrl"),
-                            row.get_str("addressAddressStreet1"),
-                            row.get_str("addressAddressCity"),
-                            row.get_str("addressAddressPostcode"),
-                            row.get_str("addressAddressState"),
-                            row.get("addressAddressCountry").filter(|s| !s.is_empty()).unwrap_or("Deutschland"),
-                            row.get_opt_i64("employees"),
-                            row.get_str("linkedinLinkPrimaryLinkUrl"),
-                            row.get_str("xLinkPrimaryLinkUrl"),
-                            row.get_i64("annualRecurringRevenueAmountMicros"),
-                            row.get("annualRecurringRevenueCurrencyCode").filter(|s| !s.is_empty()).unwrap_or("EUR"),
-                            icp,
-                            row.get_f64("position"),
-                            row.get("createdByName").unwrap_or("System"),
-                            row.get("createdAt").unwrap_or("2026-01-01T00:00:00Z"),
-                            row.get("updatedAt").unwrap_or("2026-01-01T00:00:00Z"),
-                        ],
-                    )?;
-                    c_companies += 1;
-                }
-                Some("person") => {
-                    tx.execute(
-                        "INSERT OR REPLACE INTO twenty_people
-                         (id, workspace, first_name, last_name, email, phone, phone_country_code, phone_calling_code,
-                          job_title, city, linkedin_url, company_id, position, created_by_name, created_at, updated_at)
-                         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)",
-                        params![
-                            id,
-                            ws,
-                            row.get_str("nameFirstName"),
-                            row.get_str("nameLastName"),
-                            row.get_str("emailsPrimaryEmail"),
-                            row.get_str("phonesPrimaryPhoneNumber"),
-                            row.get("phonesPrimaryPhoneCountryCode").filter(|s| !s.is_empty()).unwrap_or("DE"),
-                            row.get("phonesPrimaryPhoneCallingCode").filter(|s| !s.is_empty()).unwrap_or("+49"),
-                            row.get_str("jobTitle"),
-                            row.get_str("city"),
-                            row.get_str("linkedinLinkPrimaryLinkUrl"),
-                            row.get("companyId"),
-                            row.get_f64("position"),
-                            row.get("createdByName").unwrap_or("System"),
-                            row.get("createdAt").unwrap_or("2026-01-01T00:00:00Z"),
-                            row.get("updatedAt").unwrap_or("2026-01-01T00:00:00Z"),
-                        ],
-                    )?;
-                    c_people += 1;
-                }
-                Some("opportunity") => {
-                    tx.execute(
-                        "INSERT OR REPLACE INTO twenty_opportunities
-                         (id, workspace, name, amount_micros, currency_code, close_date, stage, company_id,
-                          point_of_contact_id, owner_id, position, created_by_name, created_at, updated_at)
-                         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
-                        params![
-                            id,
-                            ws,
-                            row.get("name").unwrap_or("Opportunity"),
-                            row.get_i64("amountAmountMicros"),
-                            row.get("amountCurrencyCode").filter(|s| !s.is_empty()).unwrap_or("EUR"),
-                            row.get("closeDate"),
-                            row.get("stage").filter(|s| !s.is_empty()).unwrap_or("NEW"),
-                            row.get("companyId"),
-                            row.get("pointOfContactId"),
-                            row.get("ownerId"),
-                            row.get_f64("position"),
-                            row.get("createdByName").unwrap_or("System"),
-                            row.get("createdAt").unwrap_or("2026-01-01T00:00:00Z"),
-                            row.get("updatedAt").unwrap_or("2026-01-01T00:00:00Z"),
-                        ],
-                    )?;
-                    c_opps += 1;
-                }
-                Some("note") => {
-                    let body = resolve_body_markdown(row.get("bodyV2Markdown"), row.get("bodyV2Blocknote"));
-                    tx.execute(
-                        "INSERT OR REPLACE INTO twenty_notes
-                         (id, workspace, title, body_markdown, company_id, person_id, opportunity_id,
-                          position, created_by_name, created_at, updated_at)
-                         VALUES (?1, ?2, ?3, ?4, NULL, NULL, NULL, ?5, ?6, ?7, ?8)",
-                        params![
-                            id,
-                            ws,
-                            row.get("title").filter(|s| !s.is_empty()).unwrap_or("Notiz"),
-                            body,
-                            row.get_f64("position"),
-                            row.get("createdByName").unwrap_or("System"),
-                            row.get("createdAt").unwrap_or("2026-01-01T00:00:00Z"),
-                            row.get("updatedAt").unwrap_or("2026-01-01T00:00:00Z"),
-                        ],
-                    )?;
-                    c_notes += 1;
-                }
-                Some("noteTarget") => {
-                    if let Some(note_id) = row.get("noteId") {
-                        tx.execute(
-                            "UPDATE twenty_notes
-                             SET company_id = COALESCE(company_id, ?1),
-                                 person_id = COALESCE(person_id, ?2),
-                                 opportunity_id = COALESCE(opportunity_id, ?3)
-                             WHERE id = ?4",
-                            params![
-                                row.get("targetCompanyId"),
-                                row.get("targetPersonId"),
-                                row.get("targetOpportunityId"),
-                                note_id
-                            ],
-                        )?;
-                        c_note_targets += 1;
-                    }
-                }
-                Some("task") => {
-                    let body = resolve_body_markdown(row.get("bodyV2Markdown"), row.get("bodyV2Blocknote"));
-                    tx.execute(
-                        "INSERT OR REPLACE INTO twenty_tasks
-                         (id, workspace, title, body_markdown, status, due_at, company_id, person_id, opportunity_id,
-                          assignee_id, position, created_by_name, created_at, updated_at)
-                         VALUES (?1, ?2, ?3, ?4, ?5, ?6, NULL, NULL, NULL, ?7, ?8, ?9, ?10, ?11)",
-                        params![
-                            id,
-                            ws,
-                            row.get("title").filter(|s| !s.is_empty()).unwrap_or("Aufgabe"),
-                            body,
-                            row.get("status").filter(|s| !s.is_empty()).unwrap_or("TODO"),
-                            row.get("dueAt"),
-                            row.get("assigneeId"),
-                            row.get_f64("position"),
-                            row.get("createdByName").unwrap_or("System"),
-                            row.get("createdAt").unwrap_or("2026-01-01T00:00:00Z"),
-                            row.get("updatedAt").unwrap_or("2026-01-01T00:00:00Z"),
-                        ],
-                    )?;
-                    c_tasks += 1;
-                }
-                Some("taskTarget") => {
-                    if let Some(task_id) = row.get("taskId") {
-                        tx.execute(
-                            "UPDATE twenty_tasks
-                             SET company_id = COALESCE(company_id, ?1),
-                                 person_id = COALESCE(person_id, ?2),
-                                 opportunity_id = COALESCE(opportunity_id, ?3)
-                             WHERE id = ?4",
-                            params![
-                                row.get("targetCompanyId"),
-                                row.get("targetPersonId"),
-                                row.get("targetOpportunityId"),
-                                task_id
-                            ],
-                        )?;
-                        c_task_targets += 1;
-                    }
-                }
-                _ => {}
-            }
-        }
+    // 18 Verkaufschancen ueber alle 5 Phasen (NEW, SCREENING, MEETING, PROPOSAL, CUSTOMER)
+    let opps: [(&str, &str, &str, i64, &str, &str, &str, &str, &str); 18] = [
+        ("opp-demo-01", "conrad-ki", "Elektro Weber — KI-Angebots- & E-Mail-Triage", 4_800_000_000, "2026-11-30", "CUSTOMER", "cmp-demo-01", "per-demo-01", "mem-demo-1"),
+        ("opp-demo-02", "conrad-ki", "SHK Rhein-Neckar — 24/7 Notdienst-Qualifizierung", 5_400_000_000, "2026-12-05", "PROPOSAL", "cmp-demo-02", "per-demo-03", "mem-demo-1"),
+        ("opp-demo-03", "conrad-ki", "Kanzlei Bergmann — Mandanten-Onboarding & DMS", 6_900_000_000, "2026-12-10", "MEETING", "cmp-demo-03", "per-demo-04", "mem-demo-2"),
+        ("opp-demo-04", "conrad-ki", "Metallbau Hartmann — Sprachmemo zu Angebot", 4_200_000_000, "2026-12-15", "SCREENING", "cmp-demo-04", "per-demo-05", "mem-demo-1"),
+        ("opp-demo-05", "conrad-ki", "Zahnarztpraxis Marktplatz — Termin- & Recall-Bot", 3_600_000_000, "2026-11-28", "CUSTOMER", "cmp-demo-05", "per-demo-06", "mem-demo-2"),
+        ("opp-demo-06", "conrad-ki", "Schreinerei Becker — Aufmaß-Fotodoku & CRM", 2_900_000_000, "2026-12-18", "NEW", "cmp-demo-06", "per-demo-07", "mem-demo-1"),
+        ("opp-demo-07", "conrad-ki", "Steuerberatung König — GoBD Belegprüfung + DATEV", 7_500_000_000, "2026-12-02", "PROPOSAL", "cmp-demo-07", "per-demo-08", "mem-demo-2"),
+        ("opp-demo-08", "conrad-ki", "Spedition Vogel — Frachtbrief-OCR (Lokal-KI)", 8_400_000_000, "2026-12-20", "MEETING", "cmp-demo-10", "per-demo-11", "mem-demo-1"),
+        ("opp-demo-09", "conrad-ki", "Optik Rathaus — Online-Sehtest Vorqualifizierung", 2_400_000_000, "2026-12-22", "SCREENING", "cmp-demo-11", "per-demo-12", "mem-demo-2"),
+        ("opp-demo-10", "conrad-ki", "Dachbau Krüger — Baustellen-Tagesbericht Automation", 3_900_000_000, "2026-12-28", "NEW", "cmp-demo-13", "per-demo-13", "mem-demo-1"),
+        ("opp-demo-11", "conrad-ki", "Ingenieurbüro Klose — Ausschreibungs-Analyse", 6_100_000_000, "2026-12-12", "PROPOSAL", "cmp-demo-16", "per-demo-15", "mem-demo-2"),
+        ("opp-demo-12", "handwerk", "SHK Wolf — Wartungsvertrags-Automatisierung", 3_800_000_000, "2026-11-29", "CUSTOMER", "cmp-demo-19", "per-demo-16", "mem-demo-3"),
+        ("opp-demo-13", "handwerk", "Elektro Braun — Wallbox-Anfragen & Termin-Sync", 4_500_000_000, "2026-12-06", "PROPOSAL", "cmp-demo-20", "per-demo-17", "mem-demo-3"),
+        ("opp-demo-14", "handwerk", "Stahlbau Neumann — CAD-Stücklisten Eingangs-Check", 5_100_000_000, "2026-12-14", "MEETING", "cmp-demo-21", "per-demo-18", "mem-demo-4"),
+        ("opp-demo-15", "handwerk", "Klima Albrecht — Saison-Wartungsreminder (Draft)", 3_200_000_000, "2026-12-19", "SCREENING", "cmp-demo-22", "per-demo-19", "mem-demo-4"),
+        ("opp-demo-16", "handwerk", "Bau Kraft — Subunternehmer-Rechnungsprüfung", 7_200_000_000, "2026-12-09", "PROPOSAL", "cmp-demo-24", "per-demo-21", "mem-demo-3"),
+        ("opp-demo-17", "handwerk", "Solar Rhein-Pfalz — PV-Lead-Scoring + Entwürfe", 6_400_000_000, "2026-12-11", "CUSTOMER", "cmp-demo-26", "per-demo-23", "mem-demo-4"),
+        ("opp-demo-18", "handwerk", "Gerüstbau Lorenz — Angebots-Nachfassung (7 Tage)", 2_700_000_000, "2026-12-27", "NEW", "cmp-demo-28", "per-demo-24", "mem-demo-3"),
+    ];
 
-        summary.insert(
-            ws.to_string(),
-            json!({
-                "members": c_members,
-                "companies": c_companies,
-                "people": c_people,
-                "opportunities": c_opps,
-                "notes": c_notes,
-                "noteTargets": c_note_targets,
-                "tasks": c_tasks,
-                "taskTargets": c_task_targets
-            }),
-        );
+    for (idx, (id, ws, name, amt, close_d, stage, cid, pid, oid)) in opps.iter().enumerate() {
+        tx.execute(
+            "INSERT INTO twenty_opportunities
+             (id, workspace, name, amount_micros, currency_code, close_date, stage, company_id,
+              point_of_contact_id, owner_id, position, created_by_name, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, 'EUR', ?5, ?6, ?7, ?8, ?9, ?10, 'Demo-Team', ?11, ?11)",
+            params![id, ws, name, amt, close_d, stage, cid, pid, oid, (idx + 1) as f64, now],
+        )?;
+    }
+
+    // 25 Notizen (15 in conrad-ki, 10 in handwerk)
+    let notes: [(&str, &str, &str, &str, &str, Option<&str>, Option<&str>); 25] = [
+        ("note-demo-01", "conrad-ki", "Erstgespräch Elektro Weber: Postfach-Triage", "Ziel: 100 % Entwurfspflicht (draftOnly=true) bei Kundenanfragen und Wallbox-Offerten.", "cmp-demo-01", Some("per-demo-01"), Some("opp-demo-01")),
+        ("note-demo-02", "conrad-ki", "Go-Live Checkliste Elektro Weber", "Angebotsvorlagen + DATEV-Export erfolgreich im Testsystem geprüft.", "cmp-demo-01", Some("per-demo-02"), Some("opp-demo-01")),
+        ("note-demo-03", "conrad-ki", "Anforderung SHK Rhein-Neckar Notdienst", "Pro Woche ca. 15 verpasste Anrufe während Baustelleneinsatz — Vorqualifizierung per Formular gewünscht.", "cmp-demo-02", Some("per-demo-03"), Some("opp-demo-02")),
+        ("note-demo-04", "conrad-ki", "AVV & Datenschutz Kanzlei Bergmann", "Betrieb komplett lokal auf deutschem VPS ohne US-Cloud-Transfer bestätigt.", "cmp-demo-03", Some("per-demo-04"), Some("opp-demo-03")),
+        ("note-demo-05", "conrad-ki", "Prozessanalyse Metallbau Hartmann", "Meister diktiert Aufmaß-Notizen im Transporter; Umwandlung in strukturiertes Angebot gewünscht.", "cmp-demo-04", Some("per-demo-05"), Some("opp-demo-04")),
+        ("note-demo-06", "conrad-ki", "Praxis-Workflow Zahnarztpraxis Marktplatz", "Erinnerungs-Entwürfe für Prophylaxe 48h vor Termin getestet.", "cmp-demo-05", Some("per-demo-06"), Some("opp-demo-05")),
+        ("note-demo-07", "conrad-ki", "Schreinerei Becker Rückfrage Holzpreise", "Preistabelle in Datentabelle hinterlegt für automatische Kalkulation.", "cmp-demo-06", Some("per-demo-07"), Some("opp-demo-06")),
+        ("note-demo-08", "conrad-ki", "Steuerberatung König: DATEV-Prüfung", "Eingangsrechnungen automatisch auf USt-ID, Steuersatz und Belegdatum prüfen.", "cmp-demo-07", Some("per-demo-08"), Some("opp-demo-07")),
+        ("note-demo-09", "conrad-ki", "Autohaus Kurpfalz Werkstatt-Slot", "Interesse an saisonaler Reifenwechsel-Terminbuchung im Frühjahr.", "cmp-demo-08", Some("per-demo-09"), None),
+        ("note-demo-10", "conrad-ki", "Bäckerei Lindner Filialbestellung", "Tägliche Vorbestellliste per Webhook sammeln und als PDF zusammenfassen.", "cmp-demo-09", Some("per-demo-10"), None),
+        ("note-demo-11", "conrad-ki", "Spedition Vogel Frachtbrief-Benchmark", "10 Test-Frachtbriefe anonymisiert eingelesen — Extraktionszeit unter 2 Sekunden.", "cmp-demo-10", Some("per-demo-11"), Some("opp-demo-08")),
+        ("note-demo-12", "conrad-ki", "Optik Rathaus Beratungsstrecken", "Termin-Qualifizierung für Hörakustik & Gleitsichtberatung im CRM abgebildet.", "cmp-demo-11", Some("per-demo-12"), Some("opp-demo-09")),
+        ("note-demo-13", "conrad-ki", "Dachbau Krüger Fotoprotokoll", "Baustellenfotos nach Projektnummer sortieren und tägliches Briefing erzeugen.", "cmp-demo-13", Some("per-demo-13"), Some("opp-demo-10")),
+        ("note-demo-14", "conrad-ki", "IT-Systemhaus Neckarblick Partner-Call", "Mögliche Co-Vermarktung für regionale KMU im Raum Heidelberg besprochen.", "cmp-demo-14", Some("per-demo-14"), None),
+        ("note-demo-15", "conrad-ki", "Ingenieurbüro Klose TGA-Prüfmatrix", "Automatische Zusammenfassung von 80-seitigen Leistungsverzeichnissen.", "cmp-demo-16", Some("per-demo-15"), Some("opp-demo-11")),
+        ("note-demo-16", "handwerk", "SHK Wolf Wartungs-Intervalle", "Jährliche Heizungswartung automatisch 30 Tage vorher als Entwurf vorbereiten.", "cmp-demo-19", Some("per-demo-16"), Some("opp-demo-12")),
+        ("note-demo-17", "handwerk", "Elektro Braun PV-Speicher-Checkliste", "Lead-Formular fragt Zählerschrank-Alter und Dachneigung ab.", "cmp-demo-20", Some("per-demo-17"), Some("opp-demo-13")),
+        ("note-demo-18", "handwerk", "Stahlbau Neumann Lieferanten-Portal", "Lieferscheine gegen Bestellungen im CRM automatisch abgleichen.", "cmp-demo-21", Some("per-demo-18"), Some("opp-demo-14")),
+        ("note-demo-19", "handwerk", "Klima Albrecht Störungs-Triage", "Kälteanlagen-Fehlermeldungen nach Dringlichkeit klassifizieren.", "cmp-demo-22", Some("per-demo-19"), Some("opp-demo-15")),
+        ("note-demo-20", "handwerk", "Fliesen Lehner Aufmaß-Notiz", "Standard-Positionen für Badsanierung als Vorlage hinterlegt.", "cmp-demo-23", Some("per-demo-20"), None),
+        ("note-demo-21", "handwerk", "Bau Kraft Rechnungsfreigabe", "Zweistufige Prüfung ab 2.500 EUR Nettobetrag vor DATEV-Übergabe.", "cmp-demo-24", Some("per-demo-21"), Some("opp-demo-16")),
+        ("note-demo-22", "handwerk", "Tischlerei Brandt Musterkatalog", "Kunden erhalten PDF-Katalog-Link nach Beratungsbuchung.", "cmp-demo-25", Some("per-demo-22"), None),
+        ("note-demo-23", "handwerk", "Solar Rhein-Pfalz Lead-Bewertung", "Score > 85 direkt an Vertriebs-Mitarbeiter inkl. Angebotsentwurf zuweisen.", "cmp-demo-26", Some("per-demo-23"), Some("opp-demo-17")),
+        ("note-demo-24", "handwerk", "Gerüstbau Lorenz Nachfass-Regel", "Automatische Erinnerung 7 Tage nach Angebotsversand ohne Rückmeldung.", "cmp-demo-28", Some("per-demo-24"), Some("opp-demo-18")),
+        ("note-demo-25", "handwerk", "Kanalservice Zimmer Einsatzplanung", "Notfälle sofort im Tagesbriefing markieren, Standardanfragen bündeln.", "cmp-demo-29", Some("per-demo-25"), None),
+    ];
+
+    for (idx, (id, ws, title, body, cid, pid, oid)) in notes.iter().enumerate() {
+        tx.execute(
+            "INSERT INTO twenty_notes
+             (id, workspace, title, body_markdown, company_id, person_id, opportunity_id, position, created_by_name, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'Demo-Team', ?9, ?9)",
+            params![id, ws, title, body, cid, pid, oid, (idx + 1) as f64, now],
+        )?;
+    }
+
+    // 15 Aufgaben (9 in conrad-ki, 6 in handwerk) ueber TODO, IN_PROGRESS, DONE
+    let tasks: [(&str, &str, &str, &str, &str, &str, &str, Option<&str>, Option<&str>, &str); 15] = [
+        ("task-demo-01", "conrad-ki", "Quartals-Review Elektro Weber vorbereiten", "KPIs und gesparte Stunden pro Woche zusammenfassen.", "TODO", "2026-11-20T10:00:00Z", "cmp-demo-01", Some("per-demo-01"), Some("opp-demo-01"), "mem-demo-1"),
+        ("task-demo-02", "conrad-ki", "Notdienst-Triage Workflow an SHK Rhein-Neckar vorstellen", "Live-Demo mit fiktivem Wasserschaden-Ticket durchspielen.", "IN_PROGRESS", "2026-11-18T14:00:00Z", "cmp-demo-02", Some("per-demo-03"), Some("opp-demo-02"), "mem-demo-1"),
+        ("task-demo-03", "conrad-ki", "AV-Vertragsentwurf für Kanzlei Bergmann prüfen", "Freigabe durch Datenschutzbeauftragten einholen.", "TODO", "2026-11-21T09:30:00Z", "cmp-demo-03", Some("per-demo-04"), Some("opp-demo-03"), "mem-demo-2"),
+        ("task-demo-04", "conrad-ki", "Sprachmemo-Parser für Metallbau Hartmann testen", "Aufmaß-Beispiel mit 4 Positionen als Testlauf ausführen.", "IN_PROGRESS", "2026-11-19T11:00:00Z", "cmp-demo-04", Some("per-demo-05"), Some("opp-demo-04"), "mem-demo-1"),
+        ("task-demo-05", "conrad-ki", "Recall-Vorlagen Zahnarztpraxis Marktplatz abnehmen", "Nur E-Mail-Entwurf (draftOnly=true) verifiziert.", "DONE", "2026-11-14T16:00:00Z", "cmp-demo-05", Some("per-demo-06"), Some("opp-demo-05"), "mem-demo-2"),
+        ("task-demo-06", "conrad-ki", "DATEV-Feldmapping mit Steuerberatung König abstimmen", "Kontenrahmen SKR04 in Datentabelle hinterlegen.", "TODO", "2026-11-22T15:00:00Z", "cmp-demo-07", Some("per-demo-08"), Some("opp-demo-07"), "mem-demo-2"),
+        ("task-demo-07", "conrad-ki", "Frachtbrief-Benchmark mit Spedition Vogel auswerten", "Erkennungsrate und Latenz dokumentieren.", "DONE", "2026-11-13T13:00:00Z", "cmp-demo-10", Some("per-demo-11"), Some("opp-demo-08"), "mem-demo-1"),
+        ("task-demo-08", "conrad-ki", "Erstgespräch-Agenda für Schreinerei Becker senden", "Kalender-Link und 3 Beispiel-Workflows beifügen (als Entwurf).", "TODO", "2026-11-24T08:30:00Z", "cmp-demo-06", Some("per-demo-07"), Some("opp-demo-06"), "mem-demo-1"),
+        ("task-demo-09", "conrad-ki", "LV-Zusammenfassung für Ingenieurbüro Klose finalisieren", "Risikoklauseln im Output hervorheben.", "IN_PROGRESS", "2026-11-23T17:00:00Z", "cmp-demo-16", Some("per-demo-15"), Some("opp-demo-11"), "mem-demo-2"),
+        ("task-demo-10", "handwerk", "Wartungs-Checkliste für SHK Wolf aktualisieren", "Heizungs- und Wärmepumpen-Prüfpunkte ergänzen.", "DONE", "2026-11-12T10:00:00Z", "cmp-demo-19", Some("per-demo-16"), Some("opp-demo-12"), "mem-demo-3"),
+        ("task-demo-11", "handwerk", "Wallbox-Formular bei Elektro Braun freischalten", "Webhook-Pfad auf /webhook/lead-intake testen.", "IN_PROGRESS", "2026-11-19T14:30:00Z", "cmp-demo-20", Some("per-demo-17"), Some("opp-demo-13"), "mem-demo-3"),
+        ("task-demo-12", "handwerk", "Lieferschein-Abgleich für Stahlbau Neumann demonstrieren", "Muster-PDF durch Eingangsrechnungs-Flow schicken.", "TODO", "2026-11-25T10:00:00Z", "cmp-demo-21", Some("per-demo-18"), Some("opp-demo-14"), "mem-demo-4"),
+        ("task-demo-13", "handwerk", "Freigabe-Regel >2.500 EUR bei Bau Kraft einrichten", "GoBD-Prüfvermerk aktivieren.", "IN_PROGRESS", "2026-11-20T16:00:00Z", "cmp-demo-24", Some("per-demo-21"), Some("opp-demo-16"), "mem-demo-3"),
+        ("task-demo-14", "handwerk", "Lead-Scoring Schwellenwerte mit Solar Rhein-Pfalz abgleichen", "Ab Score 85 hohe Priorität im CRM setzen.", "DONE", "2026-11-14T11:30:00Z", "cmp-demo-26", Some("per-demo-23"), Some("opp-demo-17"), "mem-demo-4"),
+        ("task-demo-15", "handwerk", "Nachfass-Entwurf für Gerüstbau Lorenz testen", "7-Tage-Frist im Demo-Workflow verifizieren.", "TODO", "2026-11-26T09:00:00Z", "cmp-demo-28", Some("per-demo-24"), Some("opp-demo-18"), "mem-demo-3"),
+    ];
+
+    for (idx, (id, ws, title, body, status, due_at, cid, pid, oid, aid)) in tasks.iter().enumerate() {
+        tx.execute(
+            "INSERT INTO twenty_tasks
+             (id, workspace, title, body_markdown, status, due_at, company_id, person_id, opportunity_id,
+              assignee_id, position, created_by_name, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, 'Demo-Team', ?12, ?12)",
+            params![id, ws, title, body, status, due_at, cid, pid, oid, aid, (idx + 1) as f64, now],
+        )?;
+    }
+
+    // Gespeicherte Ansichten & Favoriten
+    for (vid, ws, obj, name, layout, fjson, sjson, pos) in [
+        ("view-demo-cmp-all", "conrad-ki", "company", "Alle KMU-Firmen", "table", "{}", r#"{"field":"name","dir":"asc"}"#, 0),
+        ("view-demo-cmp-icp", "conrad-ki", "company", "Top-Zielkunden (ICP)", "table", r#"{"icp":true}"#, r#"{"field":"arr","dir":"desc"}"#, 1),
+        ("view-demo-opp-kanban", "conrad-ki", "opportunity", "Vertriebs-Pipeline (Kanban)", "kanban", "{}", r#"{"field":"amount","dir":"desc"}"#, 0),
+        ("view-demo-hw-cmp", "handwerk", "company", "Handwerksbetriebe", "table", "{}", r#"{"field":"name","dir":"asc"}"#, 0),
+        ("view-demo-hw-kanban", "handwerk", "opportunity", "Handwerk Pipeline", "kanban", "{}", r#"{"field":"amount","dir":"desc"}"#, 0),
+        ("view-demo-tasks-open", "conrad-ki", "task", "Offene Aufgaben", "table", r#"{"status":"TODO"}"#, r#"{"field":"dueAt","dir":"asc"}"#, 0),
+    ] {
+        tx.execute(
+            "INSERT INTO twenty_views
+             (id, workspace, object_name, name, layout, filter_json, sort_json, columns_json, position, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, '[]', ?8, ?9, ?9)",
+            params![vid, ws, obj, name, layout, fjson, sjson, pos, now],
+        )?;
+    }
+
+    for (fid, ws, label, ttype, tid, pos) in [
+        ("fav-demo-1", "conrad-ki", "Elektro Weber GmbH", "company", "cmp-demo-01", 0),
+        ("fav-demo-2", "conrad-ki", "SHK Rhein-Neckar", "company", "cmp-demo-02", 1),
+        ("fav-demo-3", "conrad-ki", "Kanzlei Dr. Bergmann", "company", "cmp-demo-03", 2),
+        ("fav-demo-4", "handwerk", "SHK Meisterbetrieb Wolf", "company", "cmp-demo-19", 0),
+    ] {
+        tx.execute(
+            "INSERT INTO twenty_favorites (id, workspace, label, target_type, target_id, position, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![fid, ws, label, ttype, tid, pos, now],
+        )?;
+    }
+
+    for (tid, ws, ev_name, cid, oid, summary) in [
+        ("tl-demo-01", "conrad-ki", "company.created", Some("cmp-demo-01"), None, "Demo-Firma angelegt: Meisterbetrieb Elektro Weber GmbH"),
+        ("tl-demo-02", "conrad-ki", "opportunity.updated", Some("cmp-demo-01"), Some("opp-demo-01"), "Phase auf CUSTOMER aktualisiert"),
+        ("tl-demo-03", "conrad-ki", "note.created", Some("cmp-demo-02"), Some("opp-demo-02"), "Notiz: Anforderung SHK Rhein-Neckar Notdienst"),
+        ("tl-demo-04", "handwerk", "company.created", Some("cmp-demo-19"), None, "Demo-Firma angelegt: Sanitär & Heizung Meisterbetrieb Wolf GmbH"),
+        ("tl-demo-05", "handwerk", "opportunity.updated", Some("cmp-demo-26"), Some("opp-demo-17"), "Phase auf CUSTOMER aktualisiert"),
+    ] {
+        tx.execute(
+            "INSERT INTO twenty_timeline (id, workspace, happens_at, name, company_id, person_id, opportunity_id, note_id, task_id, actor, details_json)
+             VALUES (?1, ?2, ?3, ?4, ?5, NULL, ?6, NULL, NULL, 'Demo-Team', ?7)",
+            params![tid, ws, now, ev_name, cid, oid, json!({"summary": summary}).to_string()],
+        )?;
     }
 
     tx.commit()?;
-    Ok(Value::Object(summary))
+    Ok(json!({
+        "ok": true,
+        "workspaces": ["conrad-ki", "handwerk"],
+        "companies": 30,
+        "people": 25,
+        "opportunities": 18,
+        "notes": 25,
+        "tasks": 15,
+        "members": 4,
+        "views": 6,
+        "favorites": 4
+    }))
 }
 
 #[derive(Debug, Deserialize)]
@@ -926,12 +924,12 @@ pub async fn get_stats_handler(
                 "notes": count_for("twenty_notes", "conrad-ki"),
                 "tasks": count_for("twenty_tasks", "conrad-ki")
             },
-            "pala": {
-                "companies": count_for("twenty_companies", "pala"),
-                "people": count_for("twenty_people", "pala"),
-                "opportunities": count_for("twenty_opportunities", "pala"),
-                "notes": count_for("twenty_notes", "pala"),
-                "tasks": count_for("twenty_tasks", "pala")
+            "handwerk": {
+                "companies": count_for("twenty_companies", "handwerk"),
+                "people": count_for("twenty_people", "handwerk"),
+                "opportunities": count_for("twenty_opportunities", "handwerk"),
+                "notes": count_for("twenty_notes", "handwerk"),
+                "tasks": count_for("twenty_tasks", "handwerk")
             },
             "all": {
                 "companies": count_for("twenty_companies", "all"),
@@ -1068,7 +1066,7 @@ pub async fn get_metadata_handler(
 }
 
 pub async fn sync_sql_handler(State(state): State<AppState>) -> impl IntoResponse {
-    match sync_all_sql_dumps(&state.db) {
+    match seed_twenty_demo_data(&state.db) {
         Ok(res) => (StatusCode::OK, Json(json!({"ok": true, "synced": res}))),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -1234,7 +1232,7 @@ pub fn create_company_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow
     conn.execute(
         "INSERT INTO twenty_companies
          (id, workspace, name, domain_label, domain_url, street1, city, postcode, state, country, employees, linkedin_url, x_url, arr_micros, arr_currency, icp, position, created_by_name, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, '', ?9, ?10, ?11, '', ?12, 'EUR', ?13, 0, 'Pure Rust CRM', ?14, ?14)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, '', ?9, ?10, ?11, '', ?12, 'EUR', ?13, 0, 'Demo-Team', ?14, ?14)",
         params![id, ws, name, domain_label, domain_url, street1, city, postcode, country, employees, linkedin, arr_micros, icp, now],
     )?;
     save_custom_fields_for_record(conn, "twenty_companies", "company", &id, v);
@@ -1393,7 +1391,7 @@ pub fn create_person_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow:
     conn.execute(
         "INSERT INTO twenty_people
          (id, workspace, first_name, last_name, email, phone, phone_country_code, phone_calling_code, job_title, city, linkedin_url, company_id, position, created_by_name, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'DE', '+49', ?7, ?8, '', ?9, 0, 'Pure Rust CRM', ?10, ?10)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'DE', '+49', ?7, ?8, '', ?9, 0, 'Demo-Team', ?10, ?10)",
         params![id, ws, first, last, email, phone, job, city, company_id, now],
     )?;
     save_custom_fields_for_record(conn, "twenty_people", "person", &id, v);
@@ -1444,6 +1442,10 @@ pub async fn update_person_handler(
     }
     if let Some(ct) = v.get("city").and_then(|x| x.as_str()) {
         let _ = conn.execute("UPDATE twenty_people SET city = ?1, updated_at = ?2 WHERE id = ?3", params![ct, now, id]);
+    }
+    if let Some(cid) = v.get("companyId") {
+        let cid_opt = cid.as_str().map(str::trim).filter(|s| !s.is_empty());
+        let _ = conn.execute("UPDATE twenty_people SET company_id = ?1, updated_at = ?2 WHERE id = ?3", params![cid_opt, now, id]);
     }
     save_custom_fields_for_record(&conn, "twenty_people", "person", &id, &v);
     match conn.query_row(
@@ -1567,7 +1569,7 @@ pub fn create_opportunity_internal(conn: &Connection, ws: &str, v: &Value) -> an
     conn.execute(
         "INSERT INTO twenty_opportunities
          (id, workspace, name, amount_micros, currency_code, close_date, stage, company_id, point_of_contact_id, owner_id, position, created_by_name, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, NULL, 0, 'Pure Rust CRM', ?10, ?10)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, NULL, 0, 'Demo-Team', ?10, ?10)",
         params![id, ws, name, amount_micros, curr, close_date, stage, company_id, poc_id, now],
     )?;
     save_custom_fields_for_record(conn, "twenty_opportunities", "opportunity", &id, v);
@@ -1615,6 +1617,14 @@ pub async fn update_opportunity_handler(
     if let Some(cd) = v.get("closeDate").and_then(|x| x.as_str()) {
         let cd_opt = if cd.trim().is_empty() { None } else { Some(cd) };
         let _ = conn.execute("UPDATE twenty_opportunities SET close_date = ?1, updated_at = ?2 WHERE id = ?3", params![cd_opt, now, id]);
+    }
+    if let Some(cid) = v.get("companyId") {
+        let cid_opt = cid.as_str().map(str::trim).filter(|s| !s.is_empty());
+        let _ = conn.execute("UPDATE twenty_opportunities SET company_id = ?1, updated_at = ?2 WHERE id = ?3", params![cid_opt, now, id]);
+    }
+    if let Some(pid) = v.get("pointOfContactId") {
+        let pid_opt = pid.as_str().map(str::trim).filter(|s| !s.is_empty());
+        let _ = conn.execute("UPDATE twenty_opportunities SET point_of_contact_id = ?1, updated_at = ?2 WHERE id = ?3", params![pid_opt, now, id]);
     }
     save_custom_fields_for_record(&conn, "twenty_opportunities", "opportunity", &id, &v);
     match conn.query_row(
@@ -1720,7 +1730,7 @@ pub fn create_note_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow::R
     let now = Utc::now().to_rfc3339();
     conn.execute(
         "INSERT INTO twenty_notes (id, workspace, title, body_markdown, company_id, person_id, opportunity_id, position, created_by_name, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 0, 'Pure Rust CRM', ?8, ?8)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 0, 'Demo-Team', ?8, ?8)",
         params![id, ws, title, body, company_id, person_id, opp_id, now],
     )?;
     save_custom_fields_for_record(conn, "twenty_notes", "note", &id, v);
@@ -1861,7 +1871,7 @@ pub fn create_task_internal(conn: &Connection, ws: &str, v: &Value) -> anyhow::R
     let now = Utc::now().to_rfc3339();
     conn.execute(
         "INSERT INTO twenty_tasks (id, workspace, title, body_markdown, status, due_at, company_id, person_id, opportunity_id, assignee_id, position, created_by_name, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, NULL, 0, 'Pure Rust CRM', ?10, ?10)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, NULL, 0, 'Demo-Team', ?10, ?10)",
         params![id, ws, title, body, status, due_at, company_id, person_id, opp_id, now],
     )?;
     save_custom_fields_for_record(conn, "twenty_tasks", "task", &id, v);
@@ -2003,7 +2013,7 @@ fn record_timeline(
     let details = json!({ "summary": summary }).to_string();
     let _ = conn.execute(
         "INSERT INTO twenty_timeline (id, workspace, happens_at, name, company_id, person_id, opportunity_id, note_id, task_id, actor, details_json)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, 'Pure Rust CRM', ?10)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, 'Demo-Team', ?10)",
         params![id, ws, now, name, company_id, person_id, opp_id, note_id, task_id, details],
     );
 }
@@ -2182,7 +2192,7 @@ pub fn execute_graphql(db: &Database, ws: &str, query: &str, variables: &Value) 
     if !matched_any {
         return json!({
             "data": {},
-            "errors": [{ "message": "Unrecognized GraphQL query on Pure-Rust Twenty engine" }]
+            "errors": [{ "message": "Unrecognized GraphQL query on Conrad CRM engine" }]
         });
     }
     json!({ "data": Value::Object(data_map) })
@@ -2563,7 +2573,7 @@ pub fn twenty_n8n_tool_definitions() -> Value {
             "type": "function",
             "function": {
                 "name": "N8N_Execute_Workflow",
-                "description": "Startet einen lokalen n8n Workflow in der Pure-Rust Engine.",
+                "description": "Startet einen lokalen Workflow in Conrad Automation.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -2885,10 +2895,10 @@ pub async fn twenty_agent_handler(
         )
     } else {
         format!(
-            "Du bist der integrierte Twenty CRM & n8n KI-Assistent fuer Workspace '{}' (Conrad KI / Pala). \
+            "Du bist der integrierte Conrad CRM & Conrad Automation KI-Assistent fuer Workspace '{}' (Demo-Umgebung). \
              Heutiges Datum: {} (morgen: {}, morgen 10 Uhr = {}). \
              Antworte auf Deutsch, praezise und nutze die verfuegbaren Tools fuer CRM-Suchen, Kontakte, Deals, Notizen, Aufgaben, \
-             n8n-Workflows und E-Mail-Entwuerfe (immer draftOnly=true, niemals E-Mails direkt versenden).",
+             Workflows und E-Mail-Entwuerfe (immer draftOnly=true, niemals E-Mails direkt versenden).",
             ws, today_str, tomorrow_str, tomorrow_10
         )
     };
@@ -3158,7 +3168,7 @@ pub async fn showcase_metrics_handler(State(state): State<AppState>) -> impl Int
                     "category": "Workflow-Automatisierung & Integrationen",
                     "legacyStack": "Zapier Company / Make Enterprise / n8n Cloud",
                     "legacyEur": 850,
-                    "rustStack": "Conrad Automation (/n8n, 58 Workflows, Echtzeit-Engine)",
+                    "rustStack": format!("Conrad Automation (/n8n, {} Demo-Workflows, Echtzeit-Engine)", n8n_workflows),
                     "rustEur": 0
                 },
                 {

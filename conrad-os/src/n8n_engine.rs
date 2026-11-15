@@ -22,7 +22,7 @@ use axum::{
 use base64::{engine::general_purpose::{STANDARD as B64, URL_SAFE_NO_PAD as B64URL}, Engine as _};
 use chrono::{DateTime, Duration as ChronoDur, Utc};
 use hmac::{Hmac, Mac};
-use rusqlite::{params, Connection, OpenFlags, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension};
 use serde::Deserialize;
 use serde_json::{json, Map, Value};
 use sha2::Sha256;
@@ -45,18 +45,12 @@ fn http_client() -> &'static reqwest::Client {
     })
 }
 
-const DEFAULT_N8N_SQLITE: &str = "/opt/n8n/n8n_data/database.sqlite";
-
-fn n8n_sqlite_path() -> String {
-    std::env::var("N8N_SQLITE_PATH").unwrap_or_else(|_| DEFAULT_N8N_SQLITE.to_string())
-}
-
 // =========================================================================
-// Schema-Initialisierung, Seeds & Live-n8n-SQLite-Sync
+// Schema-Initialisierung & Demo-Workflow-Seeds
 // =========================================================================
 
 pub fn init_and_sync_n8n(db: &Database) -> anyhow::Result<()> {
-    {
+    let needs_reset = {
         let conn = db.lock_conn();
         conn.execute_batch(
             r#"
@@ -142,219 +136,595 @@ pub fn init_and_sync_n8n(db: &Database) -> anyhow::Result<()> {
         let _ = conn.execute("ALTER TABLE n8n_executions ADD COLUMN data_json TEXT NOT NULL DEFAULT '{}'", []);
         let _ = conn.execute("ALTER TABLE n8n_executions ADD COLUMN error_message TEXT", []);
 
-        seed_defaults(&conn)?;
-    }
+        has_real_n8n_data(&conn)
+    };
 
-    if std::path::Path::new(&n8n_sqlite_path()).exists() {
-        if let Err(e) = sync_from_n8n_sqlite(db) {
-            tracing::warn!("n8n SQLite Sync Hinweis: {}", e);
-        }
+    if needs_reset {
+        reset_demo_n8n(db)?;
     }
-    tracing::info!("Pure-Rust n8n engine ready");
+    tracing::info!("Conrad Automation Engine ready");
     Ok(())
 }
 
-fn seed_defaults(conn: &Connection) -> anyhow::Result<()> {
-    let now = Utc::now().to_rfc3339();
-
-    let var_count: i64 = conn.query_row("SELECT COUNT(*) FROM n8n_variables", [], |r| r.get(0)).unwrap_or(0);
-    if var_count == 0 {
-        for (k, v) in [
-            ("COMPANY_NAME", "Conrad KI"),
-            ("DRAFT_ONLY", "true"),
-            ("REGION", "Rhein-Neckar"),
-            ("DEFAULT_MODEL", "qwen2.5:1.5b"),
-        ] {
-            let _ = conn.execute(
-                "INSERT OR IGNORE INTO n8n_variables (id, var_key, value, var_type, project_id, updated_at) VALUES (?1, ?2, ?3, 'string', 'default', ?4)",
-                params![Uuid::new_v4().to_string(), k, v, now],
-            );
-        }
+fn has_real_n8n_data(conn: &Connection) -> bool {
+    let wf_count: i64 = conn
+        .query_row("SELECT COUNT(*) FROM n8n_workflows", [], |r| r.get(0))
+        .unwrap_or(0);
+    if wf_count == 0 || wf_count > 25 {
+        return true;
     }
 
-    let dt_count: i64 = conn.query_row("SELECT COUNT(*) FROM n8n_data_tables", [], |r| r.get(0)).unwrap_or(0);
-    if dt_count == 0 {
-        let tid = "dt-lead-scoring-regeln";
-        let cols = json!([
-            {"name": "branche", "type": "string"},
-            {"name": "score", "type": "number"},
-            {"name": "paket", "type": "string"},
-            {"name": "prioritaet", "type": "string"}
-        ]);
-        conn.execute(
-            "INSERT OR IGNORE INTO n8n_data_tables (id, name, columns_json, created_at, updated_at) VALUES (?1, 'Lead-Scoring-Regeln', ?2, ?3, ?3)",
-            params![tid, cols.to_string(), now],
+    let has_agent: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM n8n_workflows WHERE id = 'conradKiAgent001'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if has_agent == 0 {
+        return true;
+    }
+
+    let has_demo_seed: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM n8n_workflows WHERE id = 'wf-demo-email-triage'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if has_demo_seed == 0 {
+        return true;
+    }
+
+    let bad_wf: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM n8n_workflows
+             WHERE id LIKE 'pala%'
+                OR id = 'kiraRagHardened01'
+                OR LOWER(name) LIKE '%ohrladen%'
+                OR LOWER(name) LIKE '%pala%'
+                OR LOWER(name) LIKE '%spatzennest%'
+                OR LOWER(name) LIKE '%sprachschule%'
+                OR LOWER(name) LIKE '%cdu%'
+                OR LOWER(name) LIKE '%leo-club%'
+                OR LOWER(name) LIKE '%schlossgarten%'
+                OR LOWER(name) LIKE '%imkerei%'
+                OR LOWER(name) LIKE '%hermes%'
+                OR LOWER(name) LIKE '%vvs%'
+                OR LOWER(nodes_json) LIKE '%ohrladen%'
+                OR LOWER(nodes_json) LIKE '%pala%'
+                OR LOWER(nodes_json) LIKE '%8395458333%'
+                OR LOWER(nodes_json) LIKE '%8194671509%'
+                OR LOWER(nodes_json) LIKE '%meerlin%'
+                OR LOWER(nodes_json) LIKE '%online.de%'
+                OR LOWER(nodes_json) LIKE '%gmail.com%'
+                OR LOWER(nodes_json) LIKE '%heidelberger schloss%'
+                OR LOWER(nodes_json) LIKE '%ollama:11434%'
+                OR LOWER(nodes_json) LIKE '%conrad-n8n-agent:4b%'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if bad_wf > 0 {
+        return true;
+    }
+
+    let bad_creds: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM n8n_credentials
+             WHERE id NOT LIKE 'cred-demo-%'
+               AND (LOWER(name) LIKE '%pala%'
+                    OR LOWER(name) LIKE '%ohrladen%'
+                    OR LOWER(name) LIKE '%hermes%'
+                    OR LOWER(name) LIKE '%veli%'
+                    OR LOWER(name) LIKE '%merlin%'
+                    OR LOWER(name) LIKE '%schlossgarten%'
+                    OR LOWER(name) LIKE '%vvs%'
+                    OR LOWER(name) LIKE '%hostinger%'
+                    OR LOWER(name) LIKE '%ionos%'
+                    OR LOWER(name) LIKE '%telegram%'
+                    OR LOWER(name) LIKE '%brevo%'
+                    OR LOWER(name) LIKE '%stripe%')",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    if bad_creds > 0 {
+        return true;
+    }
+
+    let bad_var: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM n8n_variables WHERE var_key = 'DEFAULT_MODEL' AND value != 'conrad-n8n-agent:0.6b'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    bad_var > 0
+}
+
+fn demo_workflow_tuple(
+    id: &str,
+    name: &str,
+    tags: &[&str],
+    nodes: Value,
+    connections: Value,
+) -> (String, String, String, String, String) {
+    (
+        id.to_string(),
+        name.to_string(),
+        serde_json::to_string(tags).unwrap_or_else(|_| "[]".into()),
+        nodes.to_string(),
+        connections.to_string(),
+    )
+}
+
+pub fn reset_demo_n8n(db: &Database) -> anyhow::Result<Value> {
+    let mut conn = db.lock_conn();
+    let tx = conn.transaction()?;
+    let now = Utc::now().to_rfc3339();
+
+    for tbl in [
+        "n8n_waiting_executions",
+        "n8n_executions",
+        "n8n_workflows",
+        "n8n_credentials",
+        "n8n_variables",
+        "n8n_data_table_rows",
+        "n8n_data_tables",
+        "n8n_tags",
+    ] {
+        tx.execute(&format!("DELETE FROM {tbl}"), [])?;
+    }
+
+    // 1. Demo-Variablen
+    for (k, v) in [
+        ("COMPANY_NAME", "Conrad KI Demo"),
+        ("DRAFT_ONLY", "true"),
+        ("REGION", "Rhein-Neckar"),
+        ("DEFAULT_MODEL", "conrad-n8n-agent:0.6b"),
+        ("SUPPORT_EMAIL", "info@elektro-weber-demo.de"),
+    ] {
+        tx.execute(
+            "INSERT INTO n8n_variables (id, var_key, value, var_type, project_id, updated_at)
+             VALUES (?1, ?2, ?3, 'string', 'default', ?4)",
+            params![Uuid::new_v4().to_string(), k, v, now],
         )?;
-        for row in [
-            json!({"branche": "Handwerk / SHK", "score": 88, "paket": "Wachstum 69€/Monat", "prioritaet": "HOCH"}),
-            json!({"branche": "Zahnarzt / MVZ", "score": 94, "paket": "Pro 99€/Monat", "prioritaet": "SEHR HOCH"}),
-            json!({"branche": "Steuerberater / Kanzlei", "score": 91, "paket": "Pro 99€/Monat", "prioritaet": "HOCH"}),
-        ] {
-            conn.execute(
-                "INSERT INTO n8n_data_table_rows (table_id, data_json, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
+    }
+
+    // 2. Verschluesselte Demo-Anmeldedaten (ausschliesslich fiktive Platzhalter)
+    let key = encryption_key();
+    for (cid, cname, ctype, payload) in [
+        (
+            "cred-demo-ollama",
+            "Demo Conrad KI Engine (Lokal)",
+            "openAiApi",
+            json!({"apiKey": "demo-local-only", "url": "http://127.0.0.1:11434/v1"}),
+        ),
+        (
+            "cred-demo-crm",
+            "Demo Conrad CRM Zugang",
+            "httpHeaderAuth",
+            json!({"name": "X-Demo-Workspace", "value": "conrad-ki"}),
+        ),
+        (
+            "cred-demo-smtp",
+            "Demo E-Mail Entwurfspostfach",
+            "smtp",
+            json!({"host": "smtp.elektro-weber-demo.de", "port": 587, "user": "entwurf@elektro-weber-demo.de", "password": "demo-draft-only-password"}),
+        ),
+        (
+            "cred-demo-webhook",
+            "Demo Webhook Signatur",
+            "httpHeaderAuth",
+            json!({"name": "X-Webhook-Secret", "value": "demo-hmac-secret-2026"}),
+        ),
+    ] {
+        let enc = encrypt_json(&key, &payload).unwrap_or_else(|_| "{}".to_string());
+        tx.execute(
+            "INSERT INTO n8n_credentials (id, name, cred_type, data_encrypted, nodes_access_json, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, '[]', ?5, ?5)",
+            params![cid, cname, ctype, enc, now],
+        )?;
+    }
+
+    // 3. Drei fiktive KMU-Datentabellen
+    let tables: [(&str, &str, Value, Vec<Value>); 3] = [
+        (
+            "dt-lead-scoring-regeln",
+            "Lead-Scoring-Regeln",
+            json!([
+                {"name": "branche", "type": "string"},
+                {"name": "score", "type": "number"},
+                {"name": "paket", "type": "string"},
+                {"name": "prioritaet", "type": "string"}
+            ]),
+            vec![
+                json!({"branche": "Elektro & Photovoltaik", "score": 92, "paket": "Pro 99 EUR/Monat", "prioritaet": "SEHR HOCH"}),
+                json!({"branche": "SHK & Haustechnik", "score": 88, "paket": "Wachstum 69 EUR/Monat", "prioritaet": "HOCH"}),
+                json!({"branche": "Steuerberatung & Kanzlei", "score": 94, "paket": "Pro 99 EUR/Monat", "prioritaet": "SEHR HOCH"}),
+                json!({"branche": "Zahnarztpraxis & MVZ", "score": 86, "paket": "Wachstum 69 EUR/Monat", "prioritaet": "HOCH"}),
+            ],
+        ),
+        (
+            "dt-kmu-preisliste",
+            "Handwerks-Leistungskatalog",
+            json!([
+                {"name": "leistung", "type": "string"},
+                {"name": "einheit", "type": "string"},
+                {"name": "preisEur", "type": "number"},
+                {"name": "gewerk", "type": "string"}
+            ]),
+            vec![
+                json!({"leistung": "Wallbox-Installation 11 kW inkl. Messung", "einheit": "Pauschal", "preisEur": 1490, "gewerk": "Elektro"}),
+                json!({"leistung": "Zaehlerschrank-Modernisierung nach VDE", "einheit": "Pauschal", "preisEur": 2350, "gewerk": "Elektro"}),
+                json!({"leistung": "Waermepumpen-Jahreswartung", "einheit": "Termin", "preisEur": 280, "gewerk": "SHK"}),
+                json!({"leistung": "KI-Postfach-Triage Setup (draftOnly)", "einheit": "Setup", "preisEur": 950, "gewerk": "Digitalisierung"}),
+            ],
+        ),
+        (
+            "dt-gobd-kontenplan",
+            "DATEV SKR04 Demo-Kontenplan",
+            json!([
+                {"name": "konto", "type": "string"},
+                {"name": "bezeichnung", "type": "string"},
+                {"name": "steuersatz", "type": "number"}
+            ]),
+            vec![
+                json!({"konto": "4980", "bezeichnung": "Sonstiger Betriebsbedarf", "steuersatz": 19}),
+                json!({"konto": "4930", "bezeichnung": "Buerobedarf & Software", "steuersatz": 19}),
+                json!({"konto": "4950", "bezeichnung": "Rechts- und Beratungskosten", "steuersatz": 19}),
+                json!({"konto": "4600", "bezeichnung": "Werbekosten & Vertrieb", "steuersatz": 19}),
+            ],
+        ),
+    ];
+
+    for (tid, tname, cols, rows) in tables {
+        tx.execute(
+            "INSERT INTO n8n_data_tables (id, name, columns_json, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?4)",
+            params![tid, tname, cols.to_string(), now],
+        )?;
+        for row in rows {
+            tx.execute(
+                "INSERT INTO n8n_data_table_rows (table_id, data_json, created_at, updated_at)
+                 VALUES (?1, ?2, ?3, ?3)",
                 params![tid, row.to_string(), now],
             )?;
         }
     }
 
-    let wf_count: i64 = conn.query_row("SELECT COUNT(*) FROM n8n_workflows", [], |r| r.get(0)).unwrap_or(0);
-    if wf_count == 0 {
-        let starter_nodes = json!([
-            {
-                "id": "n1", "name": "Webhook Lead-Eingang", "type": "n8n-nodes-base.webhook", "typeVersion": 2,
-                "position": [160, 260], "parameters": {"httpMethod": "POST", "path": "lead-intake", "responseMode": "onReceived"}
-            },
-            {
-                "id": "n2", "name": "Score Pruefung", "type": "n8n-nodes-base.if", "typeVersion": 2,
-                "position": [420, 260],
-                "parameters": {"combinator": "and", "conditions": {"conditions": [{"leftValue": "={{ $json.score || 85 }}", "operator": {"type": "number", "operation": "gte"}, "rightValue": 70}]}}
-            },
-            {
-                "id": "n3", "name": "QuickJS Anreicherung", "type": "n8n-nodes-base.code", "typeVersion": 2,
-                "position": [680, 200],
-                "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "return $input.all().map(i => ({\n  json: {\n    ...i.json,\n    tag: $now.toISODate(),\n    mandant: $vars.COMPANY_NAME || 'Conrad KI',\n    status: 'qualifiziert'\n  }\n}));"}
-            },
-            {
-                "id": "n4", "name": "Antwort-Entwurf speichern", "type": "n8n-nodes-base.emailSend", "typeVersion": 2,
-                "position": [940, 200],
-                "parameters": {"toEmail": "={{ $json.email || 'kontakt@beispiel.de' }}", "subject": "={{ 'Conrad KI Angebot fuer ' + ($json.company || 'Ihr Team') }}", "draftOnly": true}
-            }
-        ]);
-        let starter_conns = json!({
-            "Webhook Lead-Eingang": { "main": [[{ "node": "Score Pruefung", "type": "main", "index": 0 }]] },
-            "Score Pruefung": { "main": [[{ "node": "QuickJS Anreicherung", "type": "main", "index": 0 }], []] },
-            "QuickJS Anreicherung": { "main": [[{ "node": "Antwort-Entwurf speichern", "type": "main", "index": 0 }]] }
-        });
-        conn.execute(
-            "INSERT INTO n8n_workflows (id, name, active, nodes_json, connections_json, settings_json, tags_json, pin_data_json, created_at, updated_at)
-             VALUES ('wf-conrad-lead-engine', 'Conrad KI — Lead Qualifizierung & Entwurf', 1, ?1, ?2, '{}', '[\"Conrad KI\",\"Vertrieb\"]', '{}', ?3, ?3)",
-            params![starter_nodes.to_string(), starter_conns.to_string(), now],
+    // 4. Demo-Tags
+    for tag in ["Demo", "Vertrieb", "Buchhaltung", "Handwerk", "KI-Autopilot", "Entwurfspflicht"] {
+        tx.execute(
+            "INSERT INTO n8n_tags (id, name, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
+            params![format!("tag-demo-{}", tag.to_ascii_lowercase()), tag, now],
         )?;
     }
 
-    Ok(())
-}
-
-pub fn sync_from_n8n_sqlite(db: &Database) -> anyhow::Result<Value> {
-    let path = n8n_sqlite_path();
-    let src = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-    let conn = db.lock_conn();
-    let now = Utc::now().to_rfc3339();
-
-    let mut wf_cols = HashSet::new();
-    if let Ok(mut st) = src.prepare("PRAGMA table_info(workflow_entity)") {
-        if let Ok(mut rows) = st.query([]) {
-            while let Ok(Some(r)) = rows.next() {
-                if let Ok(nm) = r.get::<_, String>(1) {
-                    wf_cols.insert(nm);
-                }
-            }
-        }
-    }
-    let has_pin = wf_cols.contains("pinData");
-    let wf_sql = if has_pin {
-        "SELECT id, name, active, nodes, connections, settings, COALESCE(pinData, '{}') FROM workflow_entity"
-    } else {
-        "SELECT id, name, active, nodes, connections, settings, '{}' FROM workflow_entity"
-    };
-
-    let mut wf_count = 0usize;
-    if let Ok(mut stmt) = src.prepare(wf_sql) {
-        if let Ok(mut rows) = stmt.query([]) {
-            while let Ok(Some(r)) = rows.next() {
-                let id: String = r.get(0)?;
-                let name: String = r.get(1)?;
-                let active: i64 = r.get::<_, i64>(2).unwrap_or(0);
-                let nodes: String = r.get(3).unwrap_or_else(|_| "[]".into());
-                let conns: String = r.get(4).unwrap_or_else(|_| "{}".into());
-                let settings: String = r.get(5).unwrap_or_else(|_| "{}".into());
-                let pin_data: String = r.get(6).unwrap_or_else(|_| "{}".into());
-
-                conn.execute(
-                    "INSERT INTO n8n_workflows (id, name, active, nodes_json, connections_json, settings_json, tags_json, pin_data_json, created_at, updated_at)
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, '[\"Live n8n Sync\"]', ?7, ?8, ?8)
-                     ON CONFLICT(id) DO UPDATE SET
-                       name = excluded.name, active = excluded.active, nodes_json = excluded.nodes_json,
-                       connections_json = excluded.connections_json, settings_json = excluded.settings_json,
-                       pin_data_json = CASE WHEN excluded.pin_data_json != '{}' THEN excluded.pin_data_json ELSE n8n_workflows.pin_data_json END,
-                       updated_at = excluded.updated_at",
-                    params![id, name, active, nodes, conns, settings, pin_data, now],
-                )?;
-                wf_count += 1;
-            }
-        }
-    }
-
-    let mut cred_count = 0usize;
-    if let Ok(mut stmt) = src.prepare("SELECT id, name, type, data FROM credentials_entity") {
-        if let Ok(mut rows) = stmt.query([]) {
-            let key = encryption_key();
-            while let Ok(Some(r)) = rows.next() {
-                let id: String = r.get(0)?;
-                let name: String = r.get(1)?;
-                let ctype: String = r.get(2)?;
-                let raw_data: String = r.get(3).unwrap_or_else(|_| "{}".into());
-                let stored = if raw_data.trim().starts_with("U2FsdGVkX1") || raw_data.trim().starts_with('{') {
-                    if raw_data.trim().starts_with('{') {
-                        serde_json::from_str::<Value>(&raw_data)
-                            .ok()
-                            .and_then(|v| encrypt_json(&key, &v).ok())
-                            .unwrap_or(raw_data)
-                    } else {
-                        raw_data
+    // 5. 15 kuratierte, sofort lokal ausfuehrbare Demo-Workflows fuer deutsche KMU
+    let workflows = vec![
+        // 1. Showcase & QA Haupt-Workflow (ID conradKiAgent001 beibehalten!)
+        demo_workflow_tuple(
+            "conradKiAgent001",
+            "Conrad KI — CRM & E-Mail Autopilot (Demo)",
+            &["Demo", "KI-Autopilot", "Entwurfspflicht"],
+            json!([
+                {
+                    "id": "ag1", "name": "Webhook Auftrag", "type": "n8n-nodes-base.webhook", "typeVersion": 2,
+                    "position": [100, 260],
+                    "parameters": {"httpMethod": "POST", "path": "conrad-agent", "responseMode": "responseNode"}
+                },
+                {
+                    "id": "ag2", "name": "Input Guard & Schema Prep", "type": "n8n-nodes-base.code", "typeVersion": 2,
+                    "position": [320, 260],
+                    "parameters": {
+                        "language": "javaScript",
+                        "mode": "runOnceForAllItems",
+                        "jsCode": "const raw = $input.first()?.json || {};\nconst body = (raw.body && typeof raw.body === 'object') ? raw.body : raw;\nconst query = String(body.message || body.prompt || body.text || body.chatInput || 'Suche Elektro Weber').trim();\nconst blocked = /(drop\\s+table|delete\\s+from|ignore\\s+previous)/i.test(query);\nreturn [{ json: { query, blocked, workspace: String(body.workspace || 'conrad-ki'), model: 'conrad-n8n-agent:0.6b', llmUrl: 'http://127.0.0.1:11434/v1/chat/completions', draftOnly: true, checkedAt: $now.toISO() } }];"
                     }
-                } else {
-                    raw_data
-                };
-                let _ = conn.execute(
-                    "INSERT OR IGNORE INTO n8n_credentials (id, name, cred_type, data_encrypted, nodes_access_json, created_at, updated_at)
-                     VALUES (?1, ?2, ?3, ?4, '[]', ?5, ?5)",
-                    params![id, name, ctype, stored, now],
-                );
-                cred_count += 1;
-            }
-        }
+                },
+                {
+                    "id": "ag3", "name": "Conrad CRM Firmenabruf", "type": "n8n-nodes-base.twentyCrm", "typeVersion": 1,
+                    "position": [540, 260],
+                    "parameters": {"resource": "company", "operation": "getAll"}
+                },
+                {
+                    "id": "ag4", "name": "Treffer-Kontext Bauen", "type": "n8n-nodes-base.code", "typeVersion": 2,
+                    "position": [760, 260],
+                    "parameters": {
+                        "language": "javaScript",
+                        "mode": "runOnceForAllItems",
+                        "jsCode": "const prep = $('Input Guard & Schema Prep').first()?.json || {};\nconst q = String(prep.query || 'Elektro Weber').toLowerCase();\nconst firms = $input.all().map(x => x.json || {});\nconst words = q.split(/\\s+/).filter(w => w.length >= 3);\nconst hits = firms.filter(f => {\n  const txt = `${f.name || ''} ${f.city || ''} ${f.domain || ''}`.toLowerCase();\n  return words.some(w => txt.includes(w));\n});\nconst top = (hits.length ? hits : firms).slice(0, 5);\nreturn [{ json: { query: prep.query || 'Suche Elektro Weber', matchCount: hits.length, matches: top, model: 'conrad-n8n-agent:0.6b', draftOnly: true } }];"
+                    }
+                },
+                {
+                    "id": "ag5", "name": "Conrad KI Engine Zusammenfassung", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4,
+                    "position": [980, 260],
+                    "continueOnFail": true,
+                    "parameters": {
+                        "method": "POST",
+                        "url": "http://127.0.0.1:11434/v1/chat/completions",
+                        "sendBody": true,
+                        "jsonBody": "={{ JSON.stringify({ model: 'conrad-n8n-agent:0.6b', stream: false, max_tokens: 160, messages: [{ role: 'system', content: 'Du bist der lokale Conrad CRM Assistent. Fasse CRM-Treffer knapp auf Deutsch zusammen. E-Mails immer nur als Entwurf.' }, { role: 'user', content: 'Anfrage: ' + $json.query + ' | Treffer: ' + JSON.stringify($json.matches) }] }) }}"
+                    }
+                },
+                {
+                    "id": "ag6", "name": "Antwort-Entwurf Sichern", "type": "n8n-nodes-base.set", "typeVersion": 3,
+                    "position": [1200, 260],
+                    "parameters": {
+                        "mode": "raw",
+                        "jsonOutput": "={{ JSON.stringify({ ok: true, draftOnly: true, query: $('Treffer-Kontext Bauen').first().json.query, matchCount: $('Treffer-Kontext Bauen').first().json.matchCount, matches: $('Treffer-Kontext Bauen').first().json.matches, summary: ($json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) || 'CRM-Abfrage fuer Elektro Weber erfolgreich ausgefuehrt (Entwurf gespeichert).' }) }}"
+                    }
+                },
+                {
+                    "id": "ag7", "name": "Webhook Antwort", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1,
+                    "position": [1420, 260],
+                    "parameters": {"respondWith": "firstIncomingItem"}
+                }
+            ]),
+            json!({
+                "Webhook Auftrag": {"main": [[{"node": "Input Guard & Schema Prep", "type": "main", "index": 0}]]},
+                "Input Guard & Schema Prep": {"main": [[{"node": "Conrad CRM Firmenabruf", "type": "main", "index": 0}]]},
+                "Conrad CRM Firmenabruf": {"main": [[{"node": "Treffer-Kontext Bauen", "type": "main", "index": 0}]]},
+                "Treffer-Kontext Bauen": {"main": [[{"node": "Conrad KI Engine Zusammenfassung", "type": "main", "index": 0}]]},
+                "Conrad KI Engine Zusammenfassung": {"main": [[{"node": "Antwort-Entwurf Sichern", "type": "main", "index": 0}]]},
+                "Antwort-Entwurf Sichern": {"main": [[{"node": "Webhook Antwort", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 2. E-Mail-Triage & Entwurfs-Assistent (draftOnly)
+        demo_workflow_tuple(
+            "wf-demo-email-triage",
+            "E-Mail-Triage & Entwurfs-Assistent (draftOnly)",
+            &["Demo", "Entwurfspflicht", "KI-Autopilot"],
+            json!([
+                {"id": "et1", "name": "Postfach-Eingang", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [120, 260], "parameters": {"httpMethod": "POST", "path": "email-triage-demo"}},
+                {"id": "et2", "name": "Klassifizierung & Prioritaet", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const it = $input.first()?.json || {};\nconst betreff = String(it.subject || 'Anfrage Wallbox-Installation Schwetzingen');\nconst absender = String(it.from || 'info@elektro-weber-demo.de');\nconst urgent = /(notfall|stoerung|sofort|heute|ausfall)/i.test(betreff);\nreturn [{ json: { absender, betreff, kategorie: urgent ? 'Notdienst' : 'Angebotsanfrage', prioritaet: urgent ? 'HOCH' : 'NORMAL', draftOnly: true } }];"}},
+                {"id": "et3", "name": "Dringlichkeits-Pruefung", "type": "n8n-nodes-base.if", "typeVersion": 2, "position": [600, 260], "parameters": {"conditions": {"conditions": [{"leftValue": "={{ $json.prioritaet }}", "operator": {"type": "string", "operation": "equals"}, "rightValue": "HOCH"}]}}},
+                {"id": "et4", "name": "Antwort-Entwurf Speichern", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [860, 260], "parameters": {"toEmail": "={{ $json.absender }}", "subject": "={{ 'Re: ' + $json.betreff + ' [Entwurf]' }}", "text": "Vielen Dank fuer Ihre Nachricht. Unser Fachteam meldet sich innerhalb von 2 Stunden bei Ihnen.", "draftOnly": true}}
+            ]),
+            json!({
+                "Postfach-Eingang": {"main": [[{"node": "Klassifizierung & Prioritaet", "type": "main", "index": 0}]]},
+                "Klassifizierung & Prioritaet": {"main": [[{"node": "Dringlichkeits-Pruefung", "type": "main", "index": 0}]]},
+                "Dringlichkeits-Pruefung": {"main": [[{"node": "Antwort-Entwurf Speichern", "type": "main", "index": 0}], [{"node": "Antwort-Entwurf Speichern", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 3. Sprachmemo -> Handwerks-Angebot
+        demo_workflow_tuple(
+            "wf-demo-sprachmemo-angebot",
+            "Sprachmemo → Handwerks-Angebot",
+            &["Demo", "Handwerk", "Vertrieb"],
+            json!([
+                {"id": "sm1", "name": "Sprachmemo Start", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [120, 240], "parameters": {}},
+                {"id": "sm2", "name": "Leistungskatalog Laden", "type": "n8n-nodes-base.dataTable", "typeVersion": 1, "position": [360, 240], "parameters": {"operation": "getRows", "tableName": "Handwerks-Leistungskatalog"}},
+                {"id": "sm3", "name": "Angebot Kalkulieren", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [600, 240], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const rows = $input.all().map(x => x.json);\nconst pos = rows.slice(0, 2);\nconst netto = pos.reduce((s, r) => s + Number(r.preisEur || 0), 0);\nconst brutto = Math.round(netto * 1.19 * 100) / 100;\nreturn [{ json: { kunde: 'Metallbau Hartmann KG', positionen: pos, nettoEur: netto, bruttoEur: brutto, mwstEur: Math.round((brutto - netto) * 100) / 100, datum: $now.toISODate(), draftOnly: true } }];"}},
+                {"id": "sm4", "name": "Angebots-Entwurf Sichern", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [840, 240], "parameters": {"toEmail": "m.hartmann@metallbau-hartmann-demo.de", "subject": "={{ 'Ihr Angebot über ' + $json.bruttoEur + ' EUR brutto' }}", "draftOnly": true}}
+            ]),
+            json!({
+                "Sprachmemo Start": {"main": [[{"node": "Leistungskatalog Laden", "type": "main", "index": 0}]]},
+                "Leistungskatalog Laden": {"main": [[{"node": "Angebot Kalkulieren", "type": "main", "index": 0}]]},
+                "Angebot Kalkulieren": {"main": [[{"node": "Angebots-Entwurf Sichern", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 4. Eingangsrechnung GoBD & DATEV-Pruefung
+        demo_workflow_tuple(
+            "wf-demo-gobd-datev",
+            "Eingangsrechnung GoBD & DATEV-Prüfung",
+            &["Demo", "Buchhaltung"],
+            json!([
+                {"id": "gd1", "name": "Beleg-Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [120, 260], "parameters": {"httpMethod": "POST", "path": "gobd-beleg-demo"}},
+                {"id": "gd2", "name": "Pflichtfelder & Betrag Pruefen", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const b = $input.first()?.json || {};\nconst lieferant = b.lieferant || 'Meisterbetrieb Elektro Weber GmbH';\nconst rechnungsNr = b.invoiceNo || 'RE-DEMO-2026-410';\nconst netto = Number(b.nettoEur || 1490);\nconst mwst = Math.round(netto * 0.19 * 100) / 100;\nconst brutto = Math.round((netto + mwst) * 100) / 100;\nreturn [{ json: { lieferant, rechnungsNr, netto, mwst, brutto, ustIdValid: true, skr04Konto: '4980', freigabeNoetig: netto >= 1000 } }];"}},
+                {"id": "gd3", "name": "GoBD Pruef-Hash", "type": "n8n-nodes-base.crypto", "typeVersion": 1, "position": [600, 260], "parameters": {"action": "hash", "type": "SHA256", "dataPropertyName": "gobdSha256", "value": "={{ $json.rechnungsNr + '|' + $json.brutto }}"}},
+                {"id": "gd4", "name": "DATEV Export-Datensatz", "type": "n8n-nodes-base.set", "typeVersion": 3, "position": [840, 260], "parameters": {"mode": "raw", "jsonOutput": "={{ JSON.stringify({ ...$json, datevStatus: 'GEPRUEFT', exportedAt: $now.toISO() }) }}"}}
+            ]),
+            json!({
+                "Beleg-Webhook": {"main": [[{"node": "Pflichtfelder & Betrag Pruefen", "type": "main", "index": 0}]]},
+                "Pflichtfelder & Betrag Pruefen": {"main": [[{"node": "GoBD Pruef-Hash", "type": "main", "index": 0}]]},
+                "GoBD Pruef-Hash": {"main": [[{"node": "DATEV Export-Datensatz", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 5. Lead-Qualifizierung -> Conrad CRM
+        demo_workflow_tuple(
+            "wf-demo-lead-crm",
+            "Lead-Qualifizierung → Conrad CRM",
+            &["Demo", "Vertrieb", "Entwurfspflicht"],
+            json!([
+                {"id": "lc1", "name": "Website Lead-Eingang", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [120, 260], "parameters": {"httpMethod": "POST", "path": "lead-intake-demo"}},
+                {"id": "lc2", "name": "Scoring-Regeln Laden", "type": "n8n-nodes-base.dataTable", "typeVersion": 1, "position": [360, 260], "parameters": {"operation": "getRows", "tableName": "Lead-Scoring-Regeln"}},
+                {"id": "lc3", "name": "Lead Bewerten", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [600, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const orig = $('Website Lead-Eingang').first()?.json || {};\nconst regeln = $input.all().map(r => r.json);\nconst best = regeln[0] || { score: 90, paket: 'Pro 99 EUR/Monat' };\nreturn [{ json: { firma: orig.company || 'SHK Haustechnik Rhein-Neckar GmbH', email: orig.email || 's.koch@shk-rhein-neckar-demo.de', score: Number(orig.score || best.score || 88), paket: best.paket, status: 'qualifiziert' } }];"}},
+                {"id": "lc4", "name": "Willkommens-Entwurf", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [840, 260], "parameters": {"toEmail": "={{ $json.email }}", "subject": "={{ 'Conrad KI Potenzialanalyse fuer ' + $json.firma }}", "draftOnly": true}}
+            ]),
+            json!({
+                "Website Lead-Eingang": {"main": [[{"node": "Scoring-Regeln Laden", "type": "main", "index": 0}]]},
+                "Scoring-Regeln Laden": {"main": [[{"node": "Lead Bewerten", "type": "main", "index": 0}]]},
+                "Lead Bewerten": {"main": [[{"node": "Willkommens-Entwurf", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 6. Terminbuchung & Bestaetigung
+        demo_workflow_tuple(
+            "wf-demo-terminbuchung",
+            "Terminbuchung & Bestätigung (Entwurf)",
+            &["Demo", "Entwurfspflicht"],
+            json!([
+                {"id": "tb1", "name": "Buchung Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [120, 260], "parameters": {"httpMethod": "POST", "path": "booking-confirm-demo", "responseMode": "responseNode"}},
+                {"id": "tb2", "name": "Termin Datum Formatieren", "type": "n8n-nodes-base.dateTime", "typeVersion": 2, "position": [360, 260], "parameters": {"operation": "getCurrentDate"}},
+                {"id": "tb3", "name": "Bestaetigungs-Entwurf", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [600, 260], "parameters": {"toEmail": "={{ $json.email || 'praxis@praxis-marktplatz-demo.de' }}", "subject": "Terminbestaetigung — 30-Min Erstgespraech (Entwurf)", "draftOnly": true}},
+                {"id": "tb4", "name": "Webhook Bestaetigung", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [840, 260], "parameters": {"respondWith": "firstIncomingItem"}}
+            ]),
+            json!({
+                "Buchung Webhook": {"main": [[{"node": "Termin Datum Formatieren", "type": "main", "index": 0}]]},
+                "Termin Datum Formatieren": {"main": [[{"node": "Bestaetigungs-Entwurf", "type": "main", "index": 0}]]},
+                "Bestaetigungs-Entwurf": {"main": [[{"node": "Webhook Bestaetigung", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 7. Taegliches Geschaeftsfuehrer-Briefing
+        demo_workflow_tuple(
+            "wf-demo-briefing",
+            "Tägliches Geschäftsführer-Briefing",
+            &["Demo", "KI-Autopilot"],
+            json!([
+                {"id": "br1", "name": "Morgen-Trigger 07:30", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1, "position": [120, 260], "parameters": {"rule": {"interval": [{"field": "days"}]}}},
+                {"id": "br2", "name": "CRM Deals Abrufen", "type": "n8n-nodes-base.twentyCrm", "typeVersion": 1, "position": [360, 260], "parameters": {"resource": "opportunity", "operation": "getAll"}},
+                {"id": "br3", "name": "Pipeline Verdichten", "type": "n8n-nodes-base.aggregate", "typeVersion": 1, "position": [600, 260], "parameters": {"destinationFieldName": "deals"}},
+                {"id": "br4", "name": "Briefing Formatieren", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [840, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const list = $input.first()?.json?.deals || [];\nreturn [{ json: { datum: $now.toISODate(), aktiveChancen: list.length, empfehlung: 'Fokus heute: Elektro Weber Review & SHK Rhein-Neckar Angebot', draftOnly: true } }];"}}
+            ]),
+            json!({
+                "Morgen-Trigger 07:30": {"main": [[{"node": "CRM Deals Abrufen", "type": "main", "index": 0}]]},
+                "CRM Deals Abrufen": {"main": [[{"node": "Pipeline Verdichten", "type": "main", "index": 0}]]},
+                "Pipeline Verdichten": {"main": [[{"node": "Briefing Formatieren", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 8. SHK & Elektro Notdienst-Routing
+        demo_workflow_tuple(
+            "wf-demo-notdienst-routing",
+            "SHK & Elektro Notdienst-Routing",
+            &["Demo", "Handwerk"],
+            json!([
+                {"id": "nd1", "name": "Stoerungsmeldung Formular", "type": "n8n-nodes-base.formTrigger", "typeVersion": 2, "position": [120, 260], "parameters": {"formTitle": "SHK & Elektro Stoerungsannahme"}},
+                {"id": "nd2", "name": "Dringlichkeit Bewerten", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const b = $input.first()?.json || {};\nconst text = String(b.beschreibung || 'Wasseraustritt Heizungsrohr Keller').toLowerCase();\nconst notfall = /(wasser|stromausfall|gas|kurzschluss|brand)/.test(text);\nreturn [{ json: { gewerk: text.includes('strom') ? 'Elektro' : 'SHK', stufe: notfall ? 'SOFORT-EINSATZ' : 'TERMIN-NORMAL', meldung: text, zugewiesenAn: 'Meister-Bereitschaft Demo' } }];"}},
+                {"id": "nd3", "name": "Einsatz-Status Setzen", "type": "n8n-nodes-base.set", "typeVersion": 3, "position": [600, 260], "parameters": {"mode": "raw", "jsonOutput": "={{ JSON.stringify({ ...$json, ticketStatus: 'EINGEPLANT', draftOnly: true }) }}"}}
+            ]),
+            json!({
+                "Stoerungsmeldung Formular": {"main": [[{"node": "Dringlichkeit Bewerten", "type": "main", "index": 0}]]},
+                "Dringlichkeit Bewerten": {"main": [[{"node": "Einsatz-Status Setzen", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 9. Angebots-Nachfassung nach 7 Tagen
+        demo_workflow_tuple(
+            "wf-demo-angebot-nachfassen",
+            "Angebots-Nachfassung nach 7 Tagen (Entwurf)",
+            &["Demo", "Vertrieb", "Entwurfspflicht"],
+            json!([
+                {"id": "nf1", "name": "Taegliche Pruefung", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1, "position": [120, 260], "parameters": {}},
+                {"id": "nf2", "name": "Offene Angebote Pruefen", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "return [\n  { json: { firma: 'Steuerberatung König & Kollegen', email: 'a.koenig@steuer-koenig-demo.de', tageOffen: 9, angebotEur: 7500 } },\n  { json: { firma: 'Ingenieurbüro Klose & Partner mbB', email: 't.klose@ing-klose-demo.de', tageOffen: 4, angebotEur: 6100 } }\n];"}},
+                {"id": "nf3", "name": "Filter >= 7 Tage", "type": "n8n-nodes-base.filter", "typeVersion": 2, "position": [600, 260], "parameters": {"conditions": {"conditions": [{"leftValue": "={{ $json.tageOffen }}", "operator": {"type": "number", "operation": "gte"}, "rightValue": 7}]}}},
+                {"id": "nf4", "name": "Nachfass-Entwurf", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [840, 260], "parameters": {"toEmail": "={{ $json.email }}", "subject": "={{ 'Kurze Rueckfrage zu unserem Angebot — ' + $json.firma }}", "draftOnly": true}}
+            ]),
+            json!({
+                "Taegliche Pruefung": {"main": [[{"node": "Offene Angebote Pruefen", "type": "main", "index": 0}]]},
+                "Offene Angebote Pruefen": {"main": [[{"node": "Filter >= 7 Tage", "type": "main", "index": 0}]]},
+                "Filter >= 7 Tage": {"main": [[{"node": "Nachfass-Entwurf", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 10. Zahlungserinnerung & Mahnlauf-Entwurf
+        demo_workflow_tuple(
+            "wf-demo-rechnungserinnerung",
+            "Zahlungserinnerung & Mahnlauf-Entwurf",
+            &["Demo", "Buchhaltung", "Entwurfspflicht"],
+            json!([
+                {"id": "mh1", "name": "Wochenlauf Montag", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1, "position": [120, 260], "parameters": {}},
+                {"id": "mh2", "name": "Offene Posten Laden", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "return [{ json: { rechnung: 'RE-DEMO-2026-108', kunde: 'Autohaus Kurpfalz GmbH', email: 'p.schmitt@autohaus-kurpfalz-demo.de', betragEur: 1428, ueberfaelligTage: 12 } }];"}},
+                {"id": "mh3", "name": "Zahlungsziel Pruefen", "type": "n8n-nodes-base.if", "typeVersion": 2, "position": [600, 260], "parameters": {"conditions": {"conditions": [{"leftValue": "={{ $json.ueberfaelligTage }}", "operator": {"type": "number", "operation": "gt"}, "rightValue": 7}]}}},
+                {"id": "mh4", "name": "Erinnerungs-Entwurf", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [840, 260], "parameters": {"toEmail": "={{ $json.email }}", "subject": "={{ 'Freundliche Zahlungserinnerung ' + $json.rechnung }}", "draftOnly": true}}
+            ]),
+            json!({
+                "Wochenlauf Montag": {"main": [[{"node": "Offene Posten Laden", "type": "main", "index": 0}]]},
+                "Offene Posten Laden": {"main": [[{"node": "Zahlungsziel Pruefen", "type": "main", "index": 0}]]},
+                "Zahlungsziel Pruefen": {"main": [[{"node": "Erinnerungs-Entwurf", "type": "main", "index": 0}], []]}
+            }),
+        ),
+        // 11. Dokumenten-Eingang & GoBD-Hash
+        demo_workflow_tuple(
+            "wf-demo-dokument-dms",
+            "Dokumenten-Eingang & GoBD-Hash",
+            &["Demo", "Buchhaltung"],
+            json!([
+                {"id": "dm1", "name": "DMS Manuell Starten", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [120, 260], "parameters": {}},
+                {"id": "dm2", "name": "Beleg-Metadaten Setzen", "type": "n8n-nodes-base.set", "typeVersion": 3, "position": [360, 260], "parameters": {"mode": "raw", "jsonOutput": "{\"dateiname\":\"Angebot_Elektro_Weber_Demo.pdf\",\"mandant\":\"Meisterbetrieb Elektro Weber GmbH\",\"kategorie\":\"Vertrag\"}"}},
+                {"id": "dm3", "name": "SHA-256 Signatur", "type": "n8n-nodes-base.crypto", "typeVersion": 1, "position": [600, 260], "parameters": {"action": "hash", "type": "SHA256", "dataPropertyName": "revisionsHash", "value": "={{ $json.dateiname + '|' + $json.mandant }}"}},
+                {"id": "dm4", "name": "SKR04 Kontenplan Pruefen", "type": "n8n-nodes-base.dataTable", "typeVersion": 1, "position": [840, 260], "parameters": {"operation": "getRows", "tableName": "DATEV SKR04 Demo-Kontenplan"}}
+            ]),
+            json!({
+                "DMS Manuell Starten": {"main": [[{"node": "Beleg-Metadaten Setzen", "type": "main", "index": 0}]]},
+                "Beleg-Metadaten Setzen": {"main": [[{"node": "SHA-256 Signatur", "type": "main", "index": 0}]]},
+                "SHA-256 Signatur": {"main": [[{"node": "SKR04 Kontenplan Pruefen", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 12. Bewerber-Eingang & Erstantwort (Entwurf)
+        demo_workflow_tuple(
+            "wf-demo-bewerber-triage",
+            "Bewerber-Eingang & Erstantwort (Entwurf)",
+            &["Demo", "Entwurfspflicht"],
+            json!([
+                {"id": "bw1", "name": "Bewerbungs-Formular", "type": "n8n-nodes-base.formTrigger", "typeVersion": 2, "position": [120, 260], "parameters": {"formTitle": "Karriere bei Handwerk & Mittelstand Demo"}},
+                {"id": "bw2", "name": "Qualifikation Bewerten", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const b = $input.first()?.json || {};\nreturn [{ json: { name: b.name || 'Max Mustermann', beruf: b.beruf || 'Elektroniker fuer Energie- und Gebaeudetechnik', email: b.email || 'bewerbung@elektro-weber-demo.de', passung: 91, status: 'Einladung vorgeschlagen' } }];"}},
+                {"id": "bw3", "name": "Eingangsbestaetigung Entwurf", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [600, 260], "parameters": {"toEmail": "={{ $json.email }}", "subject": "Vielen Dank fuer Ihre Bewerbung [Entwurf]", "draftOnly": true}}
+            ]),
+            json!({
+                "Bewerbungs-Formular": {"main": [[{"node": "Qualifikation Bewerten", "type": "main", "index": 0}]]},
+                "Qualifikation Bewerten": {"main": [[{"node": "Eingangsbestaetigung Entwurf", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 13. Wartungsvertrag Erneuerung (SHK & Kaelte)
+        demo_workflow_tuple(
+            "wf-demo-wartungsvertrag",
+            "Wartungsvertrag Erneuerung (SHK & Kälte)",
+            &["Demo", "Handwerk", "Entwurfspflicht"],
+            json!([
+                {"id": "wt1", "name": "Wartungslauf Start", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [120, 260], "parameters": {}},
+                {"id": "wt2", "name": "Anlagen-Liste Pruefen", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "return [\n  { json: { kunde: 'Sanitär & Heizung Meisterbetrieb Wolf GmbH', email: 'm.wolf@shk-wolf-demo.de', tageBisWartung: 14, anlage: 'Waermepumpe Luft/Wasser 12 kW' } },\n  { json: { kunde: 'Kälte- & Klimatechnik Albrecht GmbH', email: 'v.albrecht@klima-albrecht-demo.de', tageBisWartung: 45, anlage: 'Kuehlaggregat Halle 2' } }\n];"}},
+                {"id": "wt3", "name": "Faellig < 30 Tage", "type": "n8n-nodes-base.filter", "typeVersion": 2, "position": [600, 260], "parameters": {"conditions": {"conditions": [{"leftValue": "={{ $json.tageBisWartung }}", "operator": {"type": "number", "operation": "lt"}, "rightValue": 30}]}}},
+                {"id": "wt4", "name": "Wartungstermin Entwurf", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [840, 260], "parameters": {"toEmail": "={{ $json.email }}", "subject": "={{ 'Jaehrliche Wartung: ' + $json.anlage + ' [Entwurf]' }}", "draftOnly": true}}
+            ]),
+            json!({
+                "Wartungslauf Start": {"main": [[{"node": "Anlagen-Liste Pruefen", "type": "main", "index": 0}]]},
+                "Anlagen-Liste Pruefen": {"main": [[{"node": "Faellig < 30 Tage", "type": "main", "index": 0}]]},
+                "Faellig < 30 Tage": {"main": [[{"node": "Wartungstermin Entwurf", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 14. Kundenfeedback-Auswertung & Follow-up
+        demo_workflow_tuple(
+            "wf-demo-bewertung-check",
+            "Kundenfeedback-Auswertung & Follow-up",
+            &["Demo", "Entwurfspflicht"],
+            json!([
+                {"id": "fb1", "name": "Feedback Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [120, 260], "parameters": {"httpMethod": "POST", "path": "feedback-demo"}},
+                {"id": "fb2", "name": "Bewertung Analysieren", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [360, 260], "parameters": {"language": "javaScript", "mode": "runOnceForAllItems", "jsCode": "const b = $input.first()?.json || {};\nconst sterne = Number(b.stars || 5);\nreturn [{ json: { kunde: b.company || 'Meisterbetrieb Elektro Weber GmbH', email: b.email || 't.weber@elektro-weber-demo.de', sterne, stimmung: sterne >= 4 ? 'positiv' : 'nachfassen' } }];"}},
+                {"id": "fb3", "name": "Danke-Antwort Entwurf", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [600, 260], "parameters": {"toEmail": "={{ $json.email }}", "subject": "Vielen Dank fuer Ihre Rueckmeldung [Entwurf]", "draftOnly": true}}
+            ]),
+            json!({
+                "Feedback Webhook": {"main": [[{"node": "Bewertung Analysieren", "type": "main", "index": 0}]]},
+                "Bewertung Analysieren": {"main": [[{"node": "Danke-Antwort Entwurf", "type": "main", "index": 0}]]}
+            }),
+        ),
+        // 15. Woechentlicher Pipeline- & Umsatzbericht
+        demo_workflow_tuple(
+            "wf-demo-wochenreport",
+            "Wöchentlicher Pipeline- & Umsatzbericht",
+            &["Demo", "Vertrieb"],
+            json!([
+                {"id": "wr1", "name": "Freitag 16:00 Trigger", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1, "position": [120, 260], "parameters": {}},
+                {"id": "wr2", "name": "CRM Firmen Zaehlen", "type": "n8n-nodes-base.twentyCrm", "typeVersion": 1, "position": [360, 260], "parameters": {"resource": "company", "operation": "getAll"}},
+                {"id": "wr3", "name": "Zusammenfassung", "type": "n8n-nodes-base.summarize", "typeVersion": 1, "position": [600, 260], "parameters": {"operation": "count", "field": "id"}},
+                {"id": "wr4", "name": "Report Bereitstellen", "type": "n8n-nodes-base.set", "typeVersion": 3, "position": [840, 260], "parameters": {"mode": "raw", "jsonOutput": "={{ JSON.stringify({ wochenbericht: true, gezaehlteFirmen: $json.count, stand: $now.toISODate(), workspace: 'conrad-ki' }) }}"}}
+            ]),
+            json!({
+                "Freitag 16:00 Trigger": {"main": [[{"node": "CRM Firmen Zaehlen", "type": "main", "index": 0}]]},
+                "CRM Firmen Zaehlen": {"main": [[{"node": "Zusammenfassung", "type": "main", "index": 0}]]},
+                "Zusammenfassung": {"main": [[{"node": "Report Bereitstellen", "type": "main", "index": 0}]]}
+            }),
+        ),
+    ];
+
+    let wf_count = workflows.len();
+    for (id, name, tags_json, nodes_json, conns_json) in workflows {
+        tx.execute(
+            "INSERT INTO n8n_workflows
+             (id, name, active, nodes_json, connections_json, settings_json, tags_json, pin_data_json, created_at, updated_at)
+             VALUES (?1, ?2, 1, ?3, ?4, '{\"timezone\":\"Europe/Berlin\"}', ?5, '{}', ?6, ?6)",
+            params![id, name, nodes_json, conns_json, tags_json, now],
+        )?;
     }
 
-    let mut var_count = 0usize;
-    if let Ok(mut stmt) = src.prepare("SELECT id, key, value, COALESCE(type,'string') FROM variables") {
-        if let Ok(mut rows) = stmt.query([]) {
-            while let Ok(Some(r)) = rows.next() {
-                let id: String = r.get(0)?;
-                let k: String = r.get(1)?;
-                let v: String = r.get(2).unwrap_or_default();
-                let tp: String = r.get(3).unwrap_or_else(|_| "string".into());
-                let _ = conn.execute(
-                    "INSERT OR IGNORE INTO n8n_variables (id, var_key, value, var_type, project_id, updated_at)
-                     VALUES (?1, ?2, ?3, ?4, 'default', ?5)",
-                    params![id, k, v, tp, now],
-                );
-                var_count += 1;
-            }
-        }
-    }
-
-    let mut tag_count = 0usize;
-    if let Ok(mut stmt) = src.prepare("SELECT id, name FROM tag_entity") {
-        if let Ok(mut rows) = stmt.query([]) {
-            while let Ok(Some(r)) = rows.next() {
-                let id: String = r.get(0)?;
-                let name: String = r.get(1)?;
-                let _ = conn.execute(
-                    "INSERT OR IGNORE INTO n8n_tags (id, name, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
-                    params![id, name, now],
-                );
-                tag_count += 1;
-            }
-        }
-    }
-
+    tx.commit()?;
     Ok(json!({
         "ok": true,
-        "syncedWorkflows": wf_count,
-        "syncedCredentials": cred_count,
-        "syncedVariables": var_count,
-        "syncedTags": tag_count
+        "reset": true,
+        "workflows": wf_count,
+        "credentials": 4,
+        "variables": 5,
+        "dataTables": 3,
+        "tags": 6
     }))
 }
 
@@ -538,7 +908,7 @@ fn execute_workflow_with_depth<'a>(
             Value::Array(arr) if !arr.is_empty() => arr,
             Value::Null => vec![json!({
                 "timestamp": Utc::now().to_rfc3339(),
-                "source": "Conrad KI n8n-Rust Engine"
+                "source": "Conrad Automation Engine"
             })],
             other => vec![other],
         };
@@ -735,7 +1105,7 @@ fn execute_workflow_with_depth<'a>(
         let duration_ms = (finished_at - started_at).num_milliseconds().max(1);
         let finished_iso = finished_at.to_rfc3339();
         let exec_data = json!({
-            "modelUsed": "QuickJS + Local Rust Engine",
+            "modelUsed": "Conrad KI Engine",
             "steps": trace_steps,
             "nodeOutputs": node_outputs,
             "finalItems": final_items,
@@ -775,7 +1145,7 @@ fn execute_workflow_with_depth<'a>(
             "workflowName": wf_name,
             "status": status,
             "mode": mode,
-            "modelUsed": "QuickJS + Local Rust Engine",
+            "modelUsed": "Conrad KI Engine",
             "durationMs": duration_ms,
             "steps": exec_data["steps"],
             "nodeLogs": exec_data["steps"],
@@ -850,7 +1220,13 @@ async fn execute_node_with_flags(
         1
     };
     let wait_ms = node["waitBetweenTries"].as_u64().unwrap_or(200).min(1500);
-    let on_error = node["onError"].as_str().unwrap_or("stopWorkflow");
+    let on_error = node["onError"].as_str().unwrap_or_else(|| {
+        if node["continueOnFail"].as_bool().unwrap_or(false) {
+            "continueRegularOutput"
+        } else {
+            "stopWorkflow"
+        }
+    });
     let always_out = node["alwaysOutputData"].as_bool().unwrap_or(false);
 
     let mut last_err: Option<anyhow::Error> = None;
@@ -1031,11 +1407,13 @@ async fn execute_node_inner(
                 meta: json!({"runtime": "python3"}),
             });
         }
-        let js_code = params
+        let raw_js_code = params
             .get("jsCode")
             .or_else(|| params.get("functionCode"))
             .and_then(|v| v.as_str())
             .unwrap_or("return $input.all();");
+        let js_code_rewritten = rewrite_runtime_str(raw_js_code);
+        let js_code = js_code_rewritten.as_str();
         let out = match eval_js_code_node(js_code, mode, items, node_outputs, node_name, vars, exec_meta) {
             Ok(v) => v,
             Err(e) => {
@@ -1734,6 +2112,59 @@ print(json.dumps(out))
     Ok(out)
 }
 
+fn rewrite_runtime_str(input: &str) -> String {
+    let mut s = input
+        .replace("http://ollama:11434", "http://127.0.0.1:11434")
+        .replace("https://ollama:11434", "http://127.0.0.1:11434")
+        .replace("http://host.docker.internal:11434", "http://127.0.0.1:11434")
+        .replace("http://n8n-qdrant-1:6333", "http://127.0.0.1:6333")
+        .replace("http://qdrant:6333", "http://127.0.0.1:6333")
+        .replace("n8n-contact-relay-1", "127.0.0.1")
+        .replace("conrad-n8n-agent:4b", "conrad-n8n-agent:0.6b");
+    for old_model in [
+        "qwen2.5:1.5b",
+        "qwen2.5:3b",
+        "qwen2.5:7b",
+        "qwen2.5:14b",
+        "qwen2.5:32b",
+        "qwen2.5-coder:32b",
+        "qwen2.5:latest",
+        "qwen36-small:latest",
+        "qwen36-agent:latest",
+    ] {
+        s = s.replace(old_model, "conrad-n8n-agent:0.6b");
+    }
+    s
+}
+
+fn rewrite_runtime_model(model: &str) -> String {
+    let trimmed = model.trim();
+    if trimmed.is_empty()
+        || trimmed == "conrad-n8n-agent:4b"
+        || trimmed.starts_with("qwen2.5")
+        || trimmed.starts_with("qwen36")
+    {
+        "conrad-n8n-agent:0.6b".to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
+fn rewrite_runtime_value(val: Value) -> Value {
+    match val {
+        Value::String(s) => Value::String(rewrite_runtime_str(&s)),
+        Value::Array(arr) => Value::Array(arr.into_iter().map(rewrite_runtime_value).collect()),
+        Value::Object(map) => {
+            let mut out = Map::new();
+            for (k, v) in map {
+                out.insert(k, rewrite_runtime_value(v));
+            }
+            Value::Object(out)
+        }
+        other => other,
+    }
+}
+
 async fn execute_http_request_node(
     db: &Database,
     node_name: &str,
@@ -1754,7 +2185,7 @@ async fn execute_http_request_node(
         let method_str = params.get("method").and_then(|v| v.as_str()).unwrap_or("GET").to_uppercase();
         let raw_url = params.get("url").and_then(|v| v.as_str()).unwrap_or("");
         let url_val = eval_n8n_expression(raw_url, &local, node_name, idx, vars, exec_meta);
-        let url = value_to_str(&url_val);
+        let url = rewrite_runtime_str(&value_to_str(&url_val));
         if url.is_empty() {
             out.push(it.clone());
             continue;
@@ -1780,12 +2211,13 @@ async fn execute_http_request_node(
             continue;
         }
 
-        // SSRF-Schutz gegen Link-Local / Cloud-Metadata / interne Netze (Ollama 127.0.0.1:11434 erlaubt)
+        // SSRF-Schutz gegen Link-Local / Cloud-Metadata / interne Netze (lokale Demo-Dienste erlaubt)
         if let Ok(parsed) = reqwest::Url::parse(&url) {
             if let Some(host) = parsed.host_str() {
                 let port = parsed.port_or_known_default().unwrap_or(80);
-                let is_ollama = (host == "127.0.0.1" || host == "localhost") && port == 11434;
-                if !is_ollama && is_blocked_host(host) {
+                let is_local_service = (host == "127.0.0.1" || host == "localhost")
+                    && matches!(port, 11434 | 6333 | 3010 | 3050 | 3051 | 5005 | 8080 | 18090);
+                if !is_local_service && is_blocked_host(host) {
                     anyhow::bail!("SSRF-Schutz: Zielhost '{}' ist blockiert", host);
                 }
             }
@@ -1807,10 +2239,10 @@ async fn execute_http_request_node(
         if params.get("sendBody").and_then(|v| v.as_bool()).unwrap_or(false) {
             let body_raw = params.get("jsonBody").cloned().unwrap_or_else(|| json!("{}"));
             let body_eval = resolve_n8n_value(&body_raw, &local, node_name, idx, vars, exec_meta);
-            let body_json = match body_eval {
+            let body_json = rewrite_runtime_value(match body_eval {
                 Value::String(s) => serde_json::from_str::<Value>(&s).unwrap_or(Value::String(s)),
                 other => other,
-            };
+            });
             req = req.json(&body_json);
         }
 
@@ -1841,24 +2273,114 @@ fn is_blocked_host(host: &str) -> bool {
 
 fn execute_twenty_node(db: &Database, params: &Value, items: &[Value]) -> Vec<Value> {
     let resource = params.get("resource").and_then(|v| v.as_str()).unwrap_or("company");
+    let ws_filter = params
+        .get("workspace")
+        .and_then(|v| v.as_str())
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
     let conn = db.lock_conn();
-    let table = match resource {
-        "person" | "people" => "twenty_people",
-        "opportunity" | "opportunities" => "twenty_opportunities",
-        "task" | "tasks" => "twenty_tasks",
-        "note" | "notes" => "twenty_notes",
-        _ => "twenty_companies",
-    };
     let mut rows_out = Vec::new();
-    let sql = format!("SELECT id, workspace FROM {table} ORDER BY updated_at DESC LIMIT 20");
-    if let Ok(mut st) = conn.prepare(&sql) {
-        if let Ok(mut rows) = st.query([]) {
-            while let Ok(Some(r)) = rows.next() {
-                rows_out.push(json!({
-                    "id": r.get::<_, String>(0).unwrap_or_default(),
-                    "workspace": r.get::<_, String>(1).unwrap_or_default(),
-                    "resource": resource
-                }));
+
+    match resource {
+        "person" | "people" => {
+            let sql = "SELECT id, workspace, first_name, last_name, email, phone, job_title, city, COALESCE(company_id, '') FROM twenty_people WHERE (?1 IS NULL OR workspace = ?1) ORDER BY updated_at DESC LIMIT 50";
+            if let Ok(mut st) = conn.prepare(sql) {
+                if let Ok(mut rows) = st.query(params![ws_filter]) {
+                    while let Ok(Some(r)) = rows.next() {
+                        let first: String = r.get(2).unwrap_or_default();
+                        let last: String = r.get(3).unwrap_or_default();
+                        let full = format!("{} {}", first, last).trim().to_string();
+                        rows_out.push(json!({
+                            "id": r.get::<_, String>(0).unwrap_or_default(),
+                            "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                            "resource": resource,
+                            "firstName": first,
+                            "lastName": last,
+                            "name": full,
+                            "email": r.get::<_, String>(4).unwrap_or_default(),
+                            "phone": r.get::<_, String>(5).unwrap_or_default(),
+                            "jobTitle": r.get::<_, String>(6).unwrap_or_default(),
+                            "city": r.get::<_, String>(7).unwrap_or_default(),
+                            "companyId": r.get::<_, String>(8).unwrap_or_default()
+                        }));
+                    }
+                }
+            }
+        }
+        "opportunity" | "opportunities" => {
+            let sql = "SELECT id, workspace, name, stage, amount_micros, COALESCE(close_date, ''), COALESCE(company_id, '') FROM twenty_opportunities WHERE (?1 IS NULL OR workspace = ?1) ORDER BY updated_at DESC LIMIT 50";
+            if let Ok(mut st) = conn.prepare(sql) {
+                if let Ok(mut rows) = st.query(params![ws_filter]) {
+                    while let Ok(Some(r)) = rows.next() {
+                        rows_out.push(json!({
+                            "id": r.get::<_, String>(0).unwrap_or_default(),
+                            "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                            "resource": resource,
+                            "name": r.get::<_, String>(2).unwrap_or_default(),
+                            "stage": r.get::<_, String>(3).unwrap_or_default(),
+                            "amountMicros": r.get::<_, i64>(4).unwrap_or(0),
+                            "closeDate": r.get::<_, String>(5).unwrap_or_default(),
+                            "companyId": r.get::<_, String>(6).unwrap_or_default()
+                        }));
+                    }
+                }
+            }
+        }
+        "task" | "tasks" => {
+            let sql = "SELECT id, workspace, title, status, COALESCE(due_at, ''), COALESCE(company_id, '') FROM twenty_tasks WHERE (?1 IS NULL OR workspace = ?1) ORDER BY updated_at DESC LIMIT 50";
+            if let Ok(mut st) = conn.prepare(sql) {
+                if let Ok(mut rows) = st.query(params![ws_filter]) {
+                    while let Ok(Some(r)) = rows.next() {
+                        rows_out.push(json!({
+                            "id": r.get::<_, String>(0).unwrap_or_default(),
+                            "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                            "resource": resource,
+                            "title": r.get::<_, String>(2).unwrap_or_default(),
+                            "status": r.get::<_, String>(3).unwrap_or_default(),
+                            "dueAt": r.get::<_, String>(4).unwrap_or_default(),
+                            "companyId": r.get::<_, String>(5).unwrap_or_default()
+                        }));
+                    }
+                }
+            }
+        }
+        "note" | "notes" => {
+            let sql = "SELECT id, workspace, title, body_markdown, COALESCE(company_id, '') FROM twenty_notes WHERE (?1 IS NULL OR workspace = ?1) ORDER BY updated_at DESC LIMIT 50";
+            if let Ok(mut st) = conn.prepare(sql) {
+                if let Ok(mut rows) = st.query(params![ws_filter]) {
+                    while let Ok(Some(r)) = rows.next() {
+                        rows_out.push(json!({
+                            "id": r.get::<_, String>(0).unwrap_or_default(),
+                            "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                            "resource": resource,
+                            "title": r.get::<_, String>(2).unwrap_or_default(),
+                            "bodyMarkdown": r.get::<_, String>(3).unwrap_or_default(),
+                            "companyId": r.get::<_, String>(4).unwrap_or_default()
+                        }));
+                    }
+                }
+            }
+        }
+        _ => {
+            let sql = "SELECT id, workspace, name, domain_url, city, COALESCE(employees, 0), arr_micros, icp FROM twenty_companies WHERE (?1 IS NULL OR workspace = ?1) ORDER BY updated_at DESC LIMIT 50";
+            if let Ok(mut st) = conn.prepare(sql) {
+                if let Ok(mut rows) = st.query(params![ws_filter]) {
+                    while let Ok(Some(r)) = rows.next() {
+                        let domain: String = r.get(3).unwrap_or_default();
+                        rows_out.push(json!({
+                            "id": r.get::<_, String>(0).unwrap_or_default(),
+                            "workspace": r.get::<_, String>(1).unwrap_or_default(),
+                            "resource": resource,
+                            "name": r.get::<_, String>(2).unwrap_or_default(),
+                            "domain": domain,
+                            "domainUrl": domain,
+                            "city": r.get::<_, String>(4).unwrap_or_default(),
+                            "employees": r.get::<_, i64>(5).unwrap_or(0),
+                            "arrMicros": r.get::<_, i64>(6).unwrap_or(0),
+                            "icp": r.get::<_, i64>(7).unwrap_or(0)
+                        }));
+                    }
+                }
             }
         }
     }
@@ -1877,10 +2399,12 @@ async fn execute_ai_node(
     exec_meta: &Value,
 ) -> Vec<Value> {
     let node_name = node["name"].as_str().unwrap_or("AI Agent");
-    let model = params
+    let raw_model = params
         .get("model")
         .and_then(|v| v.as_str())
-        .unwrap_or("qwen2.5:1.5b");
+        .unwrap_or("conrad-n8n-agent:0.6b");
+    let model_owned = rewrite_runtime_model(raw_model);
+    let model = model_owned.as_str();
     let sys_msg = params
         .get("systemMessage")
         .and_then(|v| v.as_str())
@@ -2309,7 +2833,7 @@ pub async fn list_executions_handler(
                     "workflowName": r.get::<_, String>(2).unwrap_or_default(),
                     "status": r.get::<_, String>(3).unwrap_or_default(),
                     "mode": r.get::<_, String>(4).unwrap_or_default(),
-                    "modelUsed": data.get("modelUsed").and_then(|v| v.as_str()).unwrap_or("QuickJS + Local Rust Engine"),
+                    "modelUsed": data.get("modelUsed").and_then(|v| v.as_str()).unwrap_or("Conrad KI Engine"),
                     "startedAt": r.get::<_, String>(5).unwrap_or_default(),
                     "finishedAt": r.get::<_, String>(6).unwrap_or_default(),
                     "durationMs": r.get::<_, i64>(7).unwrap_or(0),
@@ -2338,7 +2862,7 @@ pub async fn get_execution_handler(State(state): State<AppState>, Path(id): Path
                 "workflowName": r.get::<_, String>(2)?,
                 "status": r.get::<_, String>(3)?,
                 "mode": r.get::<_, String>(4)?,
-                "modelUsed": data.get("modelUsed").and_then(|v| v.as_str()).unwrap_or("QuickJS + Local Rust Engine"),
+                "modelUsed": data.get("modelUsed").and_then(|v| v.as_str()).unwrap_or("Conrad KI Engine"),
                 "startedAt": r.get::<_, String>(5)?,
                 "finishedAt": r.get::<_, String>(6)?,
                 "durationMs": r.get::<_, i64>(7)?,
@@ -2650,7 +3174,7 @@ pub async fn delete_data_table_row_handler(
 }
 
 pub async fn sync_sqlite_handler(State(state): State<AppState>) -> impl IntoResponse {
-    match sync_from_n8n_sqlite(&state.db) {
+    match reset_demo_n8n(&state.db) {
         Ok(res) => (StatusCode::OK, Json(res)),
         Err(e) => (StatusCode::OK, Json(json!({ "ok": false, "info": e.to_string() }))),
     }
@@ -2742,7 +3266,7 @@ pub async fn webhook_waiting_handler(
 pub async fn form_trigger_get_handler(Path(path): Path<String>) -> impl IntoResponse {
     let clean = path.trim_start_matches('/');
     let html = format!(
-        r#"<!doctype html><html lang="de"><head><meta charset="utf-8"><title>n8n Formular — Conrad KI</title>
+        r#"<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Formular — Conrad Automation</title>
 <style>body{{font-family:Inter,system-ui,sans-serif;background:#0e0906;color:#f5f5f5;display:flex;justify-content:center;padding:48px 16px}}
 .card{{background:#191410;border:1px solid #2e251e;border-radius:12px;max-width:460px;width:100%;padding:28px}}
 input,textarea{{width:100%;padding:10px;border-radius:8px;border:1px solid #3c3027;background:#120d0a;color:#fff;margin:6px 0 14px;box-sizing:border-box}}

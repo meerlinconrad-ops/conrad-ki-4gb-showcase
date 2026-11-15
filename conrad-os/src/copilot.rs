@@ -278,7 +278,7 @@ impl CopilotEngine {
             navigate_to = Some("retainers".to_string());
         } else if p_lower.contains("workflow") || p_lower.contains("trigger") || p_lower.contains("automatisier") {
             navigate_to = Some("workflows".to_string());
-        } else if p_lower.contains("immobilie") || p_lower.contains("halmhuber") || p_lower.contains("mfh") || p_lower.contains("miet") {
+        } else if p_lower.contains("immobilie") || p_lower.contains("objekt") || p_lower.contains("mfh") || p_lower.contains("miet") {
             navigate_to = Some("plugin:plugin.realestate".to_string());
         } else if p_lower.contains("projekt") || p_lower.contains("sprint") || p_lower.contains("zeiterfassung") {
             navigate_to = Some("plugin:plugin.projects".to_string());
@@ -361,7 +361,7 @@ impl CopilotEngine {
         }
 
         // --- Real Estate / Immobilien Portfolio Query ---
-        if p_lower.contains("immobilie") || p_lower.contains("halmhuber") || p_lower.contains("mfh") {
+        if p_lower.contains("immobilie") || p_lower.contains("objekt") || p_lower.contains("mfh") {
             let recs = self.mcp.execute_tool("harness_list_plugin_records", &json!({ "plugin_id": "plugin.realestate" }))?;
             let count = recs.as_array().map(|a| a.len()).unwrap_or(0);
             actions.push("Immobilien-Plugin Records via MCP abgerufen".to_string());
@@ -369,8 +369,8 @@ impl CopilotEngine {
                 reply: format!(
                     "**Immobilien-Portfolio (Plugin `plugin.realestate`):**\n\n\
                      • **Erfasste Objekte / Ziele:** {}\n\
-                     • **Bestand:** Studio-Wohnung Halmhuberstraße 10, Mannheim (KP 86.000 €, EK 21.000 €, Cashflow **+53,00 €/Monat**, Mieter: Sebastian Gruia)\n\
-                     • **Nächster Meilenstein:** 2. Immobilie (MFH) nach Jobwechsel & Probezeit.\n\n\
+                     • **Demo-Bestand:** Musterobjekt Rheinstraße 12, Mannheim (Demo-Renditeobjekt)\n\
+                     • **Status:** Aktiv überwacht im Plugin.\n\n\
                      Ich habe das Immobilien-Plugin geöffnet.",
                     count
                 ),

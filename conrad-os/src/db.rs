@@ -285,6 +285,101 @@ impl Database {
     }
 
     fn seed_defaults_if_empty(&self) -> Result<()> {
+        // Idempotent cleanup: purge any real/private client records before demo re-seeding
+        let needs_demo_reset: bool = {
+            let conn = self.conn.lock().unwrap();
+            let bad_contacts: i64 = conn.query_row(
+                "SELECT COUNT(*) FROM contacts WHERE
+                    LOWER(name) LIKE '%ohrladen%' OR LOWER(name) LIKE '%imkerin%'
+                    OR LOWER(name) LIKE '%gruia%' OR LOWER(name) LIKE '%pala%'
+                    OR LOWER(name) LIKE '%holzhey%' OR LOWER(name) LIKE '%schuster%'
+                    OR LOWER(name) LIKE '%kleissner%' OR LOWER(name) LIKE '%götze%'
+                    OR LOWER(name) LIKE '%goetze%' OR LOWER(name) LIKE '%hermes%'
+                    OR LOWER(COALESCE(company,'')) LIKE '%ohrladen%'
+                    OR LOWER(COALESCE(company,'')) LIKE '%schlossgarten%'
+                    OR LOWER(COALESCE(company,'')) LIKE '%halmhuber%'
+                    OR LOWER(COALESCE(company,'')) LIKE '%leo club%'
+                    OR LOWER(COALESCE(company,'')) LIKE '%heflott%'
+                    OR LOWER(COALESCE(company,'')) LIKE '%stier%'
+                    OR LOWER(COALESCE(company,'')) LIKE '%vvs%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%der-ohrladen%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%schlossgarten%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%mannheim-resident%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%weber-zahnmedizin-hd%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%koch-sanitaer-mannheim%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%bergmann-spedition%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%gmail.com%'
+                    OR LOWER(COALESCE(email,'')) LIKE '%online.de%'",
+                [], |r| r.get(0)
+            ).unwrap_or(0);
+            let bad_docs: i64 = conn.query_row(
+                "SELECT COUNT(*) FROM documents WHERE
+                    LOWER(title) LIKE '%ohrladen%' OR LOWER(title) LIKE '%halmhuber%'
+                    OR LOWER(title) LIKE '%gruia%' OR LOWER(filename) LIKE '%ohrladen%'
+                    OR LOWER(filename) LIKE '%halmhuber%' OR LOWER(filename) LIKE '%gruia%'
+                    OR LOWER(COALESCE(extracted_text,'')) LIKE '%gruia%'",
+                [], |r| r.get(0)
+            ).unwrap_or(0);
+            let bad_plugins: i64 = conn.query_row(
+                "SELECT COUNT(*) FROM plugin_records WHERE
+                    LOWER(title) LIKE '%ohrladen%' OR LOWER(title) LIKE '%schlossgarten%'
+                    OR LOWER(title) LIKE '%leo club%' OR LOWER(title) LIKE '%halmhuber%'
+                    OR LOWER(data_json) LIKE '%ohrladen%' OR LOWER(data_json) LIKE '%schlossgarten%'
+                    OR LOWER(data_json) LIKE '%gruia%' OR LOWER(data_json) LIKE '%holzhey%'
+                    OR LOWER(data_json) LIKE '%halmhuber%' OR LOWER(owner) LIKE '%tamara%'",
+                [], |r| r.get(0)
+            ).unwrap_or(0);
+            let bad_bookings: i64 = conn.query_row(
+                "SELECT COUNT(*) FROM bookings WHERE
+                    LOWER(guest_name) LIKE '%ohrladen%' OR LOWER(guest_name) LIKE '%imkerin%'
+                    OR LOWER(guest_email) LIKE '%ohrladen%' OR LOWER(guest_email) LIKE '%schlossgarten%'
+                    OR LOWER(COALESCE(notes,'')) LIKE '%ohrladen%'",
+                [], |r| r.get(0)
+            ).unwrap_or(0);
+            let bad_msgs: i64 = conn.query_row(
+                "SELECT COUNT(*) FROM messages WHERE
+                    LOWER(body) LIKE '%gruia%' OR LOWER(body) LIKE '%halmhuber%'
+                    OR LOWER(body) LIKE '%ohrladen%' OR LOWER(COALESCE(subject,'')) LIKE '%halmhuber%'",
+                [], |r| r.get(0)
+            ).unwrap_or(0);
+            let bad_gobd: i64 = conn.query_row(
+                "SELECT COUNT(*) FROM gobd_audit_log WHERE
+                    LOWER(details) LIKE '%ohrladen%' OR LOWER(details) LIKE '%gruia%'
+                    OR LOWER(details) LIKE '%halmhuber%' OR LOWER(details) LIKE '%schlossgarten%'
+                    OR LOWER(details) LIKE '%imkerin%' OR LOWER(details) LIKE '%leo club%'
+                    OR LOWER(details) LIKE '%rust kernel%'",
+                [], |r| r.get(0)
+            ).unwrap_or(0);
+            let bad_tasks: i64 = conn.query_row(
+                "SELECT COUNT(*) FROM follow_up_tasks WHERE
+                    LOWER(title) LIKE '%ohrladen%' OR LOWER(title) LIKE '%imkerin%' OR LOWER(title) LIKE '%schlossgarten%'",
+                [], |r| r.get(0)
+            ).unwrap_or(0);
+            bad_contacts > 0 || bad_docs > 0 || bad_plugins > 0 || bad_bookings > 0 || bad_msgs > 0 || bad_gobd > 0 || bad_tasks > 0
+        };
+        if needs_demo_reset {
+            let conn = self.conn.lock().unwrap();
+            for sql in [
+                "DELETE FROM custom_values",
+                "DELETE FROM custom_fields",
+                "DELETE FROM messages",
+                "DELETE FROM follow_up_tasks",
+                "DELETE FROM bookings",
+                "DELETE FROM documents",
+                "DELETE FROM invoices",
+                "DELETE FROM retainer_subscriptions",
+                "DELETE FROM deals",
+                "DELETE FROM contacts",
+                "DELETE FROM products",
+                "DELETE FROM marketing_campaigns",
+                "DELETE FROM workflow_rules",
+                "DELETE FROM plugin_records",
+                "DELETE FROM gobd_audit_log",
+            ] {
+                conn.execute(sql, [])?;
+            }
+        }
+
         // Initialize Genesis block for GoBD audit trail if empty
         let gobd_count: i64 = {
             let conn = self.conn.lock().unwrap();
@@ -300,7 +395,7 @@ impl Database {
                 "system",
                 "genesis",
                 "INIT_GOBD_LEDGER",
-                "Revisionssicheres GoBD-Audit-Journal initialisiert (Conrad OS Native Rust Kernel)",
+                "Revisionssicheres GoBD-Audit-Journal initialisiert (Conrad OS Native Kernel)",
                 "System",
             );
             let conn = self.conn.lock().unwrap();
@@ -310,7 +405,7 @@ impl Database {
                 params![
                     genesis_id,
                     genesis_now,
-                    "Revisionssicheres GoBD-Audit-Journal initialisiert (Conrad OS Native Rust Kernel)",
+                    "Revisionssicheres GoBD-Audit-Journal initialisiert (Conrad OS Native Kernel)",
                     GENESIS_HASH,
                     genesis_hash
                 ],
@@ -322,23 +417,23 @@ impl Database {
         };
 
         if count == 0 {
-            // Seed sample clients
+            // Seed fictional German SMB demo clients
             let c1 = self.create_contact(NewContact {
-                name: "Jens Ohrladen".to_string(),
-                email: Some("info@der-ohrladen.de".to_string()),
-                phone: Some("+49 6202 920000".to_string()),
-                company: Some("Der Ohrladen Hörgeräte".to_string()),
+                name: "Thomas Weber".to_string(),
+                email: Some("t.weber@elektro-weber-demo.de".to_string()),
+                phone: Some("+49 6202 5550101".to_string()),
+                company: Some("Meisterbetrieb Elektro Weber GmbH".to_string()),
                 status: Some("customer".to_string()),
-                tags: Some("Akustiker, Retainer, KI-Workflows".to_string()),
+                tags: Some("Handwerk, Retainer, KI-Workflows".to_string()),
             })?;
 
             let c2 = self.create_contact(NewContact {
-                name: "Alexandra Imkerin".to_string(),
-                email: Some("alex@schlossgarten-honig.de".to_string()),
-                phone: Some("+49 171 4455667".to_string()),
-                company: Some("Schlossgarten Imkerei".to_string()),
+                name: "Dr. Sabine Bergmann".to_string(),
+                email: Some("s.bergmann@kanzlei-bergmann-demo.de".to_string()),
+                phone: Some("+49 6221 5550104".to_string()),
+                company: Some("Kanzlei Dr. Bergmann & Partner".to_string()),
                 status: Some("qualified".to_string()),
-                tags: Some("E-Commerce, Social-Media".to_string()),
+                tags: Some("Kanzlei, Beleg-KI, Compliance".to_string()),
             })?;
 
             // Seed sample products
@@ -372,8 +467,8 @@ impl Database {
 
             self.create_deal(NewDeal {
                 contact_id: c2.id.clone(),
-                title: "Instagram DM to WhatsApp Lead Engine".to_string(),
-                value_cents: 95000,
+                title: "Mandanten-Onboarding & GoBD Beleg-Pipeline".to_string(),
+                value_cents: 145000,
                 currency: Some("EUR".to_string()),
                 stage: Some("proposal".to_string()),
                 expected_close_date: Some("2026-11-20".to_string()),
@@ -386,7 +481,7 @@ impl Database {
                 invoice_number: Some("RE-2026-001".to_string()),
                 items: vec![
                     InvoiceItem {
-                        description: "Betreuung & Hosting Conrad OS Workflow-Engine (November 2026)".to_string(),
+                        description: "Betreuung & Hosting Conrad OS Workflow-Engine (Demo)".to_string(),
                         quantity: 1.0,
                         unit_price_cents: 9900,
                         total_cents: 9900,
@@ -509,7 +604,7 @@ impl Database {
                 let _ = self.create_follow_up_task(NewFollowUpTask {
                     contact_id: cid,
                     deal_id: None,
-                    title: "Follow-up (Angebot): Instagram DM to WhatsApp Lead Engine".to_string(),
+                    title: "Follow-up (Angebot): Mandanten-Onboarding & Beleg-Pipeline".to_string(),
                     due_date: Some("2026-11-11".to_string()),
                 });
             }
@@ -528,7 +623,7 @@ impl Database {
                 action_type: "create_task_and_email_draft".to_string(),
                 delay_days: Some(3),
                 template_subject: Some("Rückfrage zu unserem Angebot — Conrad KI".to_string()),
-                template_body: "Hallo {{name}},\n\nich wollte mich kurz erkundigen, ob Sie bereits Gelegenheit hatten, unser Angebot zu prüfen. Lassen Sie uns gerne kurz telefonieren, falls noch Fragen offen sind.\n\nBeste Grüße\nMerlin Conrad".to_string(),
+                template_body: "Hallo {{name}},\n\nich wollte mich kurz erkundigen, ob Sie bereits Gelegenheit hatten, unser Angebot zu prüfen. Lassen Sie uns gerne kurz telefonieren, falls noch Fragen offen sind.\n\nBeste Grüße\nConrad KI Team".to_string(),
             });
         }
 
@@ -545,26 +640,26 @@ impl Database {
             let _ = self.add_document(NewDocument {
                 contact_id: first_cid.clone(),
                 invoice_id: None,
-                title: "Rahmenvertrag KI-Automatisierung & Retainer (Der Ohrladen)".to_string(),
-                filename: "RV_ConradKI_Ohrladen_2026.pdf".to_string(),
-                file_path: "/vault/contracts/RV_ConradKI_Ohrladen_2026.pdf".to_string(),
+                title: "Rahmenvertrag KI-Automatisierung & Retainer (Elektro Weber Demo)".to_string(),
+                filename: "RV_ConradKI_ElektroWeber_Demo_2026.pdf".to_string(),
+                file_path: "/vault/contracts/RV_ConradKI_ElektroWeber_Demo_2026.pdf".to_string(),
                 file_size_bytes: 284_600,
                 mime_type: "application/pdf".to_string(),
                 category: Some("contract".to_string()),
                 tags: Some("GoBD, Rahmenvertrag, Retainer".to_string()),
-                extracted_text: Some("Monatlicher Leistungsrahmen: 99,00 EUR netto, Kündigungsfrist 30 Tage zum Monatsende.".to_string()),
+                extracted_text: Some("Monatlicher Leistungsrahmen: 99,00 EUR netto, Kündigungsfrist 30 Tage zum Monatsende (Demo-Vertrag).".to_string()),
             });
             let _ = self.add_document(NewDocument {
                 contact_id: None,
                 invoice_id: None,
-                title: "Kaufvertrag & Teilungserklärung Halmhuberstraße 10, Mannheim".to_string(),
-                filename: "Notarurkunde_Halmhuberstr10_Mannheim.pdf".to_string(),
-                file_path: "/vault/realestate/Notarurkunde_Halmhuberstr10_Mannheim.pdf".to_string(),
-                file_size_bytes: 1_420_000,
+                title: "Dienstleistungsvertrag Beleg-KI (Kanzlei Dr. Bergmann Demo)".to_string(),
+                filename: "DLV_Kanzlei_Bergmann_Demo_2026.pdf".to_string(),
+                file_path: "/vault/compliance/DLV_Kanzlei_Bergmann_Demo_2026.pdf".to_string(),
+                file_size_bytes: 412_000,
                 mime_type: "application/pdf".to_string(),
                 category: Some("contract".to_string()),
-                tags: Some("Immobilie, Mannheim, AfA".to_string()),
-                extracted_text: Some("Kaufpreis 86.000 EUR, Eigenkapital 21.000 EUR, Mieter Sebastian Gruia.".to_string()),
+                tags: Some("Kanzlei, DSGVO, GoBD".to_string()),
+                extracted_text: Some("Lokale Belegextraktion & DATEV SKR04 Vorprüfung ohne Cloud-Übertragung.".to_string()),
             });
         }
 
@@ -575,24 +670,24 @@ impl Database {
         };
         if book_count == 0 {
             let _ = self.book_calendar_slot(NewBooking {
-                slug: Some("merlin".to_string()),
-                name: "Jens Ohrladen".to_string(),
-                email: "info@der-ohrladen.de".to_string(),
-                phone: Some("+49 6202 920000".to_string()),
+                slug: Some("conrad-ki".to_string()),
+                name: "Thomas Weber".to_string(),
+                email: "t.weber@elektro-weber-demo.de".to_string(),
+                phone: Some("+49 6202 5550101".to_string()),
                 start_time: "2026-11-10T10:00:00Z".to_string(),
                 duration_minutes: Some(30),
                 timezone: Some("Europe/Berlin".to_string()),
-                notes: Some("Quartals-Review Hörtest-Simulator & Sprach-Assistent".to_string()),
+                notes: Some("Quartals-Review Angebots-Triage & E-Mail-Entwürfe".to_string()),
             });
             let _ = self.book_calendar_slot(NewBooking {
-                slug: Some("merlin".to_string()),
-                name: "Alexandra Imkerin".to_string(),
-                email: "alex@schlossgarten-honig.de".to_string(),
-                phone: Some("+49 171 4455667".to_string()),
+                slug: Some("conrad-ki".to_string()),
+                name: "Dr. Sabine Bergmann".to_string(),
+                email: "s.bergmann@kanzlei-bergmann-demo.de".to_string(),
+                phone: Some("+49 6221 5550104".to_string()),
                 start_time: "2026-11-12T15:00:00Z".to_string(),
                 duration_minutes: Some(30),
                 timezone: Some("Europe/Berlin".to_string()),
-                notes: Some("Abnahme Angebot: Instagram DM Lead-Pipeline".to_string()),
+                notes: Some("Abnahme Angebot: Mandanten-Onboarding & Beleg-Pipeline".to_string()),
             });
         }
 
@@ -757,17 +852,17 @@ impl Database {
                 }
             }
 
-            // Seed realistic records for modular plugins
+            // Seed demo records for modular plugins
             let _ = self.create_plugin_record(
                 "plugin.projects",
                 NewPluginRecord {
-                    title: "Der Ohrladen — Hörtest-Simulator v2 & Postfach-Triage".to_string(),
+                    title: "Meisterbetrieb Elektro Weber — Angebots- & Postfach-Triage".to_string(),
                     status: Some("Aktiv".to_string()),
                     amount_cents: Some(240000),
-                    owner: Some("Merlin Conrad".to_string()),
+                    owner: Some("Demo-Team".to_string()),
                     data: Some(serde_json::json!({
-                        "client": "Jens (Der Ohrladen)",
-                        "milestone": "Live-Deployment & Webhook-Sync",
+                        "client": "Thomas Weber (Elektro Weber GmbH)",
+                        "milestone": "Live-Betrieb & Entwurfspflicht",
                         "hours": "18.5 Std."
                     })),
                 },
@@ -775,12 +870,12 @@ impl Database {
             let _ = self.create_plugin_record(
                 "plugin.projects",
                 NewPluginRecord {
-                    title: "Schlossgarten-Imkerei — Instagram DM & Shop-Automation".to_string(),
+                    title: "SHK Haustechnik Rhein-Neckar — Notdienst & Termin-Automation".to_string(),
                     status: Some("In Prüfung".to_string()),
-                    amount_cents: Some(95000),
-                    owner: Some("Merlin Conrad".to_string()),
+                    amount_cents: Some(149000),
+                    owner: Some("Demo-Team".to_string()),
                     data: Some(serde_json::json!({
-                        "client": "Alex (Schlossgarten-Imkerei)",
+                        "client": "Stefan Koch (SHK Rhein-Neckar GmbH)",
                         "milestone": "Freigabe Workflow-Regeln",
                         "hours": "9.0 Std."
                     })),
@@ -789,14 +884,14 @@ impl Database {
             let _ = self.create_plugin_record(
                 "plugin.projects",
                 NewPluginRecord {
-                    title: "Leo Club Schwetzingen — Mobile Redesign & Spenden-Portal".to_string(),
+                    title: "Kanzlei Dr. Bergmann — Mandanten-Onboarding & Beleg-KI".to_string(),
                     status: Some("Abgeschlossen".to_string()),
-                    amount_cents: Some(0),
-                    owner: Some("Merlin Conrad".to_string()),
+                    amount_cents: Some(145000),
+                    owner: Some("Demo-Team".to_string()),
                     data: Some(serde_json::json!({
-                        "client": "Leo Club Schwetzingen",
-                        "milestone": "Touch-First Navigation Live",
-                        "hours": "6.5 Std."
+                        "client": "Kanzlei Dr. Bergmann & Partner",
+                        "milestone": "GoBD-Prüfpfad aktiv",
+                        "hours": "12.0 Std."
                     })),
                 },
             );
@@ -804,28 +899,28 @@ impl Database {
             let _ = self.create_plugin_record(
                 "plugin.realestate",
                 NewPluginRecord {
-                    title: "Studio-Apartment Halmhuberstraße 10, Mannheim".to_string(),
+                    title: "Gewerbeobjekt Musterstraße 12, Mannheim (Demo-Objekt)".to_string(),
                     status: Some("Vermietet".to_string()),
-                    amount_cents: Some(5300), // +53,00 €/Monat positiver Cashflow
-                    owner: Some("Merlin & Tamara Conrad".to_string()),
+                    amount_cents: Some(98000),
+                    owner: Some("Conrad KI Demo".to_string()),
                     data: Some(serde_json::json!({
-                        "address": "Halmhuberstraße 10, 68163 Mannheim",
-                        "tenant": "Sebastian Gruia (Bestandsmieter)",
-                        "yield_info": "Kaufpreis 86.000 € · EK 21.000 € · CF +53 €/Mo."
+                        "address": "Musterstraße 12, 68161 Mannheim",
+                        "tenant": "Handwerksbüro Kurpfalz GmbH (Demo-Mieter)",
+                        "yield_info": "Demo-Objekt · Gewerbeeinheit · Rendite 6,4 % p.a."
                     })),
                 },
             );
             let _ = self.create_plugin_record(
                 "plugin.realestate",
                 NewPluginRecord {
-                    title: "MFH Akquise-Objekt Rhein-Neckar (6 Wohneinheiten)".to_string(),
-                    status: Some("Pipeline 09/2026".to_string()),
-                    amount_cents: Some(45000),
-                    owner: Some("Merlin & Tamara Conrad".to_string()),
+                    title: "Büroeinheit Parkring 8, Heidelberg (Demo-Akquise)".to_string(),
+                    status: Some("Demo-Pipeline".to_string()),
+                    amount_cents: Some(125000),
+                    owner: Some("Conrad KI Demo".to_string()),
                     data: Some(serde_json::json!({
-                        "address": "Schwetzingen / Mannheim Süd",
-                        "tenant": "Akquise nach Jobwechsel & Probezeit",
-                        "yield_info": "Ziel-Rendite > 6,2 % · 10-Jahres-Plan (3 MFHs)"
+                        "address": "Parkring 8, 69115 Heidelberg",
+                        "tenant": "Projektierung Demo-Portfolio",
+                        "yield_info": "Ziel-Rendite > 6,2 % · Büro & Gewerbe"
                     })),
                 },
             );
@@ -833,12 +928,12 @@ impl Database {
             let _ = self.create_plugin_record(
                 "plugin.helpdesk",
                 NewPluginRecord {
-                    title: "WhatsApp Business Webhook-Routing für Neukunden".to_string(),
+                    title: "E-Mail Webhook-Routing & Entwurfs-Prüfung".to_string(),
                     status: Some("In Bearbeitung".to_string()),
                     amount_cents: Some(0),
                     owner: Some("Conrad KI Support".to_string()),
                     data: Some(serde_json::json!({
-                        "customer": "Der Ohrladen Hörgeräte",
+                        "customer": "Meisterbetrieb Elektro Weber GmbH",
                         "priority": "Hoch",
                         "sla": "< 2 Std. Reaktionszeit"
                     })),
@@ -852,7 +947,7 @@ impl Database {
                     amount_cents: Some(0),
                     owner: Some("Conrad KI Support".to_string()),
                     data: Some(serde_json::json!({
-                        "customer": "Schlossgarten Imkerei",
+                        "customer": "Kanzlei Dr. Bergmann & Partner",
                         "priority": "Normal",
                         "sla": "EN 16931 verifiziert"
                     })),
@@ -909,10 +1004,6 @@ impl Database {
                 [],
             );
             let _ = conn.execute(
-                "UPDATE plugin_records SET data_json = REPLACE(data_json, 'Holzhey Consulting GmbH', 'Schlossgarten Imkerei') WHERE data_json LIKE '%Holzhey%'",
-                [],
-            );
-            let _ = conn.execute(
                 "UPDATE contacts SET tags = REPLACE(tags, 'n8n', 'KI-Workflows') WHERE tags LIKE '%n8n%'",
                 [],
             );
@@ -926,41 +1017,33 @@ impl Database {
         if current_contact_count < 5 {
             let c_weber = self.create_contact(NewContact {
                 name: "Dr. Markus Weber".to_string(),
-                email: Some("praxis@weber-zahnmedizin-hd.de".to_string()),
-                phone: Some("+49 6221 884420".to_string()),
-                company: Some("Zahnarztpraxis am Schlossplatz".to_string()),
+                email: Some("praxis@praxis-marktplatz-demo.de".to_string()),
+                phone: Some("+49 6221 5550105".to_string()),
+                company: Some("Zahnarztpraxis am Marktplatz".to_string()),
                 status: Some("customer".to_string()),
                 tags: Some("Heidelberg, Sprach-Assistent, Retainer".to_string()),
             })?;
             let c_koch = self.create_contact(NewContact {
                 name: "Stefan Koch".to_string(),
-                email: Some("s.koch@koch-sanitaer-mannheim.de".to_string()),
-                phone: Some("+49 621 449910".to_string()),
-                company: Some("Koch Sanitär & Heizung GmbH".to_string()),
+                email: Some("s.koch@shk-rhein-neckar-demo.de".to_string()),
+                phone: Some("+49 621 5550102".to_string()),
+                company: Some("SHK Haustechnik Rhein-Neckar GmbH".to_string()),
                 status: Some("qualified".to_string()),
                 tags: Some("Handwerk, WhatsApp-Triage, Mannheim".to_string()),
             })?;
-            let c_bergmann = self.create_contact(NewContact {
-                name: "Thomas Bergmann".to_string(),
-                email: Some("t.bergmann@bergmann-spedition.de".to_string()),
-                phone: Some("+49 6202 77310".to_string()),
-                company: Some("Bergmann Logistik & Spedition".to_string()),
+            let c_hartmann = self.create_contact(NewContact {
+                name: "Michael Hartmann".to_string(),
+                email: Some("m.hartmann@metallbau-hartmann-demo.de".to_string()),
+                phone: Some("+49 6202 5550103".to_string()),
+                company: Some("Metallbau Hartmann KG".to_string()),
                 status: Some("lead".to_string()),
-                tags: Some("Schwetzingen, Beleg-KI, DMS".to_string()),
-            })?;
-            let c_gruia = self.create_contact(NewContact {
-                name: "Sebastian Gruia".to_string(),
-                email: Some("s.gruia@mannheim-resident.de".to_string()),
-                phone: Some("+49 176 9922811".to_string()),
-                company: Some("Bestandsmieter Halmhuberstraße 10".to_string()),
-                status: Some("customer".to_string()),
-                tags: Some("Immobilie, Mannheim, Mietvertrag".to_string()),
+                tags: Some("Handwerk, Beleg-KI, DMS".to_string()),
             })?;
 
             // Populate all 4 Kanban stages (discovery, proposal, negotiation, closed_won)
             let _ = self.create_deal(NewDeal {
-                contact_id: c_bergmann.id.clone(),
-                title: "KI-Frachtbrief & Beleg-Extraktion (DMS)".to_string(),
+                contact_id: c_hartmann.id.clone(),
+                title: "KI-Angebotserstellung & Lieferschein-Extraktion (DMS)".to_string(),
                 value_cents: 185000,
                 currency: Some("EUR".to_string()),
                 stage: Some("discovery".to_string()),
@@ -1011,7 +1094,7 @@ impl Database {
                 deal_id: None,
                 invoice_number: Some("RE-2026-003".to_string()),
                 items: vec![InvoiceItem {
-                    description: "Konzeption & Prototyp WhatsApp-Notdienst-Triage (50% Anzahlung)".to_string(),
+                    description: "Konzeption & Prototyp Notdienst-Triage (50% Anzahlung)".to_string(),
                     quantity: 1.0,
                     unit_price_cents: 89000,
                     total_cents: 89000,
@@ -1031,7 +1114,7 @@ impl Database {
             });
             let _ = self.create_retainer(NewRetainerSubscription {
                 contact_id: c_koch.id.clone(),
-                plan_name: "Handwerk KI-Postfach & WhatsApp-Basis".to_string(),
+                plan_name: "Handwerk KI-Postfach & Termin-Basis".to_string(),
                 amount_cents: 6900,
                 vat_rate_percent: Some(19.0),
                 interval_months: Some(1),
@@ -1046,27 +1129,27 @@ impl Database {
                 due_date: Some("2026-11-10".to_string()),
             });
             let _ = self.create_follow_up_task(NewFollowUpTask {
-                contact_id: c_bergmann.id.clone(),
+                contact_id: c_hartmann.id.clone(),
                 deal_id: None,
-                title: "Muster-Frachtbriefe für OCR-Benchmark prüfen".to_string(),
+                title: "Muster-Lieferscheine Metallbau Hartmann für OCR-Benchmark prüfen".to_string(),
                 due_date: Some("2026-11-14".to_string()),
             });
 
             let _ = self.book_calendar_slot(NewBooking {
-                slug: Some("merlin".to_string()),
+                slug: Some("conrad-ki".to_string()),
                 name: "Stefan Koch".to_string(),
-                email: "s.koch@koch-sanitaer-mannheim.de".to_string(),
-                phone: Some("+49 621 449910".to_string()),
+                email: "s.koch@shk-rhein-neckar-demo.de".to_string(),
+                phone: Some("+49 621 5550102".to_string()),
                 start_time: "2026-11-11T14:00:00Z".to_string(),
                 duration_minutes: Some(30),
                 timezone: Some("Europe/Berlin".to_string()),
-                notes: Some("Finales Verhandlungsgespräch WhatsApp-Notdienst-Assistent".to_string()),
+                notes: Some("Finales Verhandlungsgespräch Notdienst-Assistent (Demo)".to_string()),
             });
             let _ = self.book_calendar_slot(NewBooking {
-                slug: Some("merlin".to_string()),
+                slug: Some("conrad-ki".to_string()),
                 name: "Dr. Markus Weber".to_string(),
-                email: "praxis@weber-zahnmedizin-hd.de".to_string(),
-                phone: Some("+49 6221 884420".to_string()),
+                email: "praxis@praxis-marktplatz-demo.de".to_string(),
+                phone: Some("+49 6221 5550105".to_string()),
                 start_time: "2026-11-13T09:30:00Z".to_string(),
                 duration_minutes: Some(30),
                 timezone: Some("Europe/Berlin".to_string()),
@@ -1076,36 +1159,36 @@ impl Database {
             let _ = self.add_document(NewDocument {
                 contact_id: Some(c_weber.id.clone()),
                 invoice_id: Some(inv_weber.id.clone()),
-                title: "AV-Vertrag nach Art. 28 DSGVO — Zahnarztpraxis Dr. Weber".to_string(),
-                filename: "AVV_DSGVO_Praxis_Weber_2026.pdf".to_string(),
-                file_path: "/vault/compliance/AVV_DSGVO_Praxis_Weber_2026.pdf".to_string(),
+                title: "AV-Vertrag nach Art. 28 DSGVO — Zahnarztpraxis am Marktplatz".to_string(),
+                filename: "AVV_DSGVO_Praxis_Marktplatz_Demo_2026.pdf".to_string(),
+                file_path: "/vault/compliance/AVV_DSGVO_Praxis_Marktplatz_Demo_2026.pdf".to_string(),
                 file_size_bytes: 342_000,
                 mime_type: "application/pdf".to_string(),
                 category: Some("Compliance".to_string()),
                 tags: Some("DSGVO, AVV, Gesundheitsdaten".to_string()),
-                extracted_text: Some("100% lokale KI-Verarbeitung ohne Drittlandtransfer.".to_string()),
+                extracted_text: Some("100% lokale KI-Verarbeitung ohne Drittlandtransfer (Demo).".to_string()),
             });
             let _ = self.add_document(NewDocument {
-                contact_id: Some(c_gruia.id.clone()),
-                invoice_id: None,
-                title: "Mietvertrag & Nebenkostenabrechnung Halmhuberstraße 10 (Sebastian Gruia)".to_string(),
-                filename: "Mietvertrag_Halmhuberstr10_Gruia.pdf".to_string(),
-                file_path: "/vault/realestate/Mietvertrag_Halmhuberstr10_Gruia.pdf".to_string(),
+                contact_id: Some(c_koch.id.clone()),
+                invoice_id: Some(inv_koch.id.clone()),
+                title: "Wartungs- & Service-Konzept SHK Haustechnik Rhein-Neckar".to_string(),
+                filename: "Wartungsprotokoll_SHK_RheinNeckar_Demo.pdf".to_string(),
+                file_path: "/vault/contracts/Wartungsprotokoll_SHK_RheinNeckar_Demo.pdf".to_string(),
                 file_size_bytes: 518_000,
                 mime_type: "application/pdf".to_string(),
-                category: Some("Immobilien".to_string()),
-                tags: Some("Mietvertrag, Mannheim, Cashflow".to_string()),
-                extracted_text: Some("Monatlicher positiver Netto-Cashflow: +53,00 EUR.".to_string()),
+                category: Some("contract".to_string()),
+                tags: Some("Handwerk, SHK, SLA".to_string()),
+                extracted_text: Some("Notdienst-Klassifizierung und automatische Terminvorschläge.".to_string()),
             });
 
             let _ = self.create_workflow_rule(NewWorkflowRule {
-                name: "Neuer Lead (WhatsApp / Web) -> Qualifizierungs-Task + Entwurf".to_string(),
+                name: "Neuer Lead (Web / E-Mail) -> Qualifizierungs-Task + Entwurf".to_string(),
                 trigger_type: "contact_created".to_string(),
                 trigger_filter: "lead".to_string(),
                 action_type: "create_task_and_email_draft".to_string(),
                 delay_days: Some(1),
                 template_subject: Some("Ihre Anfrage bei Conrad KI — Erstgespräch".to_string()),
-                template_body: "Hallo {{name}},\nvielen Dank für Ihre Kontaktaufnahme. Hier ist der direkte Buchungslink für unser 30-minütiges Potenzialgespräch.\nBeste Grüße\nMerlin Conrad".to_string(),
+                template_body: "Hallo {{name}},\nvielen Dank für Ihre Kontaktaufnahme. Hier ist der direkte Buchungslink für unser 30-minütiges Potenzialgespräch.\nBeste Grüße\nConrad KI Team".to_string(),
             });
         }
 
@@ -1114,38 +1197,13 @@ impl Database {
             for c in all_contacts {
                 let existing_msgs = self.list_interactions(Some(&c.id)).unwrap_or_default();
                 if existing_msgs.is_empty() {
-                    if c.name.contains("Gruia") {
-                        let _ = self.add_interaction_with_status(
-                            &c.id,
-                            "note",
-                            "outbound",
-                            Some("Objekt-Akte Halmhuberstraße 10, Mannheim"),
-                            "Bestandsmieter Studio-Wohnung. Kaufpreis 86.000 €, Eigenkapital 21.000 €, monatlicher Netto-Cashflow +53,00 €. Mieteingang pünktlich zum 01. des Monats.",
-                            "logged",
-                        );
+                    if c.name.contains("Koch") {
                         let _ = self.add_interaction_with_status(
                             &c.id,
                             "whatsapp",
                             "inbound",
-                            Some("WhatsApp Rückmeldung Nebenkostenabrechnung"),
-                            "Hallo Herr Conrad, vielen Dank für die transparente Aufstellung der Nebenkosten. Überweisung für diesen Monat ist wie gewohnt raus. Viele Grüße, Sebastian Gruia",
-                            "received",
-                        );
-                        let _ = self.add_interaction_with_status(
-                            &c.id,
-                            "email",
-                            "outbound",
-                            Some("Nebenkostenabrechnung & Zählerstände 2026 — Halmhuberstraße 10"),
-                            "Hallo Herr Gruia,\nanbei erhalten Sie die geprüfte Aufstellung für das laufende Abrechnungsjahr im PDF-Format.\nBeste Grüße\nMerlin & Tamara Conrad",
-                            "draft",
-                        );
-                    } else if c.name.contains("Koch") {
-                        let _ = self.add_interaction_with_status(
-                            &c.id,
-                            "whatsapp",
-                            "inbound",
-                            Some("WhatsApp Business Anfrage"),
-                            "Hi Merlin, wir verlieren pro Woche locker 15 Notdienst-Anrufe, wenn unsere Monteure auf Baustelle sind. Kann euer KI-Agent die per WhatsApp vorqualifizieren?",
+                            Some("Anfrage Notdienst-Qualifizierung"),
+                            "Hallo Team, wir verlieren pro Woche rund 15 Notdienst-Anrufe, wenn unsere Monteure auf Baustelle sind. Kann euer KI-Agent Anfragen vorqualifizieren?",
                             "received",
                         );
                         let _ = self.add_interaction_with_status(
@@ -1153,15 +1211,15 @@ impl Database {
                             "call",
                             "outbound",
                             Some("Potenzialanalyse & Architektur-Call (25 Min.)"),
-                            "Bedarf bestätigt: 24/7 WhatsApp- & Anruf-Triage mit automatischer Dringlichkeits-Einstufung (Rohrbruch vs. Standard-Wartung). Angebot über 1.490 € Setup + 69 €/Mo. Retainer besprochen.",
+                            "Bedarf bestätigt: 24/7 Anruf- & Nachrichten-Triage mit automatischer Dringlichkeits-Einstufung (Rohrbruch vs. Standard-Wartung). Angebot über 1.490 € Setup + 69 €/Mo. Retainer besprochen.",
                             "logged",
                         );
                         let _ = self.add_interaction_with_status(
                             &c.id,
                             "email",
                             "outbound",
-                            Some("Angebot & Prototyp: 24/7 Notdienst WhatsApp-Triage — Koch Sanitär"),
-                            "Hallo Stefan,\nwie besprochen findest du anbei die Architektur-Übersicht und die 50%-Anzahlungsrechnung (RE-2026-003) für den Projektstart.\nBeste Grüße\nMerlin Conrad",
+                            Some("Angebot & Prototyp: 24/7 Notdienst-Triage — SHK Rhein-Neckar"),
+                            "Hallo Herr Koch,\nwie besprochen finden Sie anbei die Architektur-Übersicht und die 50%-Anzahlungsrechnung (RE-2026-003) für den Projektstart.\nBeste Grüße\nConrad KI Team",
                             "draft",
                         );
                     } else if c.name.contains("Weber") {
@@ -1169,33 +1227,50 @@ impl Database {
                             &c.id,
                             "note",
                             "outbound",
-                            Some("Go-Live Protokoll: Praxis-KI & Recall-Autopilot"),
-                            "Lokale Sprach- und Recall-Pipeline erfolgreich abgenommen. DSGVO-AV-Vertrag nach Art. 28 hinterlegt. Rechnung RE-2026-002 (2.237,20 € Brutto) vollständig beglichen.",
+                            Some("Go-Live Protokoll: Demo-Workflow & Postfach-Autopilot"),
+                            "Lokale Angebots- und Triage-Pipeline erfolgreich abgenommen. DSGVO-AV-Vertrag nach Art. 28 hinterlegt. Alle E-Mails werden strikt als Entwurf gespeichert.",
                             "logged",
                         );
                         let _ = self.add_interaction_with_status(
                             &c.id,
-                            "whatsapp",
+                            "email",
                             "inbound",
-                            Some("Feedback aus dem Praxisbetrieb"),
-                            "Kurzes Feedback aus Heidelberg: Unsere No-Show-Quote bei Prophylaxe-Terminen ist im ersten Monat um 38% gesunken.Starkes System!",
+                            Some("Rückmeldung aus dem Betrieb"),
+                            "Kurzes Feedback: Unsere Bearbeitungszeit bei Standardanfragen ist im ersten Monat um 38% gesunken. Sehr zuverlässiges System!",
                             "received",
                         );
-                    } else if c.name.contains("Bergmann") {
+                    } else if c.name.contains("Hartmann") {
                         let _ = self.add_interaction_with_status(
                             &c.id,
                             "call",
                             "inbound",
-                            Some("Erstgespräch Logistik-Belegextraktion"),
-                            "ca. 450 Frachtbriefe und Lieferscheine pro Woche. Ziel: Lokale OCR- und LLM-Extraktion direkt ins ERP ohne Cloud-Abfluss.",
+                            Some("Erstgespräch Angebots- & Belegextraktion"),
+                            "Ca. 120 Lieferscheine und Aufmaß-Protokolle pro Woche. Ziel: Lokale OCR- und LLM-Extraktion direkt ins ERP ohne Cloud-Abfluss.",
                             "logged",
                         );
                         let _ = self.add_interaction_with_status(
                             &c.id,
                             "email",
                             "outbound",
-                            Some("Nächste Schritte: Testlauf mit 10 Muster-Frachtbriefen"),
-                            "Hallo Herr Bergmann,\nsenden Sie uns gerne 10 anonymisierte Frachtbriefe zu, damit wir Ihnen die Echtzeit-Extraktion live demonstrieren können.\nBeste Grüße\nMerlin Conrad",
+                            Some("Nächste Schritte: Testlauf mit 10 Muster-Lieferscheinen"),
+                            "Hallo Herr Hartmann,\nsenden Sie uns gerne 10 anonymisierte Muster-Lieferscheine zu, damit wir Ihnen die Echtzeit-Extraktion live demonstrieren können.\nBeste Grüße\nConrad KI Team",
+                            "draft",
+                        );
+                    } else if c.name.contains("Bergmann") {
+                        let _ = self.add_interaction_with_status(
+                            &c.id,
+                            "call",
+                            "inbound",
+                            Some("Erstgespräch Kanzlei-Belegprüfung & DATEV SKR04"),
+                            "Automatisierte GoBD-Vorprüfung von Eingangsrechnungen und automatische Entwurfserstellung bei fehlenden Pflichtangaben.",
+                            "logged",
+                        );
+                        let _ = self.add_interaction_with_status(
+                            &c.id,
+                            "email",
+                            "outbound",
+                            Some("Entwurf: Zeitplan Mandanten-Onboarding Beleg-KI"),
+                            "Hallo Frau Dr. Bergmann,\nanbei der vorgeschlagene Ablauf für die Testphase in Ihrer Kanzlei.\nBeste Grüße\nConrad KI Team",
                             "draft",
                         );
                     } else {
@@ -1204,7 +1279,7 @@ impl Database {
                             "note",
                             "outbound",
                             Some("Mandats- & Systemstatus"),
-                            "Aktives Conrad KI Mandat in der Region Rhein-Neckar. Laufende Überwachung über lokalen AI-Stack.",
+                            "Aktives Demo-Mandat in der Region Rhein-Neckar. Laufende Überwachung über lokalen AI-Stack.",
                             "logged",
                         );
                     }
@@ -2897,7 +2972,7 @@ impl Database {
                     phone: input.phone.clone(),
                     company: None,
                     status: Some("qualified".to_string()),
-                    tags: Some("Terminbuchung, Cal.com-Rust".to_string()),
+                    tags: Some("Terminbuchung, Conrad Kalender".to_string()),
                 })?;
                 c.id
             }
@@ -2953,7 +3028,7 @@ impl Database {
         );
 
         let draft_body = format!(
-            "Hallo {},\n\nvielen Dank für Ihre Terminbuchung bei Conrad KI.\n\nTermin-Details:\n• Thema: {}\n• Zeitpunkt: {} ({})\n\nDieser Entwurf wurde zur Freigabe bereitgestellt.\n\nBeste Grüße\nMerlin Conrad",
+            "Hallo {},\n\nvielen Dank für Ihre Terminbuchung bei Conrad KI.\n\nTermin-Details:\n• Thema: {}\n• Zeitpunkt: {} ({})\n\nDieser Entwurf wurde zur Freigabe bereitgestellt.\n\nBeste Grüße\nConrad KI Team",
             input.name,
             title,
             start_dt.format("%d.%m.%Y um %H:%M Uhr"),
@@ -3624,11 +3699,11 @@ mod tests {
         assert!(valid);
         assert!(count >= 1);
 
-        // 2. Test WhatsApp Business Webhook ingestion
+        // 2. WhatsApp / Messenger Webhook ingestion test
         let wa_msg = db.ingest_whatsapp_webhook(WhatsAppWebhookPayload {
-            from: "+49 171 9988776".to_string(),
-            sender_name: Some("Bäckerei Schmitt".to_string()),
-            text: "Hallo Merlin, wir brauchen Automatisierung für Vorbestellungen.".to_string(),
+            from: "+49 171 5550199".to_string(),
+            sender_name: Some("Bäckerei Schmitt Demo".to_string()),
+            text: "Hallo Team, wir brauchen Automatisierung für Vorbestellungen.".to_string(),
             message_id: None,
             timestamp: None,
         })?;
@@ -3654,11 +3729,11 @@ mod tests {
         let has_draft = timeline.iter().any(|m| m.channel == "email" && m.status == "draft");
         assert!(has_draft, "Workflow muss E-Mail als Entwurf ('draft') anlegen!");
 
-        // 4. Test Cal.com Native Booking Slot
+        // 4. Test Native Booking Slot
         let slot = db.book_calendar_slot(NewBooking {
-            slug: Some("merlin".to_string()),
+            slug: Some("conrad-ki".to_string()),
             name: "Dr. Markus Weber".to_string(),
-            email: "weber@zahnarzt-mannheim.de".to_string(),
+            email: "praxis@praxis-marktplatz-demo.de".to_string(),
             phone: None,
             start_time: "2026-11-12T10:00:00Z".to_string(),
             duration_minutes: Some(30),
@@ -3680,7 +3755,7 @@ mod tests {
             name: "Fuhrpark & Leasing".to_string(),
             slug: Some("fuhrpark".to_string()),
             category: Some("Operations & ERP".to_string()),
-            description: Some("Tesla & Firmenwagen Verwaltung".to_string()),
+            description: Some("Firmenwagen-Verwaltung Demo".to_string()),
             accent_color: Some("#0284c7".to_string()),
             fields: None,
         })?;
@@ -3690,14 +3765,14 @@ mod tests {
         let rec = db.create_plugin_record(
             &custom_plugin.id,
             NewPluginRecord {
-                title: "Tesla Model Y Long Range — MA-MC 2026".to_string(),
+                title: "Elektro-Dienstwagen Demo — HD-CK 2026".to_string(),
                 status: Some("Aktiv".to_string()),
                 amount_cents: Some(54900),
-                owner: Some("Merlin Conrad".to_string()),
-                data: Some(serde_json::json!({"category": "Elektrofahrzeug", "notes": "Pendeln Mannheim"})),
+                owner: Some("Demo-Team".to_string()),
+                data: Some(serde_json::json!({"category": "Elektrofahrzeug", "notes": "Demo-Fuhrpark"})),
             },
         )?;
-        assert_eq!(rec.title, "Tesla Model Y Long Range — MA-MC 2026");
+        assert_eq!(rec.title, "Elektro-Dienstwagen Demo — HD-CK 2026");
 
         let updated_rec = db.update_plugin_record(
             &rec.id,

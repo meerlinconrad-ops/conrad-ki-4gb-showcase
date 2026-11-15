@@ -8,12 +8,12 @@ pub fn render_app_html() -> &'static str {
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Conrad OS">
     <link rel="manifest" href="/manifest.json">
-    <title>Conrad OS — AI-First Enterprise Operating System (Pure Rust)</title>
+    <title>Conrad OS — AI-First Enterprise Operating System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* ── Conrad OS Unified Design System (100% Pure Rust, Single-DB, Zero External Dependencies) ── */
+        /* ── Conrad OS Unified Design System (Single-DB, Zero External Dependencies) ── */
         :root {
             --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
             --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
@@ -1589,11 +1589,11 @@ pub fn render_app_html() -> &'static str {
                         <div class="kpi-label"><span>Immobilien &amp; Mandanten</span><span class="badge neutral">Assets</span></div>
                         <div class="kpi-value" style="display:flex; align-items:baseline; gap:8px;">
                             <span id="kpi-contacts">6</span>
-                            <span style="font-size:13px; color:var(--status-green-fg); font-weight:600;">+53,00 €/Mo. CF</span>
+                            <span style="font-size:13px; color:var(--status-green-fg); font-weight:600;">+145,00 €/Mo. CF</span>
                         </div>
                         <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:65%; background:#0d9488;"></div></div>
                         <div class="kpi-meta" style="display:flex; justify-content:space-between; margin-top:6px;">
-                            <span>Halmhuberstr. 10 (Vermietet)</span>
+                            <span>Musterstraße 12 (Demo-Objekt)</span>
                             <span style="cursor:pointer; color:var(--accent); font-weight:600;" onclick="openPluginWorkspace('plugin.realestate')">Portfolio →</span>
                         </div>
                     </div>
@@ -2147,41 +2147,41 @@ pub fn render_app_html() -> &'static str {
                             <div class="week-cal-event" style="border-left-color:#6366F1;">
                                 <div class="mono-val" style="font-size:10px; color:var(--text-muted);">09:00 – 11:30</div>
                                 <div style="font-weight:700; margin-top:2px;">Conrad OS Kernel &amp; Architektur</div>
-                                <div style="color:var(--text-secondary); font-size:10.5px;">Deep Work · Schwetzingen</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Deep Work · Rhein-Neckar</div>
                             </div>
                             <div class="week-cal-event" style="border-left-color:#10B981;">
                                 <div class="mono-val" style="font-size:10px; color:var(--text-muted);">19:00 – 20:00</div>
-                                <div style="font-weight:700; margin-top:2px;">Wöchentliches Coaching</div>
-                                <div style="color:var(--text-secondary); font-size:10.5px;">Fester Termin · Triathlon / Fokus</div>
+                                <div style="font-weight:700; margin-top:2px;">Wöchentliches Strategy-Review</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Fester Termin · Projekt-Fokus</div>
                             </div>
                         </div>
                         <div class="week-cal-col">
                             <div class="week-cal-day-head"><span>Di · 10.11.</span><span class="badge info">2 Termine</span></div>
                             <div class="week-cal-event" onclick="openNewBookingModal()">
                                 <div class="mono-val" style="font-size:10px; color:var(--accent); font-weight:700;">10:00 – 10:30</div>
-                                <div style="font-weight:700; margin-top:2px;">Jens Ohrladen</div>
-                                <div style="color:var(--text-secondary); font-size:10.5px;">Quartals-Review Hörtest-Simulator</div>
+                                <div style="font-weight:700; margin-top:2px;">Thomas Weber</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Quartals-Review Elektro Weber</div>
                             </div>
                             <div class="week-cal-event" style="border-left-color:#F59E0B;">
                                 <div class="mono-val" style="font-size:10px; color:var(--text-muted);">14:00 – 15:30</div>
-                                <div style="font-weight:700; margin-top:2px;">OCR-Benchmark Bergmann</div>
-                                <div style="color:var(--text-secondary); font-size:10.5px;">Frachtbrief-Extraktion (Gemma 4)</div>
+                                <div style="font-weight:700; margin-top:2px;">OCR-Benchmark Spedition Vogel</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Frachtbrief-Extraktion (Conrad KI Engine)</div>
                             </div>
                         </div>
                         <div class="week-cal-col">
                             <div class="week-cal-day-head"><span>Mi · 11.11.</span><span class="badge info">1 Termin</span></div>
                             <div class="week-cal-event" onclick="openNewBookingModal()">
                                 <div class="mono-val" style="font-size:10px; color:var(--accent); font-weight:700;">14:00 – 14:30</div>
-                                <div style="font-weight:700; margin-top:2px;">Stefan Koch (Koch Sanitär)</div>
-                                <div style="color:var(--text-secondary); font-size:10.5px;">Verhandlung WhatsApp-Notdienst</div>
+                                <div style="font-weight:700; margin-top:2px;">Stefan Koch (SHK Rhein-Neckar)</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Verhandlung Notdienst-Qualifizierung</div>
                             </div>
                         </div>
                         <div class="week-cal-col">
                             <div class="week-cal-day-head"><span>Do · 12.11.</span><span class="badge info">1 Termin</span></div>
                             <div class="week-cal-event" onclick="openNewBookingModal()">
                                 <div class="mono-val" style="font-size:10px; color:var(--accent); font-weight:700;">15:00 – 15:30</div>
-                                <div style="font-weight:700; margin-top:2px;">Alexandra Imkerin</div>
-                                <div style="color:var(--text-secondary); font-size:10.5px;">Abnahme Instagram DM Lead-Engine</div>
+                                <div style="font-weight:700; margin-top:2px;">Dr. Sabine Bergmann</div>
+                                <div style="color:var(--text-secondary); font-size:10.5px;">Abnahme Kanzlei-DMS &amp; GoBD-Workflow</div>
                             </div>
                         </div>
                         <div class="week-cal-col">
@@ -2227,7 +2227,7 @@ pub fn render_app_html() -> &'static str {
                         <div class="kpi-label"><span>Verschlüsselte Akten</span><span class="badge info">DMS Vault</span></div>
                         <div class="kpi-value" id="dms-kpi-docs">4</div>
                         <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:80%;"></div></div>
-                        <div class="kpi-meta" style="margin-top:6px;">Verträge, AVVs &amp; Grundbuch-Belege</div>
+                        <div class="kpi-meta" style="margin-top:6px;">Verträge, AVVs &amp; GoBD-Belege</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-label"><span>SHA-256 Hash-Kette</span><span class="badge success">Unveränderbar</span></div>
@@ -2305,14 +2305,14 @@ pub fn render_app_html() -> &'static str {
                 </div>
             </section>
 
-            <!-- VIEW: KI STUDIO (OPEN WEBUI PURE RUST) -->
+            <!-- VIEW: KI STUDIO (CONRAD KI ENGINE) -->
             <section id="view-aistudio" class="view-padded" style="display:none;">
                 <div class="card-panel" style="max-width:980px; margin:0 auto; display:flex; flex-direction:column; height:calc(100vh - 120px);">
                     <div class="card-panel-header" style="border-bottom:1px solid var(--border); padding-bottom:12px;">
                         <div style="display:flex; align-items:center; gap:10px;">
                             <span class="badge" style="background:#10b98122; color:#10b981; font-weight:700;">● Online</span>
-                            <span style="font-weight:600; font-size:14px;">Qwen 2.5 1.5B (Lokal &amp; DSGVO-Konform)</span>
-                            <span class="badge neutral" style="font-size:10px;">Reines Rust · &lt;2ms Latenz</span>
+                            <span style="font-weight:600; font-size:14px;">Conrad KI Engine (Lokal &amp; DSGVO-Konform)</span>
+                            <span class="badge neutral" style="font-size:10px;">Lokal · &lt;2ms Latenz</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <select id="aistudio-mode" class="form-input" style="width:160px; height:28px; font-size:11.5px; padding:2px 8px;">
@@ -2327,7 +2327,7 @@ pub fn render_app_html() -> &'static str {
                         <div style="padding:16px; background:var(--bg-card); border-radius:8px; border:1px solid var(--border);">
                             <div style="font-weight:600; font-size:14px; margin-bottom:6px;">⚡ Willkommen im Conrad OS KI Studio</div>
                             <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">
-                                Dein privates, DSGVO-konformes Firmen-ChatGPT — direkt in Rust auf deinem Server gehostet. Keine Daten verlassen dein Unternehmen. Greife direkt auf Kontakte, Rechnungen und DMS-Dokumente zu.
+                                Dein privates, DSGVO-konformes Firmen-KI-Studio — direkt lokal auf deinem Server gehostet. Keine Daten verlassen dein Unternehmen. Greife direkt auf Kontakte, Rechnungen und DMS-Dokumente zu.
                             </div>
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px; margin-top:14px;">
                                 <div class="quick-chip" onclick="applyAiPrompt('Analysiere die letzten eingegangenen Belege im DMS-Tresor und zeige mir eine Übersicht.')">📄 Belege im DMS analysieren</div>
@@ -2349,10 +2349,10 @@ pub fn render_app_html() -> &'static str {
             <section id="view-settings" class="view-padded" style="display:none;">
                 <div class="kpi-grid">
                     <div class="kpi-card">
-                        <div class="kpi-label"><span>Rust Binary Footprint</span><span class="badge success">Ultra-Lean</span></div>
+                        <div class="kpi-label"><span>System Binary Footprint</span><span class="badge success">Ultra-Lean</span></div>
                         <div class="kpi-value" style="color:var(--status-green-fg);">2,6 MB RAM</div>
                         <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:12%; background:var(--status-green-fg);"></div></div>
-                        <div class="kpi-meta" style="margin-top:6px;">Axum 0.7 + Tokio Async Runtime</div>
+                        <div class="kpi-meta" style="margin-top:6px;">Native Hochleistungs-Runtime</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-label"><span>SQLite WAL Latenz</span><span class="badge info">Single-DB</span></div>
@@ -2362,7 +2362,7 @@ pub fn render_app_html() -> &'static str {
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-label"><span>Lokaler AI-Stack</span><span class="badge purple">MCP 2.0</span></div>
-                        <div class="kpi-value" style="font-size:16px;">Gemma 4 / Qwen 32B</div>
+                        <div class="kpi-value" style="font-size:16px;">Conrad KI Engine</div>
                         <div class="kpi-progress-track"><div class="kpi-progress-fill" style="width:100%; background:#7c3aed;"></div></div>
                         <div class="kpi-meta" style="margin-top:6px;">Dual Mode: Operativ &amp; System-Architekt</div>
                     </div>
@@ -2409,7 +2409,7 @@ pub fn render_app_html() -> &'static str {
                 <div class="card-panel" style="padding:16px; margin-bottom:0;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                         <h3 style="font-size:13px; font-weight:700;">Native System-Endpunkte, Webhooks &amp; MCP-Schnittstellen</h3>
-                        <span class="badge info">100 % Pure Rust API</span>
+                        <span class="badge info">Native API</span>
                     </div>
                     <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; font-size:12px;">
                         <div style="padding:12px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-subtle);">
@@ -2442,7 +2442,7 @@ pub fn render_app_html() -> &'static str {
                     <div class="kpi-card">
                         <span class="badge info" style="width:fit-content; margin-bottom:6px;">1. Event-Trigger</span>
                         <div style="font-size:13.5px; font-weight:700;">Deal-Phase / Kontakt / Webhook</div>
-                        <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Echtzeit-Listener im Rust-Kernel</div>
+                        <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Echtzeit-Listener im Conrad OS Kernel</div>
                     </div>
                     <div class="kpi-card">
                         <span class="badge warning" style="width:fit-content; margin-bottom:6px;">2. Bedingung &amp; Guardrail</span>
@@ -2494,7 +2494,7 @@ pub fn render_app_html() -> &'static str {
                     <div>
                         <h2 style="font-size:16px; font-weight:700;">Conrad OS — Native Modul-Architektur &amp; Schema-Baukasten</h2>
                         <p style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
-                            Alle Fachmodule laufen in derselben Rust-Binärdatei, derselben SQLite-WAL-Datenbank und demselben Design-System.
+                            Alle Fachmodule laufen in derselben Conrad OS Engine, derselben SQLite-WAL-Datenbank und demselben Design-System.
                         </p>
                     </div>
                     <div style="display:flex; gap:8px;">
@@ -2541,7 +2541,7 @@ pub fn render_app_html() -> &'static str {
             <div style="display:flex; align-items:center; gap:14px;">
                 <span><strong style="color:var(--text-primary);">KERNEL:</strong> Conrad OS v3.0</span>
                 <span id="footerMountedLayers">MODULE: 10 AKTIV</span>
-                <span>ENGINE: 100% Pure Rust / Single SQLite WAL (&lt;0.4ms)</span>
+                <span>ENGINE: Conrad OS / Single SQLite WAL (&lt;0.4ms)</span>
                 <span style="color:var(--status-green-fg);">● GoBD SHA-256 VERIFIED</span>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
@@ -2644,7 +2644,7 @@ pub fn render_app_html() -> &'static str {
         <div class="drawer-header">
             <div>
                 <div style="font-size:13px; font-weight:700;" id="copilotPanelTitle">Conrad Copilot · AI-First Engine</div>
-                <div style="font-size:11px; color:var(--text-muted);" id="copilotPanelSub">GEMMA 4 / QWEN · MCP 2.0 VERBUNDEN</div>
+                <div style="font-size:11px; color:var(--text-muted);" id="copilotPanelSub">CONRAD KI ENGINE · MCP 2.0 VERBUNDEN</div>
             </div>
             <button class="modal-close-btn" onclick="toggleCopilot()">✕</button>
         </div>
@@ -2742,11 +2742,11 @@ pub fn render_app_html() -> &'static str {
             </div>
             <div class="form-group">
                 <label class="form-label">Teilnehmer / Kontakt *</label>
-                <input type="text" id="nb-name" class="form-input" placeholder="z.B. Jens (Der Ohrladen)">
+                <input type="text" id="nb-name" class="form-input" placeholder="z.B. Thomas Weber (Elektro Weber)">
             </div>
             <div class="form-group">
                 <label class="form-label">E-Mail *</label>
-                <input type="email" id="nb-email" class="form-input" placeholder="jens@ohrladen.de">
+                <input type="email" id="nb-email" class="form-input" placeholder="t.weber@elektro-weber-demo.de">
             </div>
             <div class="form-group">
                 <label class="form-label">Telefon</label>
@@ -2815,11 +2815,11 @@ pub fn render_app_html() -> &'static str {
             </div>
             <div class="form-group">
                 <label class="form-label">Unternehmen</label>
-                <input type="text" id="nc-company" class="form-input" placeholder="z.B. Koch Sanitär GmbH">
+                <input type="text" id="nc-company" class="form-input" placeholder="z.B. SHK Haustechnik Rhein-Neckar GmbH">
             </div>
             <div class="form-group">
                 <label class="form-label">E-Mail</label>
-                <input type="email" id="nc-email" class="form-input" placeholder="stefan@koch-sanitaer.de">
+                <input type="email" id="nc-email" class="form-input" placeholder="s.koch@shk-rhein-neckar-demo.de">
             </div>
             <div class="form-group">
                 <label class="form-label">Telefon</label>
@@ -2939,13 +2939,13 @@ pub fn render_app_html() -> &'static str {
             <div class="modal-header">
                 <div>
                     <span class="modal-title">Conrad OS · System-Module &amp; Workspaces</span>
-                    <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Alle Fachmodule laufen nativ in einer Rust-Engine und einer SQLite-Datenbank</div>
+                    <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Alle Fachmodule laufen nativ in einer zentralen Engine und einer SQLite-Datenbank</div>
                 </div>
                 <button class="modal-close-btn" onclick="closeModal('odooAppMatrixModal')">✕</button>
             </div>
             <div class="app-matrix-grid" id="appMatrixGridContainer"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color);">
-                <span style="font-size:11.5px; color:var(--text-muted);">Conrad OS Native Modul-Architektur · 100 % Pure Rust · Single-DB</span>
+                <span style="font-size:11.5px; color:var(--text-muted);">Conrad OS Native Modul-Architektur · High-Speed Native · Single-DB</span>
                 <button class="btn btn-primary" onclick="closeModal('odooAppMatrixModal'); switchView('plugins');">+ Modul-Architektur öffnen</button>
             </div>
         </div>
@@ -4007,8 +4007,8 @@ pub fn render_app_html() -> &'static str {
 
             const nba = document.getElementById('cd-ai-nba');
             if (nba) {
-                if ((c.name || '').includes('Gruia')) {
-                    nba.innerText = 'Bestandsmieter Halmhuberstraße 10 (Mannheim). Cashflow +53,00 €/Mo. stabil. Nebenkostenabrechnung im DMS-Tresor hinterlegt.';
+                if ((c.tags || '').includes('Handwerk')) {
+                    nba.innerText = 'Aktiver Handwerksbetrieb im Demo-Mandat (Rhein-Neckar). Angebots-Pipeline und Wartungs-Retainer im DMS-Tresor hinterlegt.';
                 } else if (c.status === 'customer') {
                     nba.innerText = 'Aktives Retainer-Mandat. Alle KI-Pipelines laufen fehlerfrei. Nächster Quartals-Check-in im Kalender terminiert.';
                 } else {
@@ -4673,7 +4673,7 @@ pub fn render_app_html() -> &'static str {
             // Append loading indicator
             const aiMsg = document.createElement('div');
             aiMsg.style.cssText = 'align-self:flex-start; max-width:85%; padding:12px 16px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px 12px 12px 2px; font-size:13px; line-height:1.6; color:var(--text-primary);';
-            aiMsg.innerHTML = '<em>⚡ Qwen Copilot generiert Antwort...</em>';
+            aiMsg.innerHTML = '<em>⚡ Conrad KI Engine generiert Antwort...</em>';
             hist.appendChild(aiMsg);
             hist.scrollTop = hist.scrollHeight;
 
