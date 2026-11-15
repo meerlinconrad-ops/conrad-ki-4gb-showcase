@@ -58,7 +58,7 @@ async def run_playwright():
         await page.screenshot(path=f"{OUT_DIR}/twenty_settings_datamodel.png")
         await page.get_by_text("APIs & Webhooks").click()
         await page.wait_for_selector("#gqlEditor", timeout=5000)
-        await page.get_by_role("button", name="Execute GraphQL").click()
+        await page.locator("#runGqlBtn").click()
         await page.wait_for_timeout(700)
         gql_txt = await page.locator("#gqlOut").inner_text()
         assert "totalCount" in gql_txt, f"GraphQL output unexpected: {gql_txt[:150]}"
@@ -109,7 +109,7 @@ async def run_playwright():
         ndv_out = await pn.locator("#ndvOutBody").inner_text()
         assert "Noch keine Daten" not in ndv_out, "NDV Test step returned empty output!"
         await pn.screenshot(path=f"{OUT_DIR}/n8n_ndv_modal.png")
-        await pn.get_by_text("Back to canvas").click()
+        await pn.locator("#ndvBackBtn").click()
         await pn.wait_for_timeout(200)
 
         # Open Overview (58 workflows)

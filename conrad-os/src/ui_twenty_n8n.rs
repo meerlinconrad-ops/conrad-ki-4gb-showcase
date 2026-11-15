@@ -460,50 +460,50 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
 
     <div class="t-nav-scroll">
       <button class="t-nav-item" onclick="openCmd()">
-        <span class="t-nav-left"><span id="icSearch"></span><span>Search</span></span>
+        <span class="t-nav-left"><span id="icSearch"></span><span>Suche</span></span>
         <span class="t-kbd">⌘K</span>
       </button>
       <button class="t-nav-item" onclick="openAiDrawer()">
-        <span class="t-nav-left"><span id="icSparkles"></span><span>Ask AI</span></span>
+        <span class="t-nav-left"><span id="icSparkles"></span><span>KI fragen</span></span>
         <span class="t-kbd">⌘J</span>
       </button>
       <button class="t-nav-item" id="nav-settings" onclick="openSettings('data-model')">
-        <span class="t-nav-left"><span id="icSettings"></span><span>Settings</span></span>
+        <span class="t-nav-left"><span id="icSettings"></span><span>Einstellungen</span></span>
       </button>
 
-      <div class="t-nav-section"><span>Favorites</span></div>
+      <div class="t-nav-section"><span>Favoriten</span></div>
       <button class="t-nav-item" id="fav-all" onclick="applyFavorite('all-companies')">
-        <span class="t-nav-left"><span id="icFav1"></span><span>All Companies</span></span>
+        <span class="t-nav-left"><span id="icFav1"></span><span>Alle Unternehmen</span></span>
       </button>
       <button class="t-nav-item" id="fav-icp" onclick="applyFavorite('icp-companies')">
-        <span class="t-nav-left"><span id="icFav2"></span><span>ICP Companies</span></span>
+        <span class="t-nav-left"><span id="icFav2"></span><span>ICP-Unternehmen</span></span>
       </button>
       <button class="t-nav-item" id="fav-stage" onclick="applyFavorite('by-stage')">
-        <span class="t-nav-left"><span id="icFav3"></span><span>By Stage</span></span>
+        <span class="t-nav-left"><span id="icFav3"></span><span>Nach Phase</span></span>
       </button>
       <button class="t-nav-item" id="fav-tasks" onclick="applyFavorite('my-tasks')">
-        <span class="t-nav-left"><span id="icFav4"></span><span>My Tasks</span></span>
+        <span class="t-nav-left"><span id="icFav4"></span><span>Meine Aufgaben</span></span>
       </button>
 
-      <div class="t-nav-section"><span>Workspace</span></div>
+      <div class="t-nav-section"><span>Arbeitsbereich</span></div>
       <button class="t-nav-item active" id="nav-companies" onclick="setObject('companies')">
-        <span class="t-nav-left"><span id="icObjComp"></span><span>Companies</span></span>
+        <span class="t-nav-left"><span id="icObjComp"></span><span>Unternehmen</span></span>
         <span class="t-nav-count" id="cnt-companies">—</span>
       </button>
       <button class="t-nav-item" id="nav-people" onclick="setObject('people')">
-        <span class="t-nav-left"><span id="icObjPeo"></span><span>People</span></span>
+        <span class="t-nav-left"><span id="icObjPeo"></span><span>Kontakte</span></span>
         <span class="t-nav-count" id="cnt-people">—</span>
       </button>
       <button class="t-nav-item" id="nav-opportunities" onclick="setObject('opportunities')">
-        <span class="t-nav-left"><span id="icObjOpp"></span><span>Opportunities</span></span>
+        <span class="t-nav-left"><span id="icObjOpp"></span><span>Verkaufschancen</span></span>
         <span class="t-nav-count" id="cnt-opportunities">—</span>
       </button>
       <button class="t-nav-item" id="nav-tasks" onclick="setObject('tasks')">
-        <span class="t-nav-left"><span id="icObjTask"></span><span>Tasks</span></span>
+        <span class="t-nav-left"><span id="icObjTask"></span><span>Aufgaben</span></span>
         <span class="t-nav-count" id="cnt-tasks">—</span>
       </button>
       <button class="t-nav-item" id="nav-notes" onclick="setObject('notes')">
-        <span class="t-nav-left"><span id="icObjNote"></span><span>Notes</span></span>
+        <span class="t-nav-left"><span id="icObjNote"></span><span>Notizen</span></span>
         <span class="t-nav-count" id="cnt-notes">—</span>
       </button>
       <a class="t-nav-item" href="/n8n">
@@ -514,11 +514,11 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
 
     <div class="t-drawer-foot">
       <div class="t-foot-row">
-        <span style="display:inline-flex;align-items:center;gap:5px;"><span class="t-status-dot"></span><span>Rust Core · SQLite WAL</span></span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span class="t-status-dot"></span><span>Rust-Kern · SQLite WAL</span></span>
         <button class="t-icon-btn" onclick="toggleTheme()" id="themeBtn" title="Light / Dark Theme"></button>
       </div>
       <a href="/showcase" style="color:var(--t-text-tertiary);display:flex;justify-content:space-between;align-items:center;">
-        <span>5.000€ → 20€ Architecture</span>
+        <span>5.000 € → 20 € Architektur</span>
         <span>↗</span>
       </a>
     </div>
@@ -532,8 +532,8 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
         <div class="t-breadcrumb" id="hdrBreadcrumb"></div>
       </div>
       <div class="t-hdr-right">
-        <button class="t-btn" onclick="openCreateModal()"><span id="icPlusHdr"></span><span>New<span class="t-hide-xs"> record</span></span></button>
-        <button class="t-btn-subtle" onclick="openAiDrawer()"><span id="icAiHdr"></span><span class="t-hide-xs">Ask AI</span></button>
+        <button class="t-btn" onclick="openCreateModal()"><span id="icPlusHdr"></span><span>Neu<span class="t-hide-xs">er Eintrag</span></span></button>
+        <button class="t-btn-subtle" onclick="openAiDrawer()"><span id="icAiHdr"></span><span class="t-hide-xs">KI fragen</span></button>
         <a class="t-btn-subtle" href="/n8n"><span>n8n</span></a>
       </div>
     </header>
@@ -543,7 +543,7 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
       <div class="t-vb-left">
         <button class="t-view-trigger" onclick="togglePop('viewPop')">
           <span id="viewIcon"></span>
-          <span id="viewName">All Companies</span>
+          <span id="viewName">Alle Unternehmen</span>
           <span class="t-view-count" id="viewCount"></span>
           <span id="viewChev"></span>
         </button>
@@ -553,26 +553,26 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
       <div class="t-vb-right">
         <div class="t-search-wrap">
           <span id="icSearchInline"></span>
-          <input class="t-search-inline" id="inlineSearch" placeholder="Search..." oninput="onSearchInput()">
+          <input class="t-search-inline" id="inlineSearch" placeholder="Suchen..." oninput="onSearchInput()">
         </div>
         <button class="t-btn-subtle" id="filterBtn" onclick="togglePop('filterPop')"><span id="icFilter"></span><span>Filter</span></button>
-        <button class="t-btn-subtle" id="sortBtn" onclick="togglePop('sortPop')"><span id="icSort"></span><span>Sort</span></button>
-        <button class="t-btn-subtle" id="optBtn" onclick="togglePop('optPop')"><span id="icOptions"></span><span>Options</span></button>
+        <button class="t-btn-subtle" id="sortBtn" onclick="togglePop('sortPop')"><span id="icSort"></span><span>Sortieren</span></button>
+        <button class="t-btn-subtle" id="optBtn" onclick="togglePop('optPop')"><span id="icOptions"></span><span>Optionen</span></button>
 
         <div class="t-popover" id="filterPop">
-          <div class="t-pop-title">Filters</div>
+          <div class="t-pop-title">Filter</div>
           <div id="filterPopItems"></div>
         </div>
         <div class="t-popover" id="sortPop">
-          <div class="t-pop-title">Sort by</div>
+          <div class="t-pop-title">Sortieren nach</div>
           <div id="sortPopItems"></div>
         </div>
         <div class="t-popover" id="optPop">
-          <div class="t-pop-title">View Options</div>
-          <button class="t-pop-item" onclick="exportCurrentCsv();closePops()"><span>Export CSV (current view)</span></button>
-          <button class="t-pop-item" onclick="exportCurrentJson();closePops()"><span>Export JSON</span></button>
-          <button class="t-pop-item" onclick="syncSqlDump();closePops()"><span>Sync SQLite from PostgreSQL dump</span></button>
-          <button class="t-pop-item" onclick="openSettings('apis');closePops()"><span>GraphQL &amp; REST APIs</span></button>
+          <div class="t-pop-title">Ansichtsoptionen</div>
+          <button class="t-pop-item" onclick="exportCurrentCsv();closePops()"><span>CSV exportieren (aktuelle Ansicht)</span></button>
+          <button class="t-pop-item" onclick="exportCurrentJson();closePops()"><span>JSON exportieren</span></button>
+          <button class="t-pop-item" onclick="syncSqlDump();closePops()"><span>SQLite aus PostgreSQL-Dump synchronisieren</span></button>
+          <button class="t-pop-item" onclick="openSettings('apis');closePops()"><span>GraphQL- &amp; REST-APIs</span></button>
         </div>
       </div>
     </div>
@@ -584,11 +584,11 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
     <div id="stageContainer" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;"></div>
 
     <div class="t-pagination" id="paginationBar">
-      <div id="pagLeft">Showing 0–0 of 0</div>
+      <div id="pagLeft">Zeige 0–0 von 0</div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <button class="t-btn" id="prevBtn" onclick="prevPage()">‹ Prev</button>
-        <span id="pageLabel">Page 1 / 1</span>
-        <button class="t-btn" id="nextBtn" onclick="nextPage()">Next ›</button>
+        <button class="t-btn" id="prevBtn" onclick="prevPage()">‹ Zurück</button>
+        <span id="pageLabel">Seite 1 / 1</span>
+        <button class="t-btn" id="nextBtn" onclick="nextPage()">Weiter ›</button>
       </div>
     </div>
   </main>
@@ -610,11 +610,11 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
     </div>
   </div>
   <div class="t-rd-tabs" id="rdTabs">
-    <button class="t-rd-tab active" onclick="setRdTab('timeline',this)">Timeline</button>
-    <button class="t-rd-tab" onclick="setRdTab('tasks',this)">Tasks</button>
-    <button class="t-rd-tab" onclick="setRdTab('notes',this)">Notes</button>
-    <button class="t-rd-tab" onclick="setRdTab('relations',this)">Relations</button>
-    <button class="t-rd-tab" onclick="setRdTab('ai',this)">AI Drafts</button>
+    <button class="t-rd-tab active" onclick="setRdTab('timeline',this)">Zeitleiste</button>
+    <button class="t-rd-tab" onclick="setRdTab('tasks',this)">Aufgaben</button>
+    <button class="t-rd-tab" onclick="setRdTab('notes',this)">Notizen</button>
+    <button class="t-rd-tab" onclick="setRdTab('relations',this)">Verknüpfungen</button>
+    <button class="t-rd-tab" onclick="setRdTab('ai',this)">KI-Entwürfe</button>
   </div>
   <div class="t-rd-body" id="rdBody"></div>
 </aside>
@@ -624,7 +624,7 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
   <div class="t-rd-hdr">
     <div style="display:flex;align-items:center;gap:8px;">
       <span id="icAiDrawer"></span>
-      <span style="font-weight:600;font-size:14px;">Ask AI</span>
+      <span style="font-weight:600;font-size:14px;">KI fragen</span>
       <span class="t-tag t-tag-purple">draftOnly</span>
     </div>
     <button class="t-icon-btn" onclick="closeAiDrawer()" id="aiCloseBtn"></button>
@@ -638,17 +638,17 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
     </select>
   </div>
   <div class="t-chat-msgs" id="aiMsgs">
-    <div class="t-bubble"><strong>Twenty AI Copilot (Pure Rust)</strong><br>Ich führe Tool-Calls direkt gegen SQLite aus (Suchen, Tasks/Notizen anlegen, Stage verschieben, E-Mail-Entwürfe mit <code>draftOnly: true</code>).</div>
+    <div class="t-bubble"><strong>Twenty KI-Copilot (Pure Rust)</strong><br>Ich führe Tool-Calls direkt gegen SQLite aus (Suchen, Aufgaben/Notizen anlegen, Phase verschieben, E-Mail-Entwürfe mit <code>draftOnly: true</code>).</div>
   </div>
   <div class="t-chat-foot">
     <div style="display:flex;gap:5px;flex-wrap:wrap;">
-      <button class="t-btn" style="height:24px;font-size:11.5px;" onclick="quickAi('Zeige Top ICP Firmen')">Top ICP Firmen</button>
-      <button class="t-btn" style="height:24px;font-size:11.5px;" onclick="quickAi('Erstelle Task: Ohrladen anrufen morgen um 10:00')">+ Task morgen</button>
+      <button class="t-btn" style="height:24px;font-size:11.5px;" onclick="quickAi('Zeige Top ICP Firmen')">Top-ICP-Firmen</button>
+      <button class="t-btn" style="height:24px;font-size:11.5px;" onclick="quickAi('Erstelle Task: Ohrladen anrufen morgen um 10:00')">+ Aufgabe morgen</button>
       <button class="t-btn" style="height:24px;font-size:11.5px;" onclick="quickAi('Suche Firma Ohrladen und fasse zusammen')">Suche Ohrladen</button>
     </div>
     <div style="display:flex;gap:6px;">
       <input id="aiInput" placeholder="Frage stellen oder Aktion ausführen..." style="flex:1;height:34px;padding:0 10px;border:1px solid var(--t-border-strong);border-radius:6px;background:var(--t-bg-primary);outline:none;" onkeydown="if(event.key==='Enter')sendAi()">
-      <button class="t-btn t-btn-primary" style="height:34px;padding:0 14px;" onclick="sendAi()">Run</button>
+      <button class="t-btn t-btn-primary" style="height:34px;padding:0 14px;" onclick="sendAi()">Ausführen</button>
     </div>
   </div>
 </aside>
@@ -658,7 +658,7 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
   <div class="t-modal">
     <div style="padding:10px 14px;border-bottom:1px solid var(--t-border);display:flex;align-items:center;gap:8px;">
       <span id="icCmdSearch"></span>
-      <input id="cmdInput" placeholder="Search records, views, settings or run command..." style="flex:1;border:none;outline:none;background:transparent;font-size:13.5px;" oninput="runCmdSearch()">
+      <input id="cmdInput" placeholder="Einträge, Ansichten, Einstellungen oder Befehl suchen..." style="flex:1;border:none;outline:none;background:transparent;font-size:13.5px;" oninput="runCmdSearch()">
       <span class="t-kbd">ESC</span>
     </div>
     <div id="cmdResults" style="max-height:360px;overflow-y:auto;padding:6px;"></div>
@@ -669,13 +669,13 @@ table.t-grid tfoot td.sticky-col, table.t-grid tfoot td.sticky-chk { z-index: 14
 <div class="t-backdrop" id="createBackdrop" onclick="if(event.target===this)closeCreateModal()">
   <div class="t-modal" style="width:460px;">
     <div style="padding:12px 16px;border-bottom:1px solid var(--t-border);display:flex;justify-content:space-between;align-items:center;">
-      <strong id="createTitle">New record</strong>
+      <strong id="createTitle">Neuer Eintrag</strong>
       <button class="t-icon-btn" onclick="closeCreateModal()">×</button>
     </div>
     <div id="createFields" style="padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
     <div style="padding:10px 16px;border-top:1px solid var(--t-border);display:flex;justify-content:flex-end;gap:8px;background:var(--t-bg-secondary);">
-      <button class="t-btn" onclick="closeCreateModal()">Cancel</button>
-      <button class="t-btn t-btn-primary" onclick="submitCreateModal()">Create record</button>
+      <button class="t-btn" onclick="closeCreateModal()">Abbrechen</button>
+      <button class="t-btn t-btn-primary" onclick="submitCreateModal()">Eintrag erstellen</button>
     </div>
   </div>
 </div>
@@ -730,6 +730,11 @@ const STAGE_CLASS = {
   NEW: 't-tag-blue', SCREENING: 't-tag-purple', MEETING: 't-tag-amber',
   PROPOSAL: 't-tag-cyan', CUSTOMER: 't-tag-green'
 };
+const STAGE_LABEL = {
+  NEW: 'Neu', SCREENING: 'Qualifizierung', MEETING: 'Termin',
+  PROPOSAL: 'Angebot', CUSTOMER: 'Kunde'
+};
+window.STAGE_LABEL = STAGE_LABEL;
 
 const state = {
   workspace: window.location.hostname.startsWith('pala.') ? 'pala' : 'conrad-ki',
@@ -840,7 +845,7 @@ function cycleWorkspace() {
   loadCurrentView();
 }
 function updateWsBadge() {
-  const names = { 'conrad-ki': 'Conrad KI', 'pala': 'Pala Marketing', 'all': 'All Workspaces' };
+  const names = { 'conrad-ki': 'Conrad KI', 'pala': 'Pala Marketing', 'all': 'Alle Arbeitsbereiche' };
   const badges = { 'conrad-ki': 'CK', 'pala': 'PM', 'all': '20' };
   document.getElementById('wsLabel').textContent = names[state.workspace] || state.workspace;
   document.getElementById('wsBadge').textContent = badges[state.workspace] || '20';
@@ -914,17 +919,18 @@ function updateNavHighlights() {
 
 function renderHeaderAndViewBar() {
   const objMeta = {
-    companies: { label: 'Companies', icon: ICONS.building },
-    people: { label: 'People', icon: ICONS.user },
-    opportunities: { label: 'Opportunities', icon: ICONS.target },
-    tasks: { label: 'Tasks', icon: ICONS.checkbox },
-    notes: { label: 'Notes', icon: ICONS.notes }
+    companies: { label: 'Unternehmen', icon: ICONS.building },
+    people: { label: 'Kontakte', icon: ICONS.user },
+    opportunities: { label: 'Verkaufschancen', icon: ICONS.target },
+    tasks: { label: 'Aufgaben', icon: ICONS.checkbox },
+    notes: { label: 'Notizen', icon: ICONS.notes }
   };
   const vb = document.getElementById('tViewBar');
   const pb = document.getElementById('paginationBar');
 
   if (state.mode === 'settings') {
-    document.getElementById('hdrBreadcrumb').innerHTML = `${ICONS.settings} <span>Settings</span> <span style="color:var(--t-text-tertiary);font-weight:400;">/</span> <span style="font-weight:500;">${esc(state.settingsSection)}</span>`;
+    const sLbl = { profile: 'Profil', experience: 'Darstellung', 'data-model': 'Datenmodell', apis: 'APIs & Webhooks' };
+    document.getElementById('hdrBreadcrumb').innerHTML = `${ICONS.settings} <span>Einstellungen</span> <span style="color:var(--t-text-tertiary);font-weight:400;">/</span> <span style="font-weight:500;">${esc(sLbl[state.settingsSection] || state.settingsSection)}</span>`;
     vb.style.display = 'none';
     pb.style.display = 'none';
     document.getElementById('chipsBar').classList.remove('visible');
@@ -937,41 +943,41 @@ function renderHeaderAndViewBar() {
   document.getElementById('hdrBreadcrumb').innerHTML = `${m.icon} <span>${m.label}</span>`;
 
   const viewLabels = {
-    'all-companies': 'All Companies',
-    'icp-companies': 'ICP Companies',
-    'domain-companies': 'With Website',
-    'rhein-neckar': 'Rhein-Neckar ICP',
-    'by-stage': 'By Stage',
-    'all-opps': 'All Opportunities',
-    'all-tasks': 'All Tasks',
-    'by-status': 'By Status',
-    'all-people': 'All People',
-    'all-notes': 'All Notes'
+    'all-companies': 'Alle Unternehmen',
+    'icp-companies': 'ICP-Unternehmen',
+    'domain-companies': 'Mit Website',
+    'rhein-neckar': 'Rhein-Neckar-ICP',
+    'by-stage': 'Nach Phase',
+    'all-opps': 'Alle Verkaufschancen',
+    'all-tasks': 'Alle Aufgaben',
+    'by-status': 'Nach Status',
+    'all-people': 'Alle Kontakte',
+    'all-notes': 'Alle Notizen'
   };
   document.getElementById('viewIcon').innerHTML = state.viewLayout === 'kanban' ? ICONS.kanban : ICONS.table;
-  document.getElementById('viewName').textContent = viewLabels[state.viewPreset] || ('All ' + m.label);
+  document.getElementById('viewName').textContent = viewLabels[state.viewPreset] || ('Alle ' + m.label);
   document.getElementById('viewCount').textContent = '· ' + fmtNum(state.totalCount);
 
   // Build View Popover
   const viewsByObj = {
     companies: [
-      { id: 'all-companies', label: 'All Companies', layout: 'table' },
-      { id: 'icp-companies', label: 'ICP Companies', layout: 'table' },
-      { id: 'domain-companies', label: 'Companies with Website', layout: 'table' },
-      { id: 'rhein-neckar', label: 'Rhein-Neckar Region', layout: 'table' }
+      { id: 'all-companies', label: 'Alle Unternehmen', layout: 'table' },
+      { id: 'icp-companies', label: 'ICP-Unternehmen', layout: 'table' },
+      { id: 'domain-companies', label: 'Unternehmen mit Website', layout: 'table' },
+      { id: 'rhein-neckar', label: 'Region Rhein-Neckar', layout: 'table' }
     ],
     opportunities: [
-      { id: 'by-stage', label: 'By Stage (Kanban)', layout: 'kanban' },
-      { id: 'all-opps', label: 'All Opportunities (Table)', layout: 'table' }
+      { id: 'by-stage', label: 'Nach Phase (Kanban)', layout: 'kanban' },
+      { id: 'all-opps', label: 'Alle Verkaufschancen (Tabelle)', layout: 'table' }
     ],
     tasks: [
-      { id: 'all-tasks', label: 'All Tasks (Table)', layout: 'table' },
-      { id: 'by-status', label: 'By Status (Kanban)', layout: 'kanban' }
+      { id: 'all-tasks', label: 'Alle Aufgaben (Tabelle)', layout: 'table' },
+      { id: 'by-status', label: 'Nach Status (Kanban)', layout: 'kanban' }
     ],
-    people: [{ id: 'all-people', label: 'All People', layout: 'table' }],
-    notes: [{ id: 'all-notes', label: 'All Notes', layout: 'table' }]
+    people: [{ id: 'all-people', label: 'Alle Kontakte', layout: 'table' }],
+    notes: [{ id: 'all-notes', label: 'Alle Notizen', layout: 'table' }]
   };
-  document.getElementById('viewPop').innerHTML = `<div class="t-pop-title">Views</div>` + (viewsByObj[state.object] || []).map(v => `
+  document.getElementById('viewPop').innerHTML = `<div class="t-pop-title">Ansichten</div>` + (viewsByObj[state.object] || []).map(v => `
     <button class="t-pop-item" onclick="selectViewPreset('${v.id}','${v.layout}')">
       <span style="display:inline-flex;align-items:center;gap:6px;">${v.layout === 'kanban' ? ICONS.kanban : ICONS.table} ${esc(v.label)}</span>
       ${state.viewPreset === v.id ? '<span>✓</span>' : ''}
@@ -979,38 +985,39 @@ function renderHeaderAndViewBar() {
   `).join('');
 
   // Build Filter Popover
+  const tSt = { TODO: 'Offen', IN_PROGRESS: 'In Arbeit', DONE: 'Erledigt' };
   let fHtml = '';
   if (state.object === 'companies') {
-    fHtml += `<button class="t-pop-item" onclick="toggleFilter('icp', true)"><span>ICP is True</span><span>${state.filters.icp ? '✓' : ''}</span></button>`;
-    fHtml += `<button class="t-pop-item" onclick="toggleFilter('hasDomain', true)"><span>Domain is not empty</span><span>${state.filters.hasDomain ? '✓' : ''}</span></button>`;
+    fHtml += `<button class="t-pop-item" onclick="toggleFilter('icp', true)"><span>ICP ist Ja</span><span>${state.filters.icp ? '✓' : ''}</span></button>`;
+    fHtml += `<button class="t-pop-item" onclick="toggleFilter('hasDomain', true)"><span>Domain nicht leer</span><span>${state.filters.hasDomain ? '✓' : ''}</span></button>`;
   } else if (state.object === 'opportunities') {
     STAGES.forEach(s => {
-      fHtml += `<button class="t-pop-item" onclick="toggleFilter('stage', '${s}')"><span>Stage: ${s}</span><span>${state.filters.stage === s ? '✓' : ''}</span></button>`;
+      fHtml += `<button class="t-pop-item" onclick="toggleFilter('stage', '${s}')"><span>Phase: ${STAGE_LABEL[s] || s}</span><span>${state.filters.stage === s ? '✓' : ''}</span></button>`;
     });
   } else if (state.object === 'tasks') {
     ['TODO','IN_PROGRESS','DONE'].forEach(s => {
-      fHtml += `<button class="t-pop-item" onclick="toggleFilter('status', '${s}')"><span>Status: ${s}</span><span>${state.filters.status === s ? '✓' : ''}</span></button>`;
+      fHtml += `<button class="t-pop-item" onclick="toggleFilter('status', '${s}')"><span>Status: ${tSt[s] || s}</span><span>${state.filters.status === s ? '✓' : ''}</span></button>`;
     });
   }
-  fHtml += `<div style="border-top:1px solid var(--t-border);margin:4px 0;"></div><button class="t-pop-item" onclick="clearAllFilters()"><span>Reset filters</span></button>`;
+  fHtml += `<div style="border-top:1px solid var(--t-border);margin:4px 0;"></div><button class="t-pop-item" onclick="clearAllFilters()"><span>Filter zurücksetzen</span></button>`;
   document.getElementById('filterPopItems').innerHTML = fHtml;
 
   // Build Sort Popover
   const sorts = state.object === 'companies'
-    ? [['', 'Default (Updated ↓)'], ['name_asc', 'Name (A → Z)'], ['employees_desc', 'Employees (High → Low)'], ['arr_desc', 'ARR (High → Low)']]
-    : [['', 'Default (Updated ↓)']];
+    ? [['', 'Standard (Aktualisiert ↓)'], ['name_asc', 'Name (A → Z)'], ['employees_desc', 'Mitarbeiter (Absteigend)'], ['arr_desc', 'ARR (Absteigend)']]
+    : [['', 'Standard (Aktualisiert ↓)']];
   document.getElementById('sortPopItems').innerHTML = sorts.map(([val, lbl]) => `
     <button class="t-pop-item" onclick="setSort('${val}')"><span>${esc(lbl)}</span><span>${state.sort === val ? '✓' : ''}</span></button>
   `).join('');
 
   // Active chips bar
   const chips = [];
-  if (state.filters.icp) chips.push(`<span class="t-chip-filter">${ICONS.filter} <span>ICP</span> <strong>True</strong> <button onclick="toggleFilter('icp', true)">×</button></span>`);
-  if (state.filters.hasDomain) chips.push(`<span class="t-chip-filter">${ICONS.link} <span>Domain</span> <strong>Not empty</strong> <button onclick="toggleFilter('hasDomain', true)">×</button></span>`);
-  if (state.filters.stage) chips.push(`<span class="t-chip-filter">${ICONS.tag} <span>Stage</span> <strong>${esc(state.filters.stage)}</strong> <button onclick="toggleFilter('stage', '${esc(state.filters.stage)}')">×</button></span>`);
-  if (state.filters.status) chips.push(`<span class="t-chip-filter">${ICONS.checkbox} <span>Status</span> <strong>${esc(state.filters.status)}</strong> <button onclick="toggleFilter('status', '${esc(state.filters.status)}')">×</button></span>`);
-  if (state.sort) chips.push(`<span class="t-chip-filter">${ICONS.sort} <span>Sort</span> <strong>${esc(state.sort)}</strong> <button onclick="setSort('')">×</button></span>`);
-  if (state.q) chips.push(`<span class="t-chip-filter">${ICONS.search} <span>Contains</span> <strong>${esc(state.q)}</strong> <button onclick="clearSearch()">×</button></span>`);
+  if (state.filters.icp) chips.push(`<span class="t-chip-filter">${ICONS.filter} <span>ICP</span> <strong>Ja</strong> <button onclick="toggleFilter('icp', true)">×</button></span>`);
+  if (state.filters.hasDomain) chips.push(`<span class="t-chip-filter">${ICONS.link} <span>Domain</span> <strong>Nicht leer</strong> <button onclick="toggleFilter('hasDomain', true)">×</button></span>`);
+  if (state.filters.stage) chips.push(`<span class="t-chip-filter">${ICONS.tag} <span>Phase</span> <strong>${esc(STAGE_LABEL[state.filters.stage] || state.filters.stage)}</strong> <button onclick="toggleFilter('stage', '${esc(state.filters.stage)}')">×</button></span>`);
+  if (state.filters.status) chips.push(`<span class="t-chip-filter">${ICONS.checkbox} <span>Status</span> <strong>${esc(tSt[state.filters.status] || state.filters.status)}</strong> <button onclick="toggleFilter('status', '${esc(state.filters.status)}')">×</button></span>`);
+  if (state.sort) chips.push(`<span class="t-chip-filter">${ICONS.sort} <span>Sortierung</span> <strong>${esc(state.sort)}</strong> <button onclick="setSort('')">×</button></span>`);
+  if (state.q) chips.push(`<span class="t-chip-filter">${ICONS.search} <span>Enthält</span> <strong>${esc(state.q)}</strong> <button onclick="clearSearch()">×</button></span>`);
   const cb = document.getElementById('chipsBar');
   cb.innerHTML = chips.join('');
   cb.classList.toggle('visible', chips.length > 0);
@@ -1106,8 +1113,8 @@ function updatePagination() {
   const end = Math.min(state.offset + state.rows.length, state.totalCount);
   const page = Math.floor(state.offset / state.limit) + 1;
   const pages = Math.max(1, Math.ceil(state.totalCount / state.limit));
-  document.getElementById('pagLeft').textContent = `Showing ${fmtNum(start)}–${fmtNum(end)} of ${fmtNum(state.totalCount)}`;
-  document.getElementById('pageLabel').textContent = `Page ${page} / ${pages}`;
+  document.getElementById('pagLeft').textContent = `Zeige ${fmtNum(start)}–${fmtNum(end)} von ${fmtNum(state.totalCount)}`;
+  document.getElementById('pageLabel').textContent = `Seite ${page} / ${pages}`;
   document.getElementById('prevBtn').disabled = state.offset <= 0;
   document.getElementById('nextBtn').disabled = end >= state.totalCount;
 }
@@ -1128,12 +1135,12 @@ function renderTableView() {
   if (state.object === 'companies') {
     headCols += `<th class="sticky-col" style="width:250px;"><div class="t-th-inner">${ICONS.building}<span>Name</span></div></th>`
       + thCell('link', 'Domain', 190)
-      + thCell('user', 'Created By', 120)
-      + thCell('pin', 'City', 140)
-      + thCell('users', 'Employees', 100)
+      + thCell('user', 'Erstellt von', 120)
+      + thCell('pin', 'Stadt', 140)
+      + thCell('users', 'Mitarbeiter', 100)
       + thCell('euro', 'ARR', 105)
       + thCell('sparkles', 'ICP', 90)
-      + thCell('calendar', 'Creation date', 110);
+      + thCell('calendar', 'Erstellt am', 110);
 
     bodyRows = state.rows.map(c => {
       const dom = c.domainName?.primaryLinkUrl || '';
@@ -1147,7 +1154,7 @@ function renderTableView() {
         <td class="sticky-col" data-editable="1" data-obj="companies" data-id="${esc(c.id)}" data-field="name" data-val="${esc(c.name)}" onclick="focusCell(this)" ondblclick="startEditCell(this)">
           <div class="t-name-cell">
             <div class="t-name-main">${renderFavicon(dom, c.name)}<span class="t-name-text" onclick="event.stopPropagation();openRecord('companies','${esc(c.id)}')">${esc(c.name)}</span></div>
-            <button class="t-open-hover" onclick="event.stopPropagation();openRecord('companies','${esc(c.id)}')" title="Record öffnen">${ICONS.maximize}</button>
+            <button class="t-open-hover" onclick="event.stopPropagation();openRecord('companies','${esc(c.id)}')" title="Datensatz öffnen">${ICONS.maximize}</button>
           </div>
         </td>
         <td data-editable="1" data-obj="companies" data-id="${esc(c.id)}" data-field="domainUrl" data-val="${esc(dom)}" onclick="focusCell(this)" ondblclick="startEditCell(this)">
@@ -1158,7 +1165,7 @@ function renderTableView() {
         <td data-editable="1" data-obj="companies" data-id="${esc(c.id)}" data-field="employees" data-type="number" data-val="${c.employees ?? ''}" onclick="focusCell(this)" ondblclick="startEditCell(this)"><span class="t-num">${fmtNum(c.employees)}</span></td>
         <td data-editable="1" data-obj="companies" data-id="${esc(c.id)}" data-field="arrEur" data-type="number" data-val="${arrEur ? Math.round(arrEur) : ''}" onclick="focusCell(this)" ondblclick="startEditCell(this)"><span class="t-num">${fmtEur(arrEur)}</span></td>
         <td onclick="toggleCompanyIcp('${esc(c.id)}',${!c.idealCustomerProfile})" style="cursor:pointer;" title="Klicken zum Umschalten">
-          ${c.idealCustomerProfile ? '<span class="t-tag t-tag-green">True</span>' : '<span class="t-tag t-tag-gray">False</span>'}
+          ${c.idealCustomerProfile ? '<span class="t-tag t-tag-green">Ja</span>' : '<span class="t-tag t-tag-gray">Nein</span>'}
         </td>
         <td style="color:var(--t-text-secondary);">${fmtDate(c.createdAt)}</td>
       </tr>`;
@@ -1169,20 +1176,20 @@ function renderTableView() {
       : '—';
     const icpCnt = state.aggregates ? fmtNum(state.aggregates.icpCount) : '—';
     const sumArr = state.aggregates?.totalArrEur ? fmtEur(state.aggregates.totalArrEur) : '€0';
-    footRow += `<td class="sticky-col">Count all <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td>`
-      + `<td>Percent not empty <span class="t-agg-val">${pctDom}</span></td>`
+    footRow += `<td class="sticky-col">Alle zählen <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td>`
+      + `<td>% nicht leer <span class="t-agg-val">${pctDom}</span></td>`
       + `<td></td><td></td><td></td>`
-      + `<td style="text-align:right;">Sum <span class="t-agg-val">${sumArr}</span></td>`
-      + `<td>Count true <span class="t-agg-val">${icpCnt}</span></td><td></td>`;
+      + `<td style="text-align:right;">Summe <span class="t-agg-val">${sumArr}</span></td>`
+      + `<td>Anzahl Ja <span class="t-agg-val">${icpCnt}</span></td><td></td>`;
 
   } else if (state.object === 'people') {
     headCols += `<th class="sticky-col" style="width:230px;"><div class="t-th-inner">${ICONS.user}<span>Name</span></div></th>`
-      + thCell('mail', 'Email', 220)
-      + thCell('building', 'Company', 190)
-      + thCell('options', 'Job Title', 170)
-      + thCell('phone', 'Phone', 150)
-      + thCell('pin', 'City', 130)
-      + thCell('calendar', 'Creation date', 110);
+      + thCell('mail', 'E-Mail', 220)
+      + thCell('building', 'Unternehmen', 190)
+      + thCell('options', 'Position', 170)
+      + thCell('phone', 'Telefon', 150)
+      + thCell('pin', 'Stadt', 130)
+      + thCell('calendar', 'Erstellt am', 110);
 
     bodyRows = state.rows.map(p => {
       const [bg, fg] = colorFor(p.fullName);
@@ -1204,15 +1211,15 @@ function renderTableView() {
         <td style="color:var(--t-text-secondary);">${fmtDate(p.createdAt)}</td>
       </tr>`;
     }).join('');
-    footRow += `<td class="sticky-col">Count all <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td colspan="6"></td>`;
+    footRow += `<td class="sticky-col">Alle zählen <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td colspan="6"></td>`;
 
   } else if (state.object === 'opportunities') {
     headCols += `<th class="sticky-col" style="width:240px;"><div class="t-th-inner">${ICONS.target}<span>Name</span></div></th>`
-      + thCell('tag', 'Stage', 135)
-      + thCell('euro', 'Amount', 120)
-      + thCell('building', 'Company', 190)
-      + thCell('user', 'Point of Contact', 170)
-      + thCell('calendar', 'Close Date', 120);
+      + thCell('tag', 'Phase', 135)
+      + thCell('euro', 'Betrag', 120)
+      + thCell('building', 'Unternehmen', 190)
+      + thCell('user', 'Ansprechpartner', 170)
+      + thCell('calendar', 'Abschlussdatum', 120);
 
     bodyRows = state.rows.map(o => {
       const amt = o.amount?.amountEur || ((o.amount?.amountMicros || 0) / 1000000);
@@ -1226,7 +1233,7 @@ function renderTableView() {
         </td>
         <td>
           <select onchange="patchRecord('opportunities','${esc(o.id)}',{stage:this.value})" style="border:none;background:transparent;cursor:pointer;font-size:11.5px;font-weight:600;outline:none;">
-            ${STAGES.map(s => `<option value="${s}" ${o.stage===s?'selected':''}>${s}</option>`).join('')}
+            ${STAGES.map(s => `<option value="${s}" ${o.stage===s?'selected':''}>${STAGE_LABEL[s] || s}</option>`).join('')}
           </select>
         </td>
         <td data-editable="1" data-obj="opportunities" data-id="${esc(o.id)}" data-field="amountEur" data-type="number" data-val="${amt ? Math.round(amt) : ''}" onclick="focusCell(this)" ondblclick="startEditCell(this)"><span class="t-num">${fmtEur(amt)}</span></td>
@@ -1236,17 +1243,18 @@ function renderTableView() {
       </tr>`;
     }).join('');
     const totalAmt = state.rows.reduce((s, o) => s + (o.amount?.amountEur || ((o.amount?.amountMicros || 0) / 1000000)), 0);
-    footRow += `<td class="sticky-col">Count all <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td></td><td style="text-align:right;">Sum <span class="t-agg-val">${fmtEur(totalAmt)}</span></td><td colspan="3"></td>`;
+    footRow += `<td class="sticky-col">Alle zählen <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td></td><td style="text-align:right;">Summe <span class="t-agg-val">${fmtEur(totalAmt)}</span></td><td colspan="3"></td>`;
 
   } else if (state.object === 'tasks') {
-    headCols += `<th class="sticky-col" style="width:280px;"><div class="t-th-inner">${ICONS.checkbox}<span>Title</span></div></th>`
+    headCols += `<th class="sticky-col" style="width:280px;"><div class="t-th-inner">${ICONS.checkbox}<span>Titel</span></div></th>`
       + thCell('tag', 'Status', 135)
-      + thCell('calendar', 'Due Date', 120)
-      + thCell('building', 'Relations', 190)
-      + thCell('notes', 'Body', 260);
+      + thCell('calendar', 'Fällig am', 120)
+      + thCell('building', 'Verknüpfungen', 190)
+      + thCell('notes', 'Inhalt', 260);
 
     bodyRows = state.rows.map(t => {
       const done = t.status === 'DONE';
+      const tSt = { TODO: 'Offen', IN_PROGRESS: 'In Arbeit', DONE: 'Erledigt' };
       return `<tr>
         <td class="sticky-chk"><input type="checkbox" ${done ? 'checked' : ''} onchange="patchRecord('tasks','${esc(t.id)}',{status:this.checked?'DONE':'TODO'})"></td>
         <td class="sticky-col" data-editable="1" data-obj="tasks" data-id="${esc(t.id)}" data-field="title" data-val="${esc(t.title)}" onclick="focusCell(this)" ondblclick="startEditCell(this)">
@@ -1257,7 +1265,7 @@ function renderTableView() {
         </td>
         <td>
           <select onchange="patchRecord('tasks','${esc(t.id)}',{status:this.value})" style="border:none;background:transparent;cursor:pointer;font-size:11.5px;font-weight:600;outline:none;">
-            ${['TODO','IN_PROGRESS','DONE'].map(s => `<option value="${s}" ${t.status===s?'selected':''}>${s}</option>`).join('')}
+            ${['TODO','IN_PROGRESS','DONE'].map(s => `<option value="${s}" ${t.status===s?'selected':''}>${tSt[s] || s}</option>`).join('')}
           </select>
         </td>
         <td data-editable="1" data-obj="tasks" data-id="${esc(t.id)}" data-field="dueAt" data-val="${esc(fmtDate(t.dueAt)==='—'?'':fmtDate(t.dueAt))}" onclick="focusCell(this)" ondblclick="startEditCell(this)">${fmtDate(t.dueAt)}</td>
@@ -1265,14 +1273,14 @@ function renderTableView() {
         <td style="color:var(--t-text-secondary);">${esc((t.bodyMarkdown || '').slice(0, 70)) || '—'}</td>
       </tr>`;
     }).join('');
-    footRow += `<td class="sticky-col">Count all <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td colspan="4"></td>`;
+    footRow += `<td class="sticky-col">Alle zählen <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td colspan="4"></td>`;
 
   } else if (state.object === 'notes') {
-    headCols += `<th class="sticky-col" style="width:240px;"><div class="t-th-inner">${ICONS.notes}<span>Title</span></div></th>`
-      + thCell('notes', 'Body Preview', 380)
-      + thCell('building', 'Relations', 180)
-      + thCell('user', 'Created By', 120)
-      + thCell('calendar', 'Creation date', 110);
+    headCols += `<th class="sticky-col" style="width:240px;"><div class="t-th-inner">${ICONS.notes}<span>Titel</span></div></th>`
+      + thCell('notes', 'Textvorschau', 380)
+      + thCell('building', 'Verknüpfungen', 180)
+      + thCell('user', 'Erstellt von', 120)
+      + thCell('calendar', 'Erstellt am', 110);
 
     bodyRows = state.rows.map(n => `<tr>
       <td class="sticky-chk"><input type="checkbox" ${state.selectedIds.has(n.id) ? 'checked' : ''} onchange="toggleRowSelect('${esc(n.id)}',this.checked)"></td>
@@ -1287,7 +1295,7 @@ function renderTableView() {
       <td><span class="t-tag t-tag-gray">${esc(n.createdBy?.name || 'System')}</span></td>
       <td style="color:var(--t-text-secondary);">${fmtDate(n.createdAt)}</td>
     </tr>`).join('');
-    footRow += `<td class="sticky-col">Count all <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td colspan="4"></td>`;
+    footRow += `<td class="sticky-col">Alle zählen <span class="t-agg-val">${fmtNum(state.totalCount)}</span></td><td colspan="4"></td>`;
   }
 
   const colSpanCount = (state.object === 'companies' ? 9 : state.object === 'people' ? 8 : state.object === 'opportunities' ? 7 : 6);
@@ -1298,7 +1306,7 @@ function renderTableView() {
         ${bodyRows || `<tr><td colspan="${colSpanCount}" style="text-align:center;padding:32px;color:var(--t-text-tertiary);">Keine Datensätze gefunden.</td></tr>`}
         <tr class="t-add-row" onclick="openCreateModal()">
           <td class="sticky-chk">+</td>
-          <td class="sticky-col" colspan="${colSpanCount - 1}" style="font-size:12.5px;">+ Add new</td>
+          <td class="sticky-col" colspan="${colSpanCount - 1}" style="font-size:12.5px;">+ Neu hinzufügen</td>
         </tr>
       </tbody>
       <tfoot><tr>${footRow}</tr></tfoot>
@@ -1355,7 +1363,7 @@ async function patchRecord(obj, id, body) {
     body: JSON.stringify(body)
   });
   if (r.ok) {
-    toast('Saved ✓');
+    toast('Gespeichert ✓');
     await loadCurrentView();
     if (state.openRecord && state.openRecord.id === id) {
       const updated = state.rows.find(x => x.id === id);
@@ -1387,10 +1395,11 @@ function renderKanbanView() {
       const cards = state.rows.filter(o => o.stage === st);
       const sum = cards.reduce((s, o) => s + (o.amount?.amountEur || ((o.amount?.amountMicros || 0) / 1000000)), 0);
       const cls = STAGE_CLASS[st] || 't-tag-gray';
+      const lbl = (typeof STAGE_LABEL !== 'undefined' && STAGE_LABEL[st]) || st;
       return `<div class="t-kcol" ondragover="event.preventDefault()" ondrop="dropOpp(event,'${st}')">
         <div class="t-kcol-hdr">
           <div style="display:flex;align-items:center;gap:6px;">
-            <span class="t-tag ${cls}">${st}</span>
+            <span class="t-tag ${cls}">${lbl}</span>
             <span style="font-size:12px;color:var(--t-text-tertiary);">${cards.length}</span>
           </div>
           <span class="mono" style="font-size:11.5px;color:var(--t-text-secondary);">${sum ? fmtEur(sum) : ''}</span>
@@ -1414,11 +1423,12 @@ function renderKanbanView() {
   } else if (state.object === 'tasks') {
     const statuses = ['TODO','IN_PROGRESS','DONE'];
     const stCls = { TODO: 't-tag-gray', IN_PROGRESS: 't-tag-blue', DONE: 't-tag-green' };
+    const stLbl = { TODO: 'Offen', IN_PROGRESS: 'In Arbeit', DONE: 'Erledigt' };
     sc.innerHTML = `<div class="t-kanban">${statuses.map(st => {
       const cards = state.rows.filter(t => t.status === st);
       return `<div class="t-kcol" ondragover="event.preventDefault()" ondrop="dropTask(event,'${st}')">
         <div class="t-kcol-hdr">
-          <span class="t-tag ${stCls[st]}">${st}</span>
+          <span class="t-tag ${stCls[st]}">${stLbl[st] || st}</span>
           <span style="font-size:12px;color:var(--t-text-tertiary);">${cards.length}</span>
         </div>
         <div class="t-kcol-list">
@@ -1492,42 +1502,43 @@ async function deleteOpenRecord() {
 
 function renderRecordDrawer() {
   const { obj, id, row } = state.openRecord;
-  const title = obj === 'people' ? row.fullName : (row.name || row.title || 'Record');
+  const title = obj === 'people' ? row.fullName : (row.name || row.title || 'Datensatz');
   const dom = row.domainName?.primaryLinkUrl || '';
   document.getElementById('rdAvatar').innerHTML = renderFavicon(dom, title);
   document.getElementById('rdTitleInput').value = title || '';
-  const singularMap = { companies: 'company', people: 'person', opportunities: 'opportunity', tasks: 'task', notes: 'note' };
-  document.getElementById('rdSub').textContent = `${singularMap[obj] || obj} · ${id.slice(0, 12)} · Created ${fmtDate(row.createdAt)}`;
+  const singularMap = { companies: 'Unternehmen', people: 'Kontakt', opportunities: 'Verkaufschance', tasks: 'Aufgabe', notes: 'Notiz' };
+  document.getElementById('rdSub').textContent = `${singularMap[obj] || obj} · ${id.slice(0, 12)} · Erstellt am ${fmtDate(row.createdAt)}`;
 
+  const tSt = { TODO: 'Offen', IN_PROGRESS: 'In Arbeit', DONE: 'Erledigt' };
   const body = document.getElementById('rdBody');
   let propsHtml = '';
   if (obj === 'companies') {
     const arr = row.annualRecurringRevenue?.amountEur || ((row.annualRecurringRevenue?.amountMicros || 0) / 1000000);
     propsHtml = `
       <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.link} Domain</span><input class="t-prop-input" value="${esc(dom)}" onchange="patchRecord('companies','${esc(id)}',{domainUrl:this.value})"></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.pin} City</span><input class="t-prop-input" value="${esc(row.address?.addressCity||'')}" onchange="patchRecord('companies','${esc(id)}',{city:this.value})"></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.users} Employees</span><input class="t-prop-input" type="number" value="${row.employees ?? ''}" onchange="patchRecord('companies','${esc(id)}',{employees:Number(this.value||0)})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.pin} Stadt</span><input class="t-prop-input" value="${esc(row.address?.addressCity||'')}" onchange="patchRecord('companies','${esc(id)}',{city:this.value})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.users} Mitarbeiter</span><input class="t-prop-input" type="number" value="${row.employees ?? ''}" onchange="patchRecord('companies','${esc(id)}',{employees:Number(this.value||0)})"></div>
       <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.euro} ARR (EUR)</span><input class="t-prop-input" type="number" value="${arr ? Math.round(arr) : ''}" onchange="patchRecord('companies','${esc(id)}',{arrEur:Number(this.value||0)})"></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.sparkles} ICP</span><select class="t-prop-input" onchange="patchRecord('companies','${esc(id)}',{idealCustomerProfile:this.value==='true'})"><option value="true" ${row.idealCustomerProfile?'selected':''}>True</option><option value="false" ${!row.idealCustomerProfile?'selected':''}>False</option></select></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.sparkles} ICP</span><select class="t-prop-input" onchange="patchRecord('companies','${esc(id)}',{idealCustomerProfile:this.value==='true'})"><option value="true" ${row.idealCustomerProfile?'selected':''}>Ja</option><option value="false" ${!row.idealCustomerProfile?'selected':''}>Nein</option></select></div>
     `;
   } else if (obj === 'people') {
     propsHtml = `
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.mail} Email</span><input class="t-prop-input" value="${esc(row.emails?.primaryEmail||'')}" onchange="patchRecord('people','${esc(id)}',{email:this.value})"></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.phone} Phone</span><input class="t-prop-input" value="${esc(row.phones?.primaryPhoneNumber||'')}" onchange="patchRecord('people','${esc(id)}',{phone:this.value})"></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.options} Job Title</span><input class="t-prop-input" value="${esc(row.jobTitle||'')}" onchange="patchRecord('people','${esc(id)}',{jobTitle:this.value})"></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.pin} City</span><input class="t-prop-input" value="${esc(row.city||'')}" onchange="patchRecord('people','${esc(id)}',{city:this.value})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.mail} E-Mail</span><input class="t-prop-input" value="${esc(row.emails?.primaryEmail||'')}" onchange="patchRecord('people','${esc(id)}',{email:this.value})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.phone} Telefon</span><input class="t-prop-input" value="${esc(row.phones?.primaryPhoneNumber||'')}" onchange="patchRecord('people','${esc(id)}',{phone:this.value})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.options} Position</span><input class="t-prop-input" value="${esc(row.jobTitle||'')}" onchange="patchRecord('people','${esc(id)}',{jobTitle:this.value})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.pin} Stadt</span><input class="t-prop-input" value="${esc(row.city||'')}" onchange="patchRecord('people','${esc(id)}',{city:this.value})"></div>
     `;
   } else if (obj === 'opportunities') {
     const amt = row.amount?.amountEur || ((row.amount?.amountMicros || 0) / 1000000);
     propsHtml = `
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.tag} Stage</span><select class="t-prop-input" onchange="patchRecord('opportunities','${esc(id)}',{stage:this.value})">${STAGES.map(s=>`<option value="${s}" ${row.stage===s?'selected':''}>${s}</option>`).join('')}</select></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.euro} Amount (€)</span><input class="t-prop-input" type="number" value="${amt ? Math.round(amt) : ''}" onchange="patchRecord('opportunities','${esc(id)}',{amountEur:Number(this.value||0)})"></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.calendar} Close Date</span><input class="t-prop-input" value="${esc(fmtDate(row.closeDate)==='—'?'':fmtDate(row.closeDate))}" placeholder="YYYY-MM-DD" onchange="patchRecord('opportunities','${esc(id)}',{closeDate:this.value})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.tag} Phase</span><select class="t-prop-input" onchange="patchRecord('opportunities','${esc(id)}',{stage:this.value})">${STAGES.map(s=>`<option value="${s}" ${row.stage===s?'selected':''}>${STAGE_LABEL[s] || s}</option>`).join('')}</select></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.euro} Betrag (€)</span><input class="t-prop-input" type="number" value="${amt ? Math.round(amt) : ''}" onchange="patchRecord('opportunities','${esc(id)}',{amountEur:Number(this.value||0)})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.calendar} Abschlussdatum</span><input class="t-prop-input" value="${esc(fmtDate(row.closeDate)==='—'?'':fmtDate(row.closeDate))}" placeholder="YYYY-MM-DD" onchange="patchRecord('opportunities','${esc(id)}',{closeDate:this.value})"></div>
     `;
   } else if (obj === 'tasks') {
     propsHtml = `
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.checkbox} Status</span><select class="t-prop-input" onchange="patchRecord('tasks','${esc(id)}',{status:this.value})">${['TODO','IN_PROGRESS','DONE'].map(s=>`<option value="${s}" ${row.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
-      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.calendar} Due Date</span><input class="t-prop-input" value="${esc(fmtDate(row.dueAt)==='—'?'':fmtDate(row.dueAt))}" onchange="patchRecord('tasks','${esc(id)}',{dueAt:this.value})"></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.checkbox} Status</span><select class="t-prop-input" onchange="patchRecord('tasks','${esc(id)}',{status:this.value})">${['TODO','IN_PROGRESS','DONE'].map(s=>`<option value="${s}" ${row.status===s?'selected':''}>${tSt[s] || s}</option>`).join('')}</select></div>
+      <div class="t-prop-row"><span class="t-prop-lbl">${ICONS.calendar} Fällig am</span><input class="t-prop-input" value="${esc(fmtDate(row.dueAt)==='—'?'':fmtDate(row.dueAt))}" onchange="patchRecord('tasks','${esc(id)}',{dueAt:this.value})"></div>
       <div style="margin-top:8px;"><textarea class="t-prop-input" rows="5" style="border:1px solid var(--t-border);" onchange="patchRecord('tasks','${esc(id)}',{bodyMarkdown:this.value})">${esc(row.bodyMarkdown||'')}</textarea></div>
     `;
   } else if (obj === 'notes') {
@@ -1540,42 +1551,42 @@ function renderRecordDrawer() {
     tabHtml = `
       <div style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 0;">
         <button class="t-btn" data-prompt="${esc('Erstelle einen kurzen personalisierten Cold-Email-Entwurf fuer '+title+' (draftOnly).')}" onclick="triggerAiPromptAttr(this)">${ICONS.sparkles} E-Mail-Entwurf</button>
-        <button class="t-btn" data-prompt="${esc('Erstelle einen Follow-up Task fuer '+title+' morgen um 10:00.')}" onclick="triggerAiPromptAttr(this)">${ICONS.checkbox} Follow-up morgen</button>
+        <button class="t-btn" data-prompt="${esc('Erstelle eine Follow-up-Aufgabe fuer '+title+' morgen um 10:00.')}" onclick="triggerAiPromptAttr(this)">${ICONS.checkbox} Follow-up morgen</button>
       </div>
-      <div style="font-weight:600;font-size:12px;color:var(--t-text-secondary);">Activity &amp; Notes</div>
+      <div style="font-weight:600;font-size:12px;color:var(--t-text-secondary);">Aktivitäten &amp; Notizen</div>
       ${(tl.notes||[]).slice(0,5).map(n => `<div class="t-bubble"><strong>${esc(n.title)}</strong><div style="margin-top:3px;color:var(--t-text-secondary);">${esc((n.bodyMarkdown||'').slice(0,220))}</div></div>`).join('') || ''}
-      ${(tl.events||[]).slice(0,8).map(ev => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--t-border);display:flex;justify-content:space-between;"><span>${esc(ev.name)} · <span style="color:var(--t-text-secondary);">${esc(ev.details||'')}</span></span><span style="color:var(--t-text-tertiary);">${fmtDate(ev.happensAt)}</span></div>`).join('') || (!tl.notes?.length ? '<div style="color:var(--t-text-tertiary);font-size:12px;">Noch keine Timeline-Einträge.</div>' : '')}
+      ${(tl.events||[]).slice(0,8).map(ev => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--t-border);display:flex;justify-content:space-between;"><span>${esc(ev.name)} · <span style="color:var(--t-text-secondary);">${esc(ev.details||'')}</span></span><span style="color:var(--t-text-tertiary);">${fmtDate(ev.happensAt)}</span></div>`).join('') || (!tl.notes?.length ? '<div style="color:var(--t-text-tertiary);font-size:12px;">Noch keine Zeitleisten-Einträge.</div>' : '')}
     `;
   } else if (state.rdTab === 'tasks') {
     tabHtml = `
       <div style="display:flex;gap:6px;">
         <input id="rdNewTask" placeholder="Neue Aufgabe..." style="flex:1;height:30px;padding:0 8px;border:1px solid var(--t-border-strong);border-radius:5px;background:var(--t-bg-primary);">
-        <button class="t-btn t-btn-primary" style="height:30px;" onclick="addLinkedTask()">+ Add</button>
+        <button class="t-btn t-btn-primary" style="height:30px;" onclick="addLinkedTask()">+ Hinzufügen</button>
       </div>
       ${(tl.tasks||[]).map(t => `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 8px;border:1px solid var(--t-border);border-radius:6px;">
         <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" ${t.status==='DONE'?'checked':''} onchange="patchLinkedTask('${esc(t.id)}',this.checked)"><span>${esc(t.title)}</span></label>
-        <span class="t-tag t-tag-gray">${esc(t.status)}</span>
-      </div>`).join('') || '<div style="color:var(--t-text-tertiary);font-size:12px;">Keine Tasks verknüpft.</div>'}
+        <span class="t-tag t-tag-gray">${esc(tSt[t.status] || t.status)}</span>
+      </div>`).join('') || '<div style="color:var(--t-text-tertiary);font-size:12px;">Keine Aufgaben verknüpft.</div>'}
     `;
   } else if (state.rdTab === 'notes') {
     tabHtml = `
       <div style="display:flex;gap:6px;">
         <input id="rdNewNote" placeholder="Schnelle Notiz..." style="flex:1;height:30px;padding:0 8px;border:1px solid var(--t-border-strong);border-radius:5px;background:var(--t-bg-primary);">
-        <button class="t-btn t-btn-primary" style="height:30px;" onclick="addLinkedNote()">+ Add</button>
+        <button class="t-btn t-btn-primary" style="height:30px;" onclick="addLinkedNote()">+ Hinzufügen</button>
       </div>
       ${(tl.notes||[]).map(n => `<div class="t-bubble"><strong>${esc(n.title)}</strong><div style="margin-top:4px;color:var(--t-text-secondary);white-space:pre-wrap;">${esc((n.bodyMarkdown||'').slice(0,400))}</div></div>`).join('') || '<div style="color:var(--t-text-tertiary);font-size:12px;">Keine Notizen verknüpft.</div>'}
     `;
   } else if (state.rdTab === 'relations') {
     tabHtml = `
-      <div style="font-weight:600;font-size:12px;color:var(--t-text-secondary);">People (${(tl.people||[]).length})</div>
+      <div style="font-weight:600;font-size:12px;color:var(--t-text-secondary);">Kontakte (${(tl.people||[]).length})</div>
       ${(tl.people||[]).map(p => `<div class="t-kcard" onclick="openRecord('people','${esc(p.id)}')"><strong>${esc(p.fullName)}</strong><span style="font-size:12px;color:var(--t-text-secondary);">${esc(p.emails?.primaryEmail||p.jobTitle||'')}</span></div>`).join('') || '<div style="color:var(--t-text-tertiary);font-size:12px;">Keine Kontakte.</div>'}
-      <div style="font-weight:600;font-size:12px;color:var(--t-text-secondary);margin-top:8px;">Opportunities (${(tl.opportunities||[]).length})</div>
-      ${(tl.opportunities||[]).map(o => `<div class="t-kcard" onclick="openRecord('opportunities','${esc(o.id)}')"><strong>${esc(o.name)}</strong><span class="t-tag ${STAGE_CLASS[o.stage]||'t-tag-gray'}" style="width:fit-content;">${esc(o.stage)}</span></div>`).join('') || '<div style="color:var(--t-text-tertiary);font-size:12px;">Keine Opportunities.</div>'}
+      <div style="font-weight:600;font-size:12px;color:var(--t-text-secondary);margin-top:8px;">Verkaufschancen (${(tl.opportunities||[]).length})</div>
+      ${(tl.opportunities||[]).map(o => `<div class="t-kcard" onclick="openRecord('opportunities','${esc(o.id)}')"><strong>${esc(o.name)}</strong><span class="t-tag ${STAGE_CLASS[o.stage]||'t-tag-gray'}" style="width:fit-content;">${esc(STAGE_LABEL[o.stage] || o.stage)}</span></div>`).join('') || '<div style="color:var(--t-text-tertiary);font-size:12px;">Keine Verkaufschancen.</div>'}
     `;
   } else if (state.rdTab === 'ai') {
     tabHtml = `
-      <div class="t-bubble"><strong>AI Draft Mode (draftOnly: true)</strong><br>Der lokale Agent erstellt einen Entwurf und speichert ihn als CRM-Note — es wird niemals automatisch eine E-Mail versendet.</div>
-      <button class="t-btn t-btn-primary" data-prompt="${esc('Recherchiere '+title+' im CRM und erstelle eine Notiz mit einem personalisierten Kaltakquise-E-Mail-Entwurf.')}" onclick="triggerAiPromptAttr(this)">${ICONS.sparkles} Cold-Email-Entwurf generieren (0.6B)</button>
+      <div class="t-bubble"><strong>KI-Entwurfsmodus (draftOnly: true)</strong><br>Der lokale Agent erstellt einen Entwurf und speichert ihn als CRM-Notiz — es wird niemals automatisch eine E-Mail versendet.</div>
+      <button class="t-btn t-btn-primary" data-prompt="${esc('Recherchiere '+title+' im CRM und erstelle eine Notiz mit einem personalisierten Kaltakquise-E-Mail-Entwurf.')}" onclick="triggerAiPromptAttr(this)">${ICONS.sparkles} E-Mail-Entwurf generieren (0.6B)</button>
     `;
   }
 
@@ -1597,12 +1608,12 @@ async function addLinkedTask() {
   const payload = { title: txt, status: 'TODO', workspace: state.workspace };
   if (state.openRecord.obj === 'companies') payload.companyId = state.openRecord.id;
   await fetch('/api/twenty/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-  toast('Task erstellt ✓');
+  toast('Aufgabe erstellt ✓');
   openRecord(state.openRecord.obj, state.openRecord.id);
 }
 async function patchLinkedTask(tid, done) {
   await fetch(`/api/twenty/tasks/${encodeURIComponent(tid)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: done ? 'DONE' : 'TODO' }) });
-  toast('Task aktualisiert ✓');
+  toast('Aufgabe aktualisiert ✓');
 }
 function triggerAiPromptAttr(btn) {
   const p = btn?.dataset?.prompt; if (!p) return;
@@ -1636,37 +1647,37 @@ function renderSettingsView() {
   let bodyHtml = '';
   if (s === 'data-model') {
     bodyHtml = `
-      <h2 style="margin:0 0 4px;font-size:17px;">Data model</h2>
-      <p style="margin:0 0 16px;color:var(--t-text-secondary);">Standard &amp; Custom Objects in SQLite (<span class="mono">${esc(state.workspace)}</span>)</p>
+      <h2 style="margin:0 0 4px;font-size:17px;">Datenmodell</h2>
+      <p style="margin:0 0 16px;color:var(--t-text-secondary);">Standard- &amp; benutzerdefinierte Objekte in SQLite (<span class="mono">${esc(state.workspace)}</span>)</p>
       <div class="t-obj-grid">
         ${objs.map(o => `<div class="t-obj-tile ${activeObj && activeObj.namePlural === o.namePlural ? 'active' : ''}" onclick="state.activeMetaObj='${esc(o.namePlural)}';renderSettingsView()">
           <div style="display:flex;justify-content:space-between;align-items:center;"><strong>${esc(o.labelPlural)}</strong><span class="t-tag t-tag-gray">${fmtNum(o.recordCount)}</span></div>
-          <span class="mono" style="font-size:11px;color:var(--t-text-tertiary);">${esc(o.nameSingular)} · ${(o.fields||[]).length} fields</span>
+          <span class="mono" style="font-size:11px;color:var(--t-text-tertiary);">${esc(o.nameSingular)} · ${(o.fields||[]).length} Felder</span>
         </div>`).join('')}
       </div>
       ${activeObj ? `<div class="t-s-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <strong>${esc(activeObj.labelPlural)} · Fields Schema</strong>
-          <button class="t-btn" onclick="setObject('${esc(activeObj.namePlural)}')">Open in Workspace ↗</button>
+          <strong>${esc(activeObj.labelPlural)} · Feld-Schema</strong>
+          <button class="t-btn" onclick="setObject('${esc(activeObj.namePlural)}')">Im Arbeitsbereich öffnen ↗</button>
         </div>
         <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="border-bottom:1px solid var(--t-border);color:var(--t-text-tertiary);font-size:11.5px;text-align:left;"><th style="padding:6px;">Label</th><th style="padding:6px;">API Name</th><th style="padding:6px;">Type</th><th style="padding:6px;">Source</th></tr></thead>
+          <thead><tr style="border-bottom:1px solid var(--t-border);color:var(--t-text-tertiary);font-size:11.5px;text-align:left;"><th style="padding:6px;">Anzeigename</th><th style="padding:6px;">API-Name</th><th style="padding:6px;">Typ</th><th style="padding:6px;">Quelle</th></tr></thead>
           <tbody>
-            ${(activeObj.fields||[]).map(f => `<tr style="border-bottom:1px solid var(--t-border);"><td style="padding:7px 6px;font-weight:500;">${esc(f.label)}</td><td class="mono" style="padding:7px 6px;font-size:12px;">${esc(f.name)}</td><td style="padding:7px 6px;"><span class="t-tag t-tag-blue">${esc(f.type)}</span></td><td style="padding:7px 6px;color:var(--t-text-secondary);">${f.isCustom ? 'Custom' : 'Standard'}</td></tr>`).join('')}
+            ${(activeObj.fields||[]).map(f => `<tr style="border-bottom:1px solid var(--t-border);"><td style="padding:7px 6px;font-weight:500;">${esc(f.label)}</td><td class="mono" style="padding:7px 6px;font-size:12px;">${esc(f.name)}</td><td style="padding:7px 6px;"><span class="t-tag t-tag-blue">${esc(f.type)}</span></td><td style="padding:7px 6px;color:var(--t-text-secondary);">${f.isCustom ? 'Benutzerdefiniert' : 'Standard'}</td></tr>`).join('')}
           </tbody>
         </table>
       </div>` : ''}
     `;
   } else if (s === 'apis') {
     bodyHtml = `
-      <h2 style="margin:0 0 4px;font-size:17px;">APIs &amp; Webhooks · GraphQL Playground</h2>
-      <p style="margin:0 0 14px;color:var(--t-text-secondary);">Live GraphQL Endpoint: <span class="mono">/graphql</span> &amp; <span class="mono">/api/twenty/graphql</span> · REST: <span class="mono">/rest/*</span></p>
+      <h2 style="margin:0 0 4px;font-size:17px;">APIs &amp; Webhooks · GraphQL-Playground</h2>
+      <p style="margin:0 0 14px;color:var(--t-text-secondary);">Live-GraphQL-Endpunkt: <span class="mono">/graphql</span> &amp; <span class="mono">/api/twenty/graphql</span> · REST: <span class="mono">/rest/*</span></p>
       <div class="t-s-card">
         <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
-          <button class="t-btn" onclick="setGqlPreset('companies')">Companies Query</button>
-          <button class="t-btn" onclick="setGqlPreset('opportunities')">Opportunities Query</button>
-          <button class="t-btn" onclick="setGqlPreset('notes')">Notes Query</button>
-          <button class="t-btn t-btn-primary" style="margin-left:auto;" onclick="runGqlPlayground()">▶ Execute GraphQL</button>
+          <button class="t-btn" onclick="setGqlPreset('companies')">Unternehmen-Abfrage</button>
+          <button class="t-btn" onclick="setGqlPreset('opportunities')">Verkaufschancen-Abfrage</button>
+          <button class="t-btn" onclick="setGqlPreset('notes')">Notizen-Abfrage</button>
+          <button class="t-btn t-btn-primary" id="runGqlBtn" style="margin-left:auto;" onclick="runGqlPlayground()">▶ GraphQL ausführen</button>
         </div>
         <textarea id="gqlEditor" class="mono" rows="6" style="width:100%;padding:10px;border:1px solid var(--t-border-strong);border-radius:6px;background:var(--t-bg-secondary);font-size:12px;outline:none;">query {
   companies(first: 5) {
@@ -1674,44 +1685,44 @@ function renderSettingsView() {
     edges { node { id name domainName { primaryLinkUrl } address { addressCity } idealCustomerProfile } }
   }
 }</textarea>
-        <pre id="gqlOut" class="mono" style="margin:10px 0 0;padding:10px;border-radius:6px;background:var(--t-bg-tertiary);max-height:260px;overflow:auto;font-size:11.5px;">Klicke "Execute GraphQL"...</pre>
+        <pre id="gqlOut" class="mono" style="margin:10px 0 0;padding:10px;border-radius:6px;background:var(--t-bg-tertiary);max-height:260px;overflow:auto;font-size:11.5px;">Klicke „GraphQL ausführen“...</pre>
       </div>
     `;
   } else if (s === 'experience') {
     bodyHtml = `
-      <h2 style="margin:0 0 4px;font-size:17px;">Experience</h2>
-      <p style="margin:0 0 14px;color:var(--t-text-secondary);">Appearance &amp; Workspace Preferences</p>
+      <h2 style="margin:0 0 4px;font-size:17px;">Darstellung</h2>
+      <p style="margin:0 0 14px;color:var(--t-text-secondary);">Erscheinungsbild &amp; Arbeitsbereichs-Einstellungen</p>
       <div class="t-s-card" style="display:flex;align-items:center;justify-content:space-between;">
-        <div><strong>Appearance</strong><div style="font-size:12px;color:var(--t-text-secondary);">Switch between Twenty Light &amp; Dark theme</div></div>
-        <button class="t-btn" onclick="toggleTheme()">Toggle Light / Dark</button>
+        <div><strong>Erscheinungsbild</strong><div style="font-size:12px;color:var(--t-text-secondary);">Zwischen hellem und dunklem Design wechseln</div></div>
+        <button class="t-btn" onclick="toggleTheme()">Hell / Dunkel umschalten</button>
       </div>
       <div class="t-s-card" style="display:flex;align-items:center;justify-content:space-between;">
-        <div><strong>SQL Dump Synchronization</strong><div style="font-size:12px;color:var(--t-text-secondary);">Re-import Twenty CRM PostgreSQL dump into SQLite WAL</div></div>
-        <button class="t-btn" onclick="syncSqlDump()">Sync SQL Dump</button>
+        <div><strong>SQL-Dump-Synchronisierung</strong><div style="font-size:12px;color:var(--t-text-secondary);">PostgreSQL-Dump erneut in SQLite WAL importieren</div></div>
+        <button class="t-btn" onclick="syncSqlDump()">SQL-Dump synchronisieren</button>
       </div>
     `;
   } else {
     bodyHtml = `
-      <h2 style="margin:0 0 4px;font-size:17px;">Profile</h2>
-      <p style="margin:0 0 14px;color:var(--t-text-secondary);">Workspace Member &amp; Local AI Agent Defaults</p>
+      <h2 style="margin:0 0 4px;font-size:17px;">Profil</h2>
+      <p style="margin:0 0 14px;color:var(--t-text-secondary);">Arbeitsbereichs-Mitglied &amp; lokale KI-Agent-Standards</p>
       <div class="t-s-card">
         <div class="t-prop-row"><span class="t-prop-lbl">Name</span><span>Merlin Conrad</span></div>
-        <div class="t-prop-row"><span class="t-prop-lbl">Workspace</span><span class="mono">${esc(state.workspace)}</span></div>
+        <div class="t-prop-row"><span class="t-prop-lbl">Arbeitsbereich</span><span class="mono">${esc(state.workspace)}</span></div>
         <div class="t-prop-row"><span class="t-prop-lbl">Engine</span><span>Conrad Pure-Rust CRM + SQLite WAL</span></div>
-        <div class="t-prop-row"><span class="t-prop-lbl">Security Guard</span><span>draftOnly = true (No automatic email sending)</span></div>
+        <div class="t-prop-row"><span class="t-prop-lbl">Sicherheitsregel</span><span>draftOnly = true (Kein automatischer E-Mail-Versand)</span></div>
       </div>
     `;
   }
 
   sc.innerHTML = `<div class="t-settings-wrap">
     <div class="t-settings-nav">
-      <div class="t-nav-section" style="padding-top:2px;"><span>User</span></div>
-      <button class="t-nav-item ${s==='profile'?'active':''}" onclick="openSettings('profile')"><span class="t-nav-left">${ICONS.user}<span>Profile</span></span></button>
-      <button class="t-nav-item ${s==='experience'?'active':''}" onclick="openSettings('experience')"><span class="t-nav-left">${ICONS.sun}<span>Experience</span></span></button>
-      <div class="t-nav-section"><span>Workspace</span></div>
-      <button class="t-nav-item ${s==='data-model'?'active':''}" onclick="openSettings('data-model')"><span class="t-nav-left">${ICONS.database}<span>Data model</span></span></button>
+      <div class="t-nav-section" style="padding-top:2px;"><span>Benutzer</span></div>
+      <button class="t-nav-item ${s==='profile'?'active':''}" onclick="openSettings('profile')"><span class="t-nav-left">${ICONS.user}<span>Profil</span></span></button>
+      <button class="t-nav-item ${s==='experience'?'active':''}" onclick="openSettings('experience')"><span class="t-nav-left">${ICONS.sun}<span>Darstellung</span></span></button>
+      <div class="t-nav-section"><span>Arbeitsbereich</span></div>
+      <button class="t-nav-item ${s==='data-model'?'active':''}" onclick="openSettings('data-model')"><span class="t-nav-left">${ICONS.database}<span>Datenmodell</span></span></button>
       <button class="t-nav-item ${s==='apis'?'active':''}" onclick="openSettings('apis')"><span class="t-nav-left">${ICONS.code}<span>APIs &amp; Webhooks</span></span></button>
-      <div style="margin-top:auto;padding-top:12px;"><button class="t-btn" style="width:100%;justify-content:center;" onclick="setObject('companies')">← Back to CRM</button></div>
+      <div style="margin-top:auto;padding-top:12px;"><button class="t-btn" style="width:100%;justify-content:center;" onclick="setObject('companies')">← Zurück zum CRM</button></div>
     </div>
     <div class="t-settings-body">${bodyHtml}</div>
   </div>`;
@@ -1761,27 +1772,27 @@ async function sendAi() {
 function openCreateModal() {
   const cf = document.getElementById('createFields');
   if (state.object === 'companies') {
-    document.getElementById('createTitle').textContent = 'New Company';
+    document.getElementById('createTitle').textContent = 'Neues Unternehmen';
     cf.innerHTML = `<input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crName" placeholder="Firmenname *">
       <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crDom" placeholder="Domain (z.B. example.de)">
       <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crCity" placeholder="Stadt">`;
   } else if (state.object === 'people') {
-    document.getElementById('createTitle').textContent = 'New Person';
+    document.getElementById('createTitle').textContent = 'Neue Person';
     cf.innerHTML = `<input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crFirst" placeholder="Vorname *">
       <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crLast" placeholder="Nachname *">
       <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crEmail" placeholder="E-Mail">
-      <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crJob" placeholder="Job Title">`;
+      <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crJob" placeholder="Position">`;
   } else if (state.object === 'opportunities') {
-    document.getElementById('createTitle').textContent = 'New Opportunity';
+    document.getElementById('createTitle').textContent = 'Neue Verkaufschance';
     cf.innerHTML = `<input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crOppName" placeholder="Deal-Name *">
-      <select class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crOppStage">${STAGES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+      <select class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crOppStage">${STAGES.map(s=>`<option value="${s}">${(window.STAGE_LABEL && window.STAGE_LABEL[s]) || s}</option>`).join('')}</select>
       <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crOppAmt" type="number" placeholder="Wert (EUR)">`;
   } else if (state.object === 'tasks') {
-    document.getElementById('createTitle').textContent = 'New Task';
+    document.getElementById('createTitle').textContent = 'Neue Aufgabe';
     cf.innerHTML = `<input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crTaskTitle" placeholder="Aufgabentitel *">
       <input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crTaskDue" placeholder="Fälligkeitsdatum (YYYY-MM-DD)">`;
   } else {
-    document.getElementById('createTitle').textContent = 'New Note';
+    document.getElementById('createTitle').textContent = 'Neue Notiz';
     cf.innerHTML = `<input class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crNoteTitle" placeholder="Titel *">
       <textarea class="t-prop-input" style="border:1px solid var(--t-border-strong);" id="crNoteBody" rows="4" placeholder="Inhalt..."></textarea>`;
   }
@@ -1813,13 +1824,13 @@ async function submitCreateModal() {
   const r = await fetch(`/api/twenty/${obj}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
   if (r.ok) {
     closeCreateModal();
-    toast('Created ✓');
+    toast('Erstellt ✓');
     loadStats();
     loadCurrentView();
   }
 }
 
-// Command Menu (⌘K)
+// Befehlsmenü (⌘K)
 function openCmd() {
   document.getElementById('cmdBackdrop').classList.add('open');
   const inp = document.getElementById('cmdInput'); inp.value = ''; inp.focus();
@@ -1832,14 +1843,14 @@ async function runCmdSearch() {
   if (!q) {
     out.innerHTML = `
       <div class="t-pop-title">Navigation</div>
-      <button class="t-pop-item" onclick="closeCmd();setObject('companies')"><span>${ICONS.building} Go to Companies</span><span class="t-kbd">C</span></button>
-      <button class="t-pop-item" onclick="closeCmd();setObject('people')"><span>${ICONS.user} Go to People</span></button>
-      <button class="t-pop-item" onclick="closeCmd();setObject('opportunities')"><span>${ICONS.target} Go to Opportunities (Kanban)</span></button>
-      <button class="t-pop-item" onclick="closeCmd();setObject('tasks')"><span>${ICONS.checkbox} Go to Tasks</span></button>
-      <button class="t-pop-item" onclick="closeCmd();setObject('notes')"><span>${ICONS.notes} Go to Notes</span></button>
-      <button class="t-pop-item" onclick="closeCmd();openSettings('data-model')"><span>${ICONS.settings} Settings &amp; Data model</span></button>
-      <button class="t-pop-item" onclick="closeCmd();openAiDrawer()"><span>${ICONS.sparkles} Ask AI Copilot</span><span class="t-kbd">⌘J</span></button>
-      <a class="t-pop-item" href="/n8n"><span>${ICONS.workflow} Open n8n Studio</span></a>
+      <button class="t-pop-item" onclick="closeCmd();setObject('companies')"><span>${ICONS.building} Zu Unternehmen wechseln</span><span class="t-kbd">C</span></button>
+      <button class="t-pop-item" onclick="closeCmd();setObject('people')"><span>${ICONS.user} Zu Kontakten wechseln</span></button>
+      <button class="t-pop-item" onclick="closeCmd();setObject('opportunities')"><span>${ICONS.target} Zu Verkaufschancen (Kanban)</span></button>
+      <button class="t-pop-item" onclick="closeCmd();setObject('tasks')"><span>${ICONS.checkbox} Zu Aufgaben wechseln</span></button>
+      <button class="t-pop-item" onclick="closeCmd();setObject('notes')"><span>${ICONS.notes} Zu Notizen wechseln</span></button>
+      <button class="t-pop-item" onclick="closeCmd();openSettings('data-model')"><span>${ICONS.settings} Einstellungen &amp; Datenmodell</span></button>
+      <button class="t-pop-item" onclick="closeCmd();openAiDrawer()"><span>${ICONS.sparkles} KI-Copilot fragen</span><span class="t-kbd">⌘J</span></button>
+      <a class="t-pop-item" href="/n8n"><span>${ICONS.workflow} n8n Studio öffnen</span></a>
     `;
     return;
   }
@@ -1849,9 +1860,9 @@ async function runCmdSearch() {
     fetch(`/api/twenty/opportunities?workspace=${encodeURIComponent(state.workspace)}&q=${encodeURIComponent(q)}&limit=4`).then(r => r.json())
   ]);
   let html = '';
-  (cR.data || []).forEach(c => { html += `<button class="t-pop-item" onclick="closeCmd();openRecord('companies','${esc(c.id)}')"><span>${ICONS.building} ${esc(c.name)}</span><span class="t-tag t-tag-gray">${esc(c.address?.addressCity || 'Company')}</span></button>`; });
-  (pR.data || []).forEach(p => { html += `<button class="t-pop-item" onclick="closeCmd();openRecord('people','${esc(p.id)}')"><span>${ICONS.user} ${esc(p.fullName)}</span><span class="t-tag t-tag-gray">${esc(p.emails?.primaryEmail || 'Person')}</span></button>`; });
-  (oR.data || []).forEach(o => { html += `<button class="t-pop-item" onclick="closeCmd();setObject('opportunities')"><span>${ICONS.target} ${esc(o.name)}</span><span class="t-tag t-tag-blue">${esc(o.stage)}</span></button>`; });
+  (cR.data || []).forEach(c => { html += `<button class="t-pop-item" onclick="closeCmd();openRecord('companies','${esc(c.id)}')"><span>${ICONS.building} ${esc(c.name)}</span><span class="t-tag t-tag-gray">${esc(c.address?.addressCity || 'Unternehmen')}</span></button>`; });
+  (pR.data || []).forEach(p => { html += `<button class="t-pop-item" onclick="closeCmd();openRecord('people','${esc(p.id)}')"><span>${ICONS.user} ${esc(p.fullName)}</span><span class="t-tag t-tag-gray">${esc(p.emails?.primaryEmail || 'Kontakt')}</span></button>`; });
+  (oR.data || []).forEach(o => { html += `<button class="t-pop-item" onclick="closeCmd();setObject('opportunities')"><span>${ICONS.target} ${esc(o.name)}</span><span class="t-tag t-tag-blue">${esc(STAGE_LABEL[o.stage] || o.stage)}</span></button>`; });
   out.innerHTML = html || '<div style="padding:16px;text-align:center;color:var(--t-text-tertiary);">Keine Treffer.</div>';
 }
 
@@ -2225,7 +2236,7 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
 }
 .n8n-bottom-logs.open { height: 220px; }
 
-/* Slide-over Node Creator Drawer ("What happens next?") */
+/* Slide-over Node Creator Drawer ("Was passiert als Nächstes?") */
 .n8n-creator {
   position: fixed; top: 52px; right: 0; bottom: 0; width: 340px; max-width: 96vw;
   background: var(--n8n-panel-bg); border-left: 1px solid var(--n8n-border); box-shadow: var(--n8n-shadow-lg);
@@ -2325,43 +2336,43 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
     </div>
 
     <div class="n8n-create-wrap">
-      <button class="n8n-create-btn" onclick="createBlankWorkflow()"><span>+</span><span class="nav-txt">Create Workflow</span></button>
+      <button class="n8n-create-btn" onclick="createBlankWorkflow()"><span>+</span><span class="nav-txt">Workflow erstellen</span></button>
     </div>
 
     <div class="n8n-nav-list">
       <button class="n8n-nav-item" id="nav-overview" onclick="setSection('overview')">
-        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M9 10v10"/></svg><span class="nav-txt">Overview</span></span>
+        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M9 10v10"/></svg><span class="nav-txt">Übersicht</span></span>
         <span class="nav-badge" id="navWfCount">58</span>
       </button>
       <button class="n8n-nav-item active" id="nav-editor" onclick="setSection('editor')">
-        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 11l6-4m-6 6l6 4"/></svg><span class="nav-txt">Personal</span></span>
+        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 11l6-4m-6 6l6 4"/></svg><span class="nav-txt">Persönlich</span></span>
       </button>
       <button class="n8n-nav-item" id="nav-templates" onclick="setSection('templates')">
-        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v6H4z"/><path d="M4 15h7v4H4z"/><path d="M15 15h5v4h-5z"/></svg><span class="nav-txt">Templates</span></span>
+        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v6H4z"/><path d="M4 15h7v4H4z"/><path d="M15 15h5v4h-5z"/></svg><span class="nav-txt">Vorlagen</span></span>
       </button>
       <button class="n8n-nav-item" id="nav-variables" onclick="setSection('variables')">
-        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4l-3 8l3 8"/><path d="M17 4l3 8l-3 8"/><path d="M10 9l4 6"/></svg><span class="nav-txt">Variables</span></span>
+        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4l-3 8l3 8"/><path d="M17 4l3 8l-3 8"/><path d="M10 9l4 6"/></svg><span class="nav-txt">Variablen</span></span>
       </button>
       <button class="n8n-nav-item" id="nav-insights" onclick="setSection('insights')">
-        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16"/><path d="M7 15v-4"/><path d="M12 15v-8"/><path d="M17 15v-11"/></svg><span class="nav-txt">Insights</span></span>
+        <span class="n8n-nav-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16"/><path d="M7 15v-4"/><path d="M12 15v-8"/><path d="M17 15v-11"/></svg><span class="nav-txt">Statistiken</span></span>
       </button>
     </div>
 
     <div class="n8n-nav-foot">
       <button class="n8n-nav-item" onclick="toggleN8nTheme()">
-        <span class="n8n-nav-left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 3v2m0 14v2M3 12h2m14 0h2"/></svg><span class="nav-txt" id="themeLbl">Dark Canvas</span></span>
+        <span class="n8n-nav-left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 3v2m0 14v2M3 12h2m14 0h2"/></svg><span class="nav-txt" id="themeLbl">Dunkle Ansicht</span></span>
       </button>
       <a class="n8n-nav-item" href="/twenty">
         <span class="n8n-nav-left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18"/><path d="M5 21v-14l8 -4v18"/></svg><span class="nav-txt">Twenty CRM ↗</span></span>
       </a>
       <a class="n8n-nav-item" href="/showcase">
-        <span class="n8n-nav-left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8l10-12h-9l1-8z"/></svg><span class="nav-txt">5k→20€ Case</span></span>
+        <span class="n8n-nav-left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8l10-12h-9l1-8z"/></svg><span class="nav-txt">5.000 € → 20 € Vergleich</span></span>
       </a>
       <div class="n8n-user-row">
         <span class="n8n-avatar">MC</span>
         <div class="nav-txt" style="min-width:0;">
           <div style="font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Merlin Conrad</div>
-          <div style="font-size:10.5px;color:#9ca3af;">Rust Engine · 0.6B</div>
+          <div style="font-size:10.5px;color:#9ca3af;">Rust-Engine · 0.6B</div>
         </div>
       </div>
     </div>
@@ -2374,19 +2385,19 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
       <div class="n8n-hdr-left">
         <button class="n8n-btn" style="padding:0 7px;" onclick="toggleNav()" title="Menü">☰</button>
         <div class="n8n-hide-sm" style="position:relative;">
-          <button class="n8n-crumb-btn" onclick="toggleN8nPop('wfPickPop')">Personal ▾</button>
+          <button class="n8n-crumb-btn" onclick="toggleN8nPop('wfPickPop')">Persönlich ▾</button>
           <div class="n8n-pop" id="wfPickPop" style="top:34px;left:0;width:320px;max-height:420px;overflow-y:auto;"></div>
         </div>
         <span class="n8n-hide-sm" style="color:var(--n8n-text-3);">/</span>
         <input class="n8n-title-inp" id="wfTitleInp" value="Workflow" onchange="renameWorkflow(this.value)">
         <div class="n8n-hide-sm" id="wfTagsWrap" style="display:flex;align-items:center;gap:4px;"></div>
-        <button class="n8n-tag-pill n8n-hide-sm" onclick="promptAddTag()">+ Add tag</button>
+        <button class="n8n-tag-pill n8n-hide-sm" onclick="promptAddTag()">+ Tag hinzufügen</button>
       </div>
 
       <div class="n8n-seg" id="centerTabs">
         <button class="n8n-seg-btn active" onclick="setEditorTab('editor',this)">Editor</button>
-        <button class="n8n-seg-btn" onclick="setEditorTab('executions',this)">Executions</button>
-        <button class="n8n-seg-btn" onclick="setEditorTab('evaluations',this)">Evaluations</button>
+        <button class="n8n-seg-btn" onclick="setEditorTab('executions',this)">Ausführungen</button>
+        <button class="n8n-seg-btn" onclick="setEditorTab('evaluations',this)">Auswertungen</button>
       </div>
 
       <div class="n8n-hdr-right">
@@ -2397,19 +2408,19 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
           <option value="conrad-n8n-agent:1.7b">1.7B (ORPO)</option>
         </select>
         <div class="n8n-active-wrap" onclick="toggleActiveWf()">
-          <span class="n8n-hide-sm" id="activeLbl">Inactive</span>
+          <span class="n8n-hide-sm" id="activeLbl">Inaktiv</span>
           <button type="button" class="n8n-switch" id="activeSwitch"></button>
         </div>
-        <button class="n8n-btn n8n-hide-sm" onclick="openShareModal()">Share</button>
-        <button class="n8n-btn n8n-btn-coral" id="saveBtn" onclick="saveCurrentWorkflow()">Save</button>
+        <button class="n8n-btn n8n-hide-sm" onclick="openShareModal()">Teilen</button>
+        <button class="n8n-btn n8n-btn-coral" id="saveBtn" onclick="saveCurrentWorkflow()">Speichern</button>
         <div style="position:relative;">
           <button class="n8n-btn" style="padding:0 8px;" onclick="toggleN8nPop('wfMenuPop')">⋯</button>
           <div class="n8n-pop" id="wfMenuPop" style="top:34px;right:0;">
-            <button class="n8n-pop-item" onclick="duplicateCurrentWorkflow();closeN8nPops()"><span>Duplicate workflow</span></button>
-            <button class="n8n-pop-item" onclick="downloadWorkflowJson();closeN8nPops()"><span>Download JSON</span></button>
-            <button class="n8n-pop-item" onclick="syncSqlite();closeN8nPops()"><span>Sync from Docker n8n SQLite</span></button>
+            <button class="n8n-pop-item" onclick="duplicateCurrentWorkflow();closeN8nPops()"><span>Workflow duplizieren</span></button>
+            <button class="n8n-pop-item" onclick="downloadWorkflowJson();closeN8nPops()"><span>JSON herunterladen</span></button>
+            <button class="n8n-pop-item" onclick="syncSqlite();closeN8nPops()"><span>Aus Docker-n8n-SQLite synchronisieren</span></button>
             <div style="border-top:1px solid var(--n8n-border);margin:4px 0;"></div>
-            <button class="n8n-pop-item" style="color:var(--n8n-red);" onclick="deleteCurrentWorkflow();closeN8nPops()"><span>Delete workflow</span></button>
+            <button class="n8n-pop-item" style="color:var(--n8n-red);" onclick="deleteCurrentWorkflow();closeN8nPops()"><span>Workflow löschen</span></button>
           </div>
         </div>
       </div>
@@ -2424,25 +2435,25 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
             <svg class="n8n-wires" id="wireSvg"></svg>
             <div id="nodesLayer"></div>
           </div>
-          <button class="n8n-float-plus" onclick="openCreatorDrawer(null)" title="Add node (What happens next?)">+</button>
+          <button class="n8n-float-plus" onclick="openCreatorDrawer(null)" title="Node hinzufügen (Was passiert als Nächstes?)">+</button>
           <div class="n8n-controls-bl">
-            <button class="n8n-sq-btn" onclick="fitToView()" title="Zoom to fit">⊡</button>
-            <button class="n8n-sq-btn" onclick="zoomBy(0.12)" title="Zoom in">+</button>
-            <button class="n8n-sq-btn" onclick="zoomBy(-0.12)" title="Zoom out">−</button>
-            <button class="n8n-sq-btn" onclick="tidyUpLayout()" title="Tidy up workflow">🪄</button>
+            <button class="n8n-sq-btn" onclick="fitToView()" title="Ansicht einpassen">⊡</button>
+            <button class="n8n-sq-btn" onclick="zoomBy(0.12)" title="Vergrößern">+</button>
+            <button class="n8n-sq-btn" onclick="zoomBy(-0.12)" title="Verkleinern">−</button>
+            <button class="n8n-sq-btn" onclick="tidyUpLayout()" title="Workflow aufräumen">🪄</button>
           </div>
           <div class="n8n-test-bar">
-            <button class="n8n-btn n8n-btn-coral" id="testWfBtn" onclick="runCurrentWorkflow()" style="height:34px;padding:0 16px;font-size:13px;">🧪 Test workflow</button>
-            <button class="n8n-btn" onclick="togglePayloadPop()" style="height:34px;">💬 Payload</button>
-            <button class="n8n-btn" onclick="toggleBottomLogs()" id="logsToggleBtn" style="height:34px;">Logs</button>
+            <button class="n8n-btn n8n-btn-coral" id="testWfBtn" onclick="runCurrentWorkflow()" style="height:34px;padding:0 16px;font-size:13px;">🧪 Workflow testen</button>
+            <button class="n8n-btn" onclick="togglePayloadPop()" style="height:34px;">💬 Testdaten</button>
+            <button class="n8n-btn" onclick="toggleBottomLogs()" id="logsToggleBtn" style="height:34px;">Protokoll</button>
           </div>
         </div>
 
         <!-- Collapsible Bottom Execution Logs Drawer -->
         <div class="n8n-bottom-logs" id="bottomLogs">
           <div style="height:34px;padding:0 14px;border-bottom:1px solid var(--n8n-border);display:flex;align-items:center;justify-content:space-between;background:var(--n8n-subtle-bg);">
-            <strong style="font-size:12px;" id="logsHdrTxt">Execution Logs &amp; Webhook Output</strong>
-            <button class="n8n-btn" style="height:24px;" onclick="toggleBottomLogs()">Close ×</button>
+            <strong style="font-size:12px;" id="logsHdrTxt">Ausführungsprotokoll &amp; Webhook-Ausgabe</strong>
+            <button class="n8n-btn" style="height:24px;" onclick="toggleBottomLogs()">Schließen ×</button>
           </div>
           <div style="flex:1;overflow:auto;display:grid;grid-template-columns:280px 1fr;" id="logsBodyGrid">
             <div id="logsStepList" style="border-right:1px solid var(--n8n-border);overflow-y:auto;padding:8px;"></div>
@@ -2457,14 +2468,14 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
   </main>
 </div>
 
-<!-- Node Creator Slide-Over ("What happens next?") -->
+<!-- Node Creator Slide-Over ("Was passiert als Nächstes?") -->
 <aside class="n8n-creator" id="creatorDrawer">
   <div style="padding:14px 16px;border-bottom:1px solid var(--n8n-border);display:flex;align-items:center;justify-content:space-between;">
-    <strong style="font-size:14px;">What happens next?</strong>
+    <strong style="font-size:14px;">Was passiert als Nächstes?</strong>
     <button class="n8n-btn" style="height:26px;" onclick="closeCreatorDrawer()">×</button>
   </div>
   <div style="padding:10px 14px;border-bottom:1px solid var(--n8n-border);">
-    <input class="n8n-input" id="creatorSearch" placeholder="Search nodes (Webhook, AI Agent, Code, Gmail...)" oninput="renderCreatorList()">
+    <input class="n8n-input" id="creatorSearch" placeholder="Nodes durchsuchen (Webhook, KI-Agent, Code, Gmail...)" oninput="renderCreatorList()">
   </div>
   <div id="creatorList" style="flex:1;overflow-y:auto;padding:10px 12px;"></div>
 </aside>
@@ -2473,53 +2484,53 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
 <div class="n8n-ndv-backdrop" id="ndvBackdrop" onclick="if(event.target===this)closeNdv()">
   <div class="n8n-ndv">
     <div class="n8n-ndv-top">
-      <button class="n8n-btn" onclick="closeNdv()">← Back to canvas</button>
+      <button class="n8n-btn" id="ndvBackBtn" onclick="closeNdv()">← Zurück zum Canvas</button>
       <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--n8n-text-2);">
         <span class="mono" id="ndvNodeTypeLbl"></span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <button class="n8n-btn" onclick="closeNdv()">Done</button>
+        <button class="n8n-btn" onclick="closeNdv()">Fertig</button>
       </div>
     </div>
     <div class="n8n-ndv-grid">
-      <!-- Column 1: INPUT -->
+      <!-- Column 1: EINGANG -->
       <div class="n8n-ndv-col">
         <div class="n8n-ndv-col-hdr">
-          <strong style="font-size:12px;letter-spacing:0.04em;">INPUT</strong>
+          <strong style="font-size:12px;letter-spacing:0.04em;">EINGANG</strong>
           <div class="n8n-seg">
             <button class="n8n-seg-btn active" onclick="setNdvInFmt('json',this)">JSON</button>
-            <button class="n8n-seg-btn" onclick="setNdvInFmt('table',this)">Table</button>
+            <button class="n8n-seg-btn" onclick="setNdvInFmt('table',this)">Tabelle</button>
           </div>
         </div>
         <div class="n8n-ndv-body" id="ndvInBody"></div>
       </div>
 
-      <!-- Column 2: Parameters / Settings + Test step -->
+      <!-- Column 2: Parameter / Einstellungen + Schritt testen -->
       <div class="n8n-ndv-col">
         <div class="n8n-ndv-col-hdr">
           <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
             <span id="ndvNodeIcon"></span>
             <input id="ndvNodeNameInp" class="n8n-input" style="font-weight:600;background:transparent;border-color:transparent;" onchange="renameNdvNode(this.value)">
           </div>
-          <button class="n8n-btn n8n-btn-coral" id="ndvTestStepBtn" onclick="executeNdvStep()">▶ Test step</button>
+          <button class="n8n-btn n8n-btn-coral" id="ndvTestStepBtn" onclick="executeNdvStep()">▶ Schritt testen</button>
         </div>
         <div style="padding:0 14px;border-bottom:1px solid var(--n8n-border);display:flex;gap:14px;background:var(--n8n-subtle-bg);">
-          <button class="n8n-seg-btn active" style="border-radius:0;padding:8px 2px;background:transparent;border-bottom:2px solid var(--n8n-coral);" id="ndvTabParamsBtn" onclick="setNdvCenterTab('params')">Parameters</button>
-          <button class="n8n-seg-btn" style="border-radius:0;padding:8px 2px;background:transparent;" id="ndvTabSettingsBtn" onclick="setNdvCenterTab('settings')">Settings</button>
+          <button class="n8n-seg-btn active" style="border-radius:0;padding:8px 2px;background:transparent;border-bottom:2px solid var(--n8n-coral);" id="ndvTabParamsBtn" onclick="setNdvCenterTab('params')">Parameter</button>
+          <button class="n8n-seg-btn" style="border-radius:0;padding:8px 2px;background:transparent;" id="ndvTabSettingsBtn" onclick="setNdvCenterTab('settings')">Einstellungen</button>
         </div>
         <div class="n8n-ndv-body" id="ndvCenterBody"></div>
       </div>
 
-      <!-- Column 3: OUTPUT -->
+      <!-- Column 3: AUSGANG -->
       <div class="n8n-ndv-col">
         <div class="n8n-ndv-col-hdr">
           <div style="display:flex;align-items:center;gap:7px;">
-            <strong style="font-size:12px;letter-spacing:0.04em;">OUTPUT</strong>
+            <strong style="font-size:12px;letter-spacing:0.04em;">AUSGANG</strong>
             <span id="ndvOutBadge" class="tag-pill mono" style="font-size:11px;color:var(--n8n-green);"></span>
           </div>
           <div class="n8n-seg">
             <button class="n8n-seg-btn active" onclick="setNdvOutFmt('json',this)">JSON</button>
-            <button class="n8n-seg-btn" onclick="setNdvOutFmt('table',this)">Table</button>
+            <button class="n8n-seg-btn" onclick="setNdvOutFmt('table',this)">Tabelle</button>
           </div>
         </div>
         <div class="n8n-ndv-body" id="ndvOutBody"></div>
@@ -2532,8 +2543,8 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
 <div class="n8n-ndv-backdrop" id="payloadModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="n8n-ndv" style="max-width:520px;height:auto;">
     <div class="n8n-ndv-top">
-      <strong>Webhook / Chat Trigger Test Payload</strong>
-      <button class="n8n-btn" onclick="document.getElementById('payloadModal').classList.remove('open')">Close</button>
+      <strong>Webhook- / Chat-Trigger Testdaten</strong>
+      <button class="n8n-btn" onclick="document.getElementById('payloadModal').classList.remove('open')">Schließen</button>
     </div>
     <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
       <textarea id="globalPayloadInput" class="n8n-code-ed mono" rows="7">{
@@ -2552,34 +2563,34 @@ html.dark .n8n-test-bar { background: rgba(34,34,34,0.88); }
 <script>
 const NODE_META = {
   'n8n-nodes-base.webhook': { label: 'Webhook', cat: 'Trigger', color: '#ff6d5a', trig: true, svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ff6d5a" stroke-width="2" stroke-linecap="round"><path d="M4.876 13.61a4 4 0 1 0 6.124 3.39h6"/><path d="M15.066 20.502a4 4 0 1 0 1.934 -7.502c-.706 0 -1.424 .179 -2 .5l-3 -5.5"/><path d="M16 8a4 4 0 1 0 -8 0c0 1.506 .77 2.818 2 3.5l-3 5.5"/></svg>' },
-  'n8n-nodes-base.manualTrigger': { label: 'Manual Trigger', cat: 'Trigger', color: '#ff6d5a', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="#ff6d5a"><polygon points="6,4 20,12 6,20"/></svg>' },
-  'n8n-nodes-base.scheduleTrigger': { label: 'Schedule Trigger', cat: 'Trigger', color: '#0d9488', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' },
-  '@n8n/n8n-nodes-langchain.chatTrigger': { label: 'Chat Trigger', cat: 'Trigger', color: '#7c3aed', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
-  'n8n-nodes-base.gmailTrigger': { label: 'Gmail Trigger', cat: 'Trigger', color: '#ea4335', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
-  'n8n-nodes-base.telegramTrigger': { label: 'Telegram Trigger', cat: 'Trigger', color: '#26a5e4', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#26a5e4" stroke-width="2"><path d="M15 10l-4 4l6 6l4-16l-18 7l4 2l2 6l3-4"/></svg>' },
-  'n8n-nodes-base.microsoftOutlookTrigger': { label: 'Outlook Trigger', cat: 'Trigger', color: '#0078d4', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0078d4" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
-  'n8n-nodes-base.errorTrigger': { label: 'Error Trigger', cat: 'Trigger', color: '#dc2626', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M12 9v4m0 4v.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>' },
-  '@n8n/n8n-nodes-langchain.agent': { label: 'AI Agent', cat: 'AI', color: '#1f2329', rootAgent: true, svg: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="12" rx="3"/><circle cx="9" cy="13" r="1.5" fill="currentColor"/><circle cx="15" cy="13" r="1.5" fill="currentColor"/><path d="M12 7V4m-3 0h6"/></svg>' },
-  '@n8n/n8n-nodes-langchain.chainLlm': { label: 'Basic LLM Chain', cat: 'AI', color: '#7c3aed', rootAgent: true, svg: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5z"/></svg>' },
-  '@n8n/n8n-nodes-langchain.lmChatOllama': { label: 'Ollama Chat Model', cat: 'AI Sub-Node', color: '#18181b', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="9.5" cy="10.5" r="1" fill="currentColor"/><circle cx="14.5" cy="10.5" r="1" fill="currentColor"/><path d="M9.5 14.5c1 .8 4 .8 5 0"/></svg>' },
-  '@n8n/n8n-nodes-langchain.lmChatOpenAi': { label: 'OpenAI Chat Model', cat: 'AI Sub-Node', color: '#10a37f', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10a37f" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M5 8l14 8M19 8L5 16"/></svg>' },
-  '@n8n/n8n-nodes-langchain.memoryBufferWindow': { label: 'Window Buffer Memory', cat: 'AI Sub-Node', color: '#7c3aed', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4m6-4v4m-6 12v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/></svg>' },
-  '@n8n/n8n-nodes-langchain.vectorStoreQdrant': { label: 'Qdrant Vector Store', cat: 'AI Sub-Node', color: '#dc2626', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/><circle cx="12" cy="12" r="3"/></svg>' },
-  '@n8n/n8n-nodes-langchain.embeddingsOllama': { label: 'Embeddings Ollama', cat: 'AI Sub-Node', color: '#4f46e5', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' },
-  'n8n-nodes-base.httpRequest': { label: 'HTTP Request', cat: 'Core', color: '#4078f2', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#4078f2" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M11.5 3a17 17 0 0 0 0 18M12.5 3a17 17 0 0 1 0 18"/></svg>' },
-  'n8n-nodes-base.code': { label: 'Code', cat: 'Core', color: '#f97316', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.1" stroke-linecap="round"><path d="M8 6c-2 0-2 2-2 4s-2 2-2 2s2 0 2 2s0 4 2 4"/><path d="M16 6c2 0 2 2 2 4s2 2 2 2s-2 0-2 2s0 4-2 4"/></svg>' },
-  'n8n-nodes-base.if': { label: 'If', cat: 'Core', color: '#16a34a', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h5l4-5h7"/><path d="M9 12l4 5h7"/></svg>' },
-  'n8n-nodes-base.switch': { label: 'Switch', cat: 'Core', color: '#6366f1', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round"><path d="M3 12h6M13 6h8M13 12h8M13 18h8M9 12l4-6M9 12l4 6"/></svg>' },
-  'n8n-nodes-base.set': { label: 'Edit Fields (Set)', cat: 'Core', color: '#2563eb', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1l1-4z"/></svg>' },
-  'n8n-nodes-base.respondToWebhook': { label: 'Respond to Webhook', cat: 'Core', color: '#d97706', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M9 14l-4-4l4-4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></svg>' },
+  'n8n-nodes-base.manualTrigger': { label: 'Manueller Trigger', cat: 'Trigger', color: '#ff6d5a', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="#ff6d5a"><polygon points="6,4 20,12 6,20"/></svg>' },
+  'n8n-nodes-base.scheduleTrigger': { label: 'Zeitplan-Trigger', cat: 'Trigger', color: '#0d9488', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' },
+  '@n8n/n8n-nodes-langchain.chatTrigger': { label: 'Chat-Trigger', cat: 'Trigger', color: '#7c3aed', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
+  'n8n-nodes-base.gmailTrigger': { label: 'Gmail-Trigger', cat: 'Trigger', color: '#ea4335', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
+  'n8n-nodes-base.telegramTrigger': { label: 'Telegram-Trigger', cat: 'Trigger', color: '#26a5e4', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#26a5e4" stroke-width="2"><path d="M15 10l-4 4l6 6l4-16l-18 7l4 2l2 6l3-4"/></svg>' },
+  'n8n-nodes-base.microsoftOutlookTrigger': { label: 'Outlook-Trigger', cat: 'Trigger', color: '#0078d4', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0078d4" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
+  'n8n-nodes-base.errorTrigger': { label: 'Fehler-Trigger', cat: 'Trigger', color: '#dc2626', trig: true, svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M12 9v4m0 4v.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>' },
+  '@n8n/n8n-nodes-langchain.agent': { label: 'KI-Agent', cat: 'KI', color: '#1f2329', rootAgent: true, svg: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="12" rx="3"/><circle cx="9" cy="13" r="1.5" fill="currentColor"/><circle cx="15" cy="13" r="1.5" fill="currentColor"/><path d="M12 7V4m-3 0h6"/></svg>' },
+  '@n8n/n8n-nodes-langchain.chainLlm': { label: 'Basis-LLM-Kette', cat: 'KI', color: '#7c3aed', rootAgent: true, svg: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5z"/></svg>' },
+  '@n8n/n8n-nodes-langchain.lmChatOllama': { label: 'Ollama Chat-Modell', cat: 'KI-Sub-Node', color: '#18181b', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="9.5" cy="10.5" r="1" fill="currentColor"/><circle cx="14.5" cy="10.5" r="1" fill="currentColor"/><path d="M9.5 14.5c1 .8 4 .8 5 0"/></svg>' },
+  '@n8n/n8n-nodes-langchain.lmChatOpenAi': { label: 'OpenAI Chat-Modell', cat: 'KI-Sub-Node', color: '#10a37f', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10a37f" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M5 8l14 8M19 8L5 16"/></svg>' },
+  '@n8n/n8n-nodes-langchain.memoryBufferWindow': { label: 'Fenster-Pufferspeicher', cat: 'KI-Sub-Node', color: '#7c3aed', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4m6-4v4m-6 12v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/></svg>' },
+  '@n8n/n8n-nodes-langchain.vectorStoreQdrant': { label: 'Qdrant Vektorspeicher', cat: 'KI-Sub-Node', color: '#dc2626', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/><circle cx="12" cy="12" r="3"/></svg>' },
+  '@n8n/n8n-nodes-langchain.embeddingsOllama': { label: 'Ollama-Embeddings', cat: 'KI-Sub-Node', color: '#4f46e5', subnode: true, svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' },
+  'n8n-nodes-base.httpRequest': { label: 'HTTP-Anfrage', cat: 'Kern', color: '#4078f2', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#4078f2" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M11.5 3a17 17 0 0 0 0 18M12.5 3a17 17 0 0 1 0 18"/></svg>' },
+  'n8n-nodes-base.code': { label: 'Code', cat: 'Kern', color: '#f97316', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.1" stroke-linecap="round"><path d="M8 6c-2 0-2 2-2 4s-2 2-2 2s2 0 2 2s0 4 2 4"/><path d="M16 6c2 0 2 2 2 4s2 2 2 2s-2 0-2 2s0 4-2 4"/></svg>' },
+  'n8n-nodes-base.if': { label: 'Wenn (If)', cat: 'Kern', color: '#16a34a', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h5l4-5h7"/><path d="M9 12l4 5h7"/></svg>' },
+  'n8n-nodes-base.switch': { label: 'Weiche (Switch)', cat: 'Kern', color: '#6366f1', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round"><path d="M3 12h6M13 6h8M13 12h8M13 18h8M9 12l4-6M9 12l4 6"/></svg>' },
+  'n8n-nodes-base.set': { label: 'Felder bearbeiten (Set)', cat: 'Kern', color: '#2563eb', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1l1-4z"/></svg>' },
+  'n8n-nodes-base.respondToWebhook': { label: 'Auf Webhook antworten', cat: 'Kern', color: '#d97706', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M9 14l-4-4l4-4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></svg>' },
   'n8n-nodes-base.gmail': { label: 'Gmail', cat: 'App', color: '#ea4335', svg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
   'n8n-nodes-base.telegram': { label: 'Telegram', cat: 'App', color: '#26a5e4', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#26a5e4" stroke-width="2"><path d="M15 10l-4 4l6 6l4-16l-18 7l4 2l2 6l3-4"/></svg>' },
   'n8n-nodes-base.microsoftOutlook': { label: 'Microsoft Outlook', cat: 'App', color: '#0078d4', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0078d4" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
   'n8n-nodes-base.postgres': { label: 'Postgres', cat: 'App', color: '#336791', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#336791" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg>' },
   'n8n-nodes-base.googleSheets': { label: 'Google Sheets', cat: 'App', color: '#0f9d58', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0f9d58" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 9v12"/></svg>' },
-  'n8n-nodes-base.emailSend': { label: 'Send Email', cat: 'App', color: '#0d9488', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
-  'n8n-nodes-base.noOp': { label: 'No Operation', cat: 'Core', color: '#64748b', svg: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M5 12h14m-5-5l5 5l-5 5"/></svg>' },
-  'n8n-nodes-base.stickyNote': { label: 'Sticky Note', cat: 'Core', color: '#ca8a04', svg: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2"><path d="M13 20l7-7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></svg>' }
+  'n8n-nodes-base.emailSend': { label: 'E-Mail senden', cat: 'App', color: '#0d9488', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6l9-6"/></svg>' },
+  'n8n-nodes-base.noOp': { label: 'Keine Aktion', cat: 'Kern', color: '#64748b', svg: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M5 12h14m-5-5l5 5l-5 5"/></svg>' },
+  'n8n-nodes-base.stickyNote': { label: 'Haftnotiz', cat: 'Kern', color: '#ca8a04', svg: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2"><path d="M13 20l7-7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></svg>' }
 };
 
 const st = {
@@ -2606,7 +2617,7 @@ const st = {
 
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function toast(msg) { const el = document.getElementById('n8nToast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2200); }
-function metaFor(tp) { return NODE_META[tp] || { label: (tp||'Node').split('.').pop(), cat: 'Core', color: '#64748b', svg: NODE_META['n8n-nodes-base.noOp'].svg }; }
+function metaFor(tp) { return NODE_META[tp] || { label: (tp||'Node').split('.').pop(), cat: 'Kern', color: '#64748b', svg: NODE_META['n8n-nodes-base.noOp'].svg }; }
 function isTrigger(tp) { const t = String(tp||''); return !!metaFor(t).trig || (t.toLowerCase().includes('trigger') && !t.includes('respond')); }
 function isSubnode(tp) { return !!metaFor(tp).subnode; }
 function isAgentRoot(tp) { return !!metaFor(tp).rootAgent; }
@@ -2615,7 +2626,7 @@ if (localStorage.getItem('n8n_theme') === 'dark') { document.documentElement.cla
 function toggleN8nTheme() {
   const dark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('n8n_theme', dark ? 'dark' : 'light');
-  document.getElementById('themeLbl').textContent = dark ? 'Light Canvas' : 'Dark Canvas';
+  document.getElementById('themeLbl').textContent = dark ? 'Helle Ansicht' : 'Dunkle Ansicht';
 }
 function toggleNav() { document.getElementById('n8nNav').classList.toggle('collapsed'); }
 function toggleN8nPop(id) {
@@ -2661,13 +2672,13 @@ function updateHeaderState() {
   if (!st.currentWf) return;
   document.getElementById('wfTitleInp').value = st.currentWf.name || '';
   const act = !!st.currentWf.active;
-  document.getElementById('activeLbl').textContent = act ? 'Active' : 'Inactive';
+  document.getElementById('activeLbl').textContent = act ? 'Aktiv' : 'Inaktiv';
   document.getElementById('activeSwitch').classList.toggle('on', act);
   const tags = st.currentWf.tags || [];
   document.getElementById('wfTagsWrap').innerHTML = tags.map((t, i) => `
     <span class="n8n-tag-pill">${esc(typeof t === 'string' ? t : t.name)} <span onclick="removeTag(${i})" style="margin-left:2px;">×</span></span>
   `).join('');
-  document.getElementById('saveBtn').textContent = st.dirty ? 'Save *' : 'Save';
+  document.getElementById('saveBtn').textContent = st.dirty ? 'Speichern *' : 'Speichern';
 }
 
 function setSection(sec) {
@@ -2703,10 +2714,10 @@ async function renderSectionPage(sec) {
     st.workflows = d.data || [];
     alt.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-        <div><h2 style="margin:0;font-size:20px;">Overview · Workflows (${st.workflows.length})</h2><div style="color:var(--n8n-text-2);font-size:12.5px;">Pure-Rust DAG Engine · SQLite WAL Persistence · Zero Node.js Overhead</div></div>
+        <div><h2 style="margin:0;font-size:20px;">Übersicht · Workflows (${st.workflows.length})</h2><div style="color:var(--n8n-text-2);font-size:12.5px;">Pure-Rust DAG-Engine · SQLite WAL-Persistenz · Kein Node.js-Overhead</div></div>
         <div style="display:flex;gap:8px;">
           <input class="n8n-input" id="ovSearch" placeholder="Workflow suchen..." style="width:220px;" oninput="filterOverviewList()">
-          <button class="n8n-btn n8n-btn-coral" onclick="createBlankWorkflow()">+ Create Workflow</button>
+          <button class="n8n-btn n8n-btn-coral" onclick="createBlankWorkflow()">+ Workflow erstellen</button>
         </div>
       </div>
       <div id="ovList"></div>
@@ -2714,42 +2725,42 @@ async function renderSectionPage(sec) {
     filterOverviewList();
   } else if (sec === 'templates') {
     const tpls = [
-      { name: 'Hormozi Lead Qualifier (0.6B AI Agent)', desc: 'Webhook -> 0.6B Tool Agent (Qdrant RAG + Twenty Lookup) -> Respond to Webhook', nodes: [
+      { name: 'Hormozi Lead-Qualifizierung (0.6B KI-Agent)', desc: 'Webhook -> 0.6B Tool-Agent (Qdrant RAG + Twenty-Suche) -> Auf Webhook antworten', nodes: [
         { id: 't1', name: 'Webhook', type: 'n8n-nodes-base.webhook', position: [180, 280], parameters: { path: 'lead-qualify', httpMethod: 'POST' } },
-        { id: 't2', name: 'AI Agent', type: '@n8n/n8n-nodes-langchain.agent', position: [460, 280], parameters: { text: '={{ $json.message }}' } },
-        { id: 't3', name: 'Ollama Chat Model', type: '@n8n/n8n-nodes-langchain.lmChatOllama', position: [440, 470], parameters: { model: 'conrad-n8n-agent:0.6b' } },
-        { id: 't4', name: 'Qdrant Vector Store', type: '@n8n/n8n-nodes-langchain.vectorStoreQdrant', position: [620, 470], parameters: { qdrantCollection: 'conrad_ki_knowledge' } },
-        { id: 't5', name: 'Respond to Webhook', type: 'n8n-nodes-base.respondToWebhook', position: [800, 280], parameters: { respondWith: 'json' } }
-      ], connections: { 'Webhook': { main: [[{ node: 'AI Agent', type: 'main', index: 0 }]] }, 'AI Agent': { main: [[{ node: 'Respond to Webhook', type: 'main', index: 0 }]] }, 'Ollama Chat Model': { ai_languageModel: [[{ node: 'AI Agent', type: 'ai_languageModel', index: 0 }]] }, 'Qdrant Vector Store': { ai_tool: [[{ node: 'AI Agent', type: 'ai_tool', index: 0 }]] } } },
-      { name: 'Gmail Safe-Draft Classifier', desc: 'Gmail Trigger -> 0.6B HTTP Classifier -> If (Antwort) -> Save Gmail Draft Only', nodes: [
-        { id: 'g1', name: 'Gmail Trigger', type: 'n8n-nodes-base.gmailTrigger', position: [180, 260], parameters: {} },
-        { id: 'g2', name: '0.6B Classifier', type: 'n8n-nodes-base.httpRequest', position: [430, 260], parameters: { method: 'POST', url: 'http://127.0.0.1:11434/api/chat' } },
-        { id: 'g3', name: 'If Antwort nötig', type: 'n8n-nodes-base.if', position: [680, 260], parameters: {} },
-        { id: 'g4', name: 'Gmail Draft', type: 'n8n-nodes-base.gmail', position: [930, 200], parameters: { operation: 'createDraft' } }
-      ], connections: { 'Gmail Trigger': { main: [[{ node: '0.6B Classifier', type: 'main', index: 0 }]] }, '0.6B Classifier': { main: [[{ node: 'If Antwort nötig', type: 'main', index: 0 }]] }, 'If Antwort nötig': { main: [[{ node: 'Gmail Draft', type: 'main', index: 0 }], []] } } }
+        { id: 't2', name: 'KI-Agent', type: '@n8n/n8n-nodes-langchain.agent', position: [460, 280], parameters: { text: '={{ $json.message }}' } },
+        { id: 't3', name: 'Ollama Chat-Modell', type: '@n8n/n8n-nodes-langchain.lmChatOllama', position: [440, 470], parameters: { model: 'conrad-n8n-agent:0.6b' } },
+        { id: 't4', name: 'Qdrant Vektorspeicher', type: '@n8n/n8n-nodes-langchain.vectorStoreQdrant', position: [620, 470], parameters: { qdrantCollection: 'conrad_ki_knowledge' } },
+        { id: 't5', name: 'Auf Webhook antworten', type: 'n8n-nodes-base.respondToWebhook', position: [800, 280], parameters: { respondWith: 'json' } }
+      ], connections: { 'Webhook': { main: [[{ node: 'KI-Agent', type: 'main', index: 0 }]] }, 'KI-Agent': { main: [[{ node: 'Auf Webhook antworten', type: 'main', index: 0 }]] }, 'Ollama Chat-Modell': { ai_languageModel: [[{ node: 'KI-Agent', type: 'ai_languageModel', index: 0 }]] }, 'Qdrant Vektorspeicher': { ai_tool: [[{ node: 'KI-Agent', type: 'ai_tool', index: 0 }]] } } },
+      { name: 'Gmail Entwurfs-Klassifizierer (Safe Draft)', desc: 'Gmail-Trigger -> 0.6B HTTP-Klassifizierer -> Wenn (Antwort) -> Nur Gmail-Entwurf speichern', nodes: [
+        { id: 'g1', name: 'Gmail-Trigger', type: 'n8n-nodes-base.gmailTrigger', position: [180, 260], parameters: {} },
+        { id: 'g2', name: '0.6B Klassifizierer', type: 'n8n-nodes-base.httpRequest', position: [430, 260], parameters: { method: 'POST', url: 'http://127.0.0.1:11434/api/chat' } },
+        { id: 'g3', name: 'Wenn Antwort nötig', type: 'n8n-nodes-base.if', position: [680, 260], parameters: {} },
+        { id: 'g4', name: 'Gmail-Entwurf', type: 'n8n-nodes-base.gmail', position: [930, 200], parameters: { operation: 'createDraft' } }
+      ], connections: { 'Gmail-Trigger': { main: [[{ node: '0.6B Klassifizierer', type: 'main', index: 0 }]] }, '0.6B Klassifizierer': { main: [[{ node: 'Wenn Antwort nötig', type: 'main', index: 0 }]] }, 'Wenn Antwort nötig': { main: [[{ node: 'Gmail-Entwurf', type: 'main', index: 0 }], []] } } }
     ];
     window._n8nTpls = tpls;
-    alt.innerHTML = `<h2 style="margin:0 0 14px;font-size:20px;">Workflow Templates</h2>` + tpls.map((t, i) => `
+    alt.innerHTML = `<h2 style="margin:0 0 14px;font-size:20px;">Workflow-Vorlagen</h2>` + tpls.map((t, i) => `
       <div class="n8n-wf-card" onclick="useTemplate(${i})">
         <div><strong style="font-size:14px;">${esc(t.name)}</strong><div style="color:var(--n8n-text-2);font-size:12px;margin-top:3px;">${esc(t.desc)}</div></div>
-        <button class="n8n-btn n8n-btn-coral">Use template</button>
+        <button class="n8n-btn n8n-btn-coral">Vorlage verwenden</button>
       </div>
     `).join('');
   } else if (sec === 'variables') {
-    alt.innerHTML = `<h2 style="margin:0 0 14px;font-size:20px;">Environment Variables (Rust Runtime)</h2>
+    alt.innerHTML = `<h2 style="margin:0 0 14px;font-size:20px;">Umgebungsvariablen (Rust-Runtime)</h2>
       <div class="n8n-wf-card" style="cursor:default;"><span class="mono">OLLAMA_BASE_URL</span><span class="mono" style="color:var(--n8n-green);">http://127.0.0.1:11434</span></div>
       <div class="n8n-wf-card" style="cursor:default;"><span class="mono">DEFAULT_MODEL</span><span class="mono">conrad-n8n-agent:0.6b</span></div>
       <div class="n8n-wf-card" style="cursor:default;"><span class="mono">QDRANT_URL</span><span class="mono">http://127.0.0.1:6333</span></div>
-      <div class="n8n-wf-card" style="cursor:default;"><span class="mono">TWENTY_GRAPHQL_URL</span><span class="mono">http://127.0.0.1:18090/graphql (In-Process Short-Circuit)</span></div>
+      <div class="n8n-wf-card" style="cursor:default;"><span class="mono">TWENTY_GRAPHQL_URL</span><span class="mono">http://127.0.0.1:18090/graphql (In-Process Kurzschluss)</span></div>
       <div class="n8n-wf-card" style="cursor:default;"><span class="mono">EMAIL_SAFETY_MODE</span><span class="mono" style="color:var(--n8n-green);">draftOnly = true</span></div>`;
   } else if (sec === 'insights') {
     const r = await fetch('/api/showcase/metrics'); const m = await r.json();
-    alt.innerHTML = `<h2 style="margin:0 0 14px;font-size:20px;">Insights · Pure Rust n8n Telemetry</h2>
+    alt.innerHTML = `<h2 style="margin:0 0 14px;font-size:20px;">Statistiken · Pure-Rust n8n-Telemetrie</h2>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
         <div class="n8n-wf-card" style="flex-direction:column;align-items:flex-start;"><span style="color:var(--n8n-text-2);">Workflows in SQLite</span><strong style="font-size:26px;">${m.n8n?.workflows ?? 58}</strong></div>
-        <div class="n8n-wf-card" style="flex-direction:column;align-items:flex-start;"><span style="color:var(--n8n-text-2);">Active Workflows</span><strong style="font-size:26px;color:var(--n8n-green);">${m.n8n?.activeWorkflows ?? 0}</strong></div>
-        <div class="n8n-wf-card" style="flex-direction:column;align-items:flex-start;"><span style="color:var(--n8n-text-2);">Total Executions</span><strong style="font-size:26px;">${m.n8n?.executions ?? 0}</strong></div>
-        <div class="n8n-wf-card" style="flex-direction:column;align-items:flex-start;"><span style="color:var(--n8n-text-2);">Engine RAM (VmRSS)</span><strong style="font-size:26px;color:var(--n8n-coral);">${m.rustBinary?.rssMb ?? '11'} MB</strong></div>
+        <div class="n8n-wf-card" style="flex-direction:column;align-items:flex-start;"><span style="color:var(--n8n-text-2);">Aktive Workflows</span><strong style="font-size:26px;color:var(--n8n-green);">${m.n8n?.activeWorkflows ?? 0}</strong></div>
+        <div class="n8n-wf-card" style="flex-direction:column;align-items:flex-start;"><span style="color:var(--n8n-text-2);">Ausführungen gesamt</span><strong style="font-size:26px;">${m.n8n?.executions ?? 0}</strong></div>
+        <div class="n8n-wf-card" style="flex-direction:column;align-items:flex-start;"><span style="color:var(--n8n-text-2);">Engine-RAM (VmRSS)</span><strong style="font-size:26px;color:var(--n8n-coral);">${m.rustBinary?.rssMb ?? '11'} MB</strong></div>
       </div>`;
   }
 }
@@ -2765,11 +2776,11 @@ function filterOverviewList() {
           ${(w.tags||[]).map(t => `<span class="n8n-tag-pill">${esc(typeof t==='string'?t:t.name)}</span>`).join('')}
         </div>
         <div class="mono" style="font-size:11px;color:var(--n8n-text-3);margin-top:4px;">
-          ${w.nodeCount} nodes · triggers: ${w.triggerCount || 0}${w.webhookPath ? ' · /webhook-rust/' + esc(w.webhookPath) : ''}
+          ${w.nodeCount} Nodes · Trigger: ${w.triggerCount || 0}${w.webhookPath ? ' · /webhook-rust/' + esc(w.webhookPath) : ''}
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;" onclick="event.stopPropagation()">
-        <span style="font-size:12px;color:${w.active ? 'var(--n8n-green)' : 'var(--n8n-text-3)'};">${w.active ? 'Active' : 'Inactive'}</span>
+        <span style="font-size:12px;color:${w.active ? 'var(--n8n-green)' : 'var(--n8n-text-3)'};">${w.active ? 'Aktiv' : 'Inaktiv'}</span>
         <button class="n8n-switch ${w.active ? 'on' : ''}" onclick="toggleWfInList('${esc(w.id)}')"></button>
       </div>
     </div>
@@ -2797,19 +2808,19 @@ async function renderAltEditorTab() {
     alt.innerHTML = `
       <div style="display:grid;grid-template-columns:300px 1fr;gap:14px;height:100%;">
         <div style="background:var(--n8n-panel-bg);border:1px solid var(--n8n-border);border-radius:8px;overflow-y:auto;padding:8px;">
-          <strong style="display:block;padding:6px 8px;font-size:12px;color:var(--n8n-text-2);">Past Executions (${st.executions.length})</strong>
+          <strong style="display:block;padding:6px 8px;font-size:12px;color:var(--n8n-text-2);">Vergangene Ausführungen (${st.executions.length})</strong>
           ${st.executions.map((e, i) => `
             <div class="n8n-wf-card" style="padding:9px 10px;border-color:${i===st.selectedExecIdx?'var(--n8n-coral)':'var(--n8n-border)'};" onclick="st.selectedExecIdx=${i};renderAltEditorTab()">
               <div>
-                <div style="font-weight:600;font-size:12px;color:${e.status==='success'?'var(--n8n-green)':'var(--n8n-red)'};">${e.status==='success'?'✓ Succeeded':'✕ Error'} · ${e.durationMs}ms</div>
+                <div style="font-weight:600;font-size:12px;color:${e.status==='success'?'var(--n8n-green)':'var(--n8n-red)'};">${e.status==='success'?'✓ Erfolgreich':'✕ Fehler'} · ${e.durationMs}ms</div>
                 <div class="mono" style="font-size:10.5px;color:var(--n8n-text-3);">${esc(e.modelUsed)} · ${esc((e.startedAt||'').slice(11,19))}</div>
               </div>
             </div>
-          `).join('') || '<div style="padding:16px;color:var(--n8n-text-3);">Noch keine Ausführungen. Klicke "Test workflow".</div>'}
+          `).join('') || '<div style="padding:16px;color:var(--n8n-text-3);">Noch keine Ausführungen. Klicke „Workflow testen“.</div>'}
         </div>
         <div style="background:var(--n8n-panel-bg);border:1px solid var(--n8n-border);border-radius:8px;overflow:auto;padding:16px;">
           ${ex ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <strong>Execution ${esc(ex.id.slice(0,12))}</strong>
+            <strong>Ausführung ${esc(ex.id.slice(0,12))}</strong>
             <span class="n8n-tag-pill mono">${esc(ex.modelUsed)} · ${ex.durationMs}ms</span>
           </div><pre class="mono" style="background:var(--n8n-subtle-bg);padding:12px;border-radius:6px;overflow:auto;font-size:11.5px;">${esc(JSON.stringify(ex, null, 2))}</pre>` : '<div style="color:var(--n8n-text-3);">Wähle eine Ausführung aus.</div>'}
         </div>
@@ -2817,7 +2828,7 @@ async function renderAltEditorTab() {
     `;
   } else if (st.editorTab === 'evaluations') {
     alt.innerHTML = `
-      <h2 style="margin:0 0 8px;font-size:18px;">Evaluations · Tiny Model Benchmark</h2>
+      <h2 style="margin:0 0 8px;font-size:18px;">Auswertungen · Tiny-Model-Benchmark</h2>
       <p style="margin:0 0 14px;color:var(--n8n-text-2);">Führe <strong class="mono">${esc(st.currentWf?.name)}</strong> gegen unsere lokalen Ultra-Small-Modelle auf dem 19-€-Server aus:</p>
       <div style="display:flex;gap:8px;margin-bottom:14px;">
         <input id="evalPrompt" class="n8n-input" value="Suche in Twenty nach Ohrladen und erstelle einen kurzen Entwurf" style="max-width:480px;">
@@ -2926,9 +2937,9 @@ function renderCanvas() {
     }
 
     const diamondHtml = root ? `<div class="n8n-diamond-ports">
-      <div class="n8n-diamond"><div class="n8n-diamond-sq"></div><span>Chat Model*</span></div>
-      <div class="n8n-diamond"><div class="n8n-diamond-sq"></div><span>Memory</span></div>
-      <div class="n8n-diamond"><div class="n8n-diamond-sq"></div><span>Tool</span></div>
+      <div class="n8n-diamond"><div class="n8n-diamond-sq"></div><span>Chat-Modell*</span></div>
+      <div class="n8n-diamond"><div class="n8n-diamond-sq"></div><span>Speicher</span></div>
+      <div class="n8n-diamond"><div class="n8n-diamond-sq"></div><span>Werkzeug</span></div>
     </div>` : '';
 
     const innerContent = root
@@ -2937,15 +2948,15 @@ function renderCanvas() {
 
     html += `<div class="n8n-node-wrap ${wrapCls}" data-nodename="${esc(n.name)}" style="left:${x}px;top:${y}px;">
       <div class="n8n-node-toolbar">
-        <button class="n8n-tb-btn" title="Test step" onclick="event.stopPropagation();quickExecNode('${esc(n.name)}')">▶</button>
-        <button class="n8n-tb-btn" title="Enable/Disable" onclick="event.stopPropagation();toggleDisableNode('${esc(n.name)}')">⏻</button>
-        <button class="n8n-tb-btn" title="Open NDV" onclick="event.stopPropagation();openNdv('${esc(n.name)}')">⤢</button>
-        <button class="n8n-tb-btn" title="Delete node" onclick="event.stopPropagation();deleteNode('${esc(n.name)}')">🗑</button>
+        <button class="n8n-tb-btn" title="Schritt testen" onclick="event.stopPropagation();quickExecNode('${esc(n.name)}')">▶</button>
+        <button class="n8n-tb-btn" title="Aktivieren/Deaktivieren" onclick="event.stopPropagation();toggleDisableNode('${esc(n.name)}')">⏻</button>
+        <button class="n8n-tb-btn" title="NDV öffnen" onclick="event.stopPropagation();openNdv('${esc(n.name)}')">⤢</button>
+        <button class="n8n-tb-btn" title="Node löschen" onclick="event.stopPropagation();deleteNode('${esc(n.name)}')">🗑</button>
       </div>
       <div class="n8n-node-box ${boxCls} ${statCls} ${selCls} ${disCls}" ondblclick="event.stopPropagation();openNdv('${esc(n.name)}')" onclick="onNodeClick('${esc(n.name)}')">
         ${trig ? '<div class="n8n-trig-bolt">⚡</div>' : ''}
         ${innerContent}
-        ${stat ? `<div class="n8n-exec-badge ${stat.status==='error'?'err':''}">${stat.status==='error'?'!':'✓'}</div><div class="n8n-items-pill">1 item</div>` : ''}
+        ${stat ? `<div class="n8n-exec-badge ${stat.status==='error'?'err':''}">${stat.status==='error'?'!':'✓'}</div><div class="n8n-items-pill">1 Element</div>` : ''}
         ${portsHtml}
         ${diamondHtml}
       </div>
@@ -3053,7 +3064,7 @@ function onNodeClick(name) {
   }, { passive: false });
 })();
 
-// Node Creator Drawer ("What happens next?")
+// Node Creator Drawer ("Was passiert als Nächstes?")
 function openCreatorDrawer(srcName, branch = 0) {
   st.creatorSourceNode = srcName;
   st.creatorSourceBranch = branch;
@@ -3118,7 +3129,7 @@ function toggleBottomLogs(forceOpen) {
 async function runCurrentWorkflow() {
   if (!st.currentWf) return;
   const btn = document.getElementById('testWfBtn');
-  btn.textContent = '⏳ Running...'; btn.disabled = true;
+  btn.textContent = '⏳ Läuft...'; btn.disabled = true;
   let payload = {};
   try { payload = JSON.parse(document.getElementById('globalPayloadInput').value); } catch { payload = { message: document.getElementById('globalPayloadInput').value }; }
   const model = document.getElementById('modelSelect').value;
@@ -3133,7 +3144,7 @@ async function runCurrentWorkflow() {
       st.nodeStatusMap[l.node] = { status: l.status, durationMs: l.durationMs, output: l.output };
     });
     renderCanvas();
-    document.getElementById('logsHdrTxt').textContent = `Execution ${d.status} · ${d.durationMs}ms · ${(d.nodeLogs||[]).length} nodes (${d.modelUsed})`;
+    document.getElementById('logsHdrTxt').textContent = `Ausführung ${d.status === 'success' ? 'erfolgreich' : d.status} · ${d.durationMs}ms · ${(d.nodeLogs||[]).length} Nodes (${d.modelUsed})`;
     document.getElementById('logsStepList').innerHTML = (d.nodeLogs || []).map((l, idx) => `
       <div class="n8n-pop-item" onclick="showStepLog(${idx})">
         <span>${l.status==='success'?'🟢':'🔴'} ${esc(l.node)}</span>
@@ -3141,11 +3152,11 @@ async function runCurrentWorkflow() {
       </div>
     `).join('');
     document.getElementById('logsJsonPre').textContent = JSON.stringify(d, null, 2);
-    document.getElementById('logsToggleBtn').textContent = `Logs (${(d.nodeLogs||[]).length})`;
+    document.getElementById('logsToggleBtn').textContent = `Protokoll (${(d.nodeLogs||[]).length})`;
     toggleBottomLogs(true);
-    toast(`Workflow finished (${d.durationMs}ms)`);
+    toast(`Workflow abgeschlossen (${d.durationMs}ms)`);
   } catch (e) { toast('Fehler: ' + e); }
-  btn.textContent = '🧪 Test workflow'; btn.disabled = false;
+  btn.textContent = '🧪 Workflow testen'; btn.disabled = false;
 }
 function showStepLog(idx) {
   const l = st.lastExec?.nodeLogs?.[idx];
@@ -3181,7 +3192,7 @@ function setNdvOutFmt(fmt, btn) { st.ndvOutFmt = fmt; btn.parentElement.querySel
 function renderNdvPanels() { renderNdvInput(); renderNdvCenter(); renderNdvOutput(); }
 
 function renderJsonOrTable(obj, fmt) {
-  if (!obj) return '<div style="color:var(--n8n-text-3);">Noch keine Daten. Klicke auf <strong>Test step</strong>.</div>';
+  if (!obj) return '<div style="color:var(--n8n-text-3);">Noch keine Daten. Klicke auf <strong>Schritt testen</strong>.</div>';
   if (fmt === 'table' && typeof obj === 'object') {
     const flat = Array.isArray(obj) ? obj : [obj];
     const keys = Array.from(new Set(flat.flatMap(r => Object.keys(r || {}))));
@@ -3202,8 +3213,8 @@ function renderNdvInput() {
     const wp = n.parameters?.path || st.currentWf.webhookPath || st.currentWf.id;
     const url = `${window.location.origin}/webhook-rust/${wp}`;
     body.innerHTML = `
-      <div><span class="n8n-field-lbl">Rust Webhook URL</span><input class="n8n-input mono" readonly value="${esc(url)}" onclick="this.select()"></div>
-      <div><span class="n8n-field-lbl">Test Payload (JSON)</span><textarea id="ndvTrigPayload" class="n8n-code-ed mono" rows="8" onchange="document.getElementById('globalPayloadInput').value=this.value">${esc(document.getElementById('globalPayloadInput').value)}</textarea></div>
+      <div><span class="n8n-field-lbl">Rust Webhook-URL</span><input class="n8n-input mono" readonly value="${esc(url)}" onclick="this.select()"></div>
+      <div><span class="n8n-field-lbl">Testdaten (JSON)</span><textarea id="ndvTrigPayload" class="n8n-code-ed mono" rows="8" onchange="document.getElementById('globalPayloadInput').value=this.value">${esc(document.getElementById('globalPayloadInput').value)}</textarea></div>
       <div style="font-size:11.5px;color:var(--n8n-text-3);">cURL: <code class="mono">curl -X POST ${esc(url)} -d '{"message":"Hallo"}'</code></div>
     `;
   } else {
@@ -3218,10 +3229,10 @@ function renderNdvCenter() {
 
   if (st.ndvCenterTab === 'settings') {
     body.innerHTML = `
-      <div><span class="n8n-field-lbl">Notes</span><textarea class="n8n-textarea" rows="3" onchange="updateNodeProp('notes',this.value)">${esc(n.notes||'')}</textarea></div>
-      <label style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><span>Always Output Data</span><input type="checkbox" ${n.alwaysOutputData?'checked':''} onchange="updateNodeProp('alwaysOutputData',this.checked)"></label>
-      <label style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><span>Continue On Fail</span><input type="checkbox" ${n.continueOnFail?'checked':''} onchange="updateNodeProp('continueOnFail',this.checked)"></label>
-      <label style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><span>Retry On Fail</span><input type="checkbox" ${n.retryOnFail?'checked':''} onchange="updateNodeProp('retryOnFail',this.checked)"></label>
+      <div><span class="n8n-field-lbl">Notizen</span><textarea class="n8n-textarea" rows="3" onchange="updateNodeProp('notes',this.value)">${esc(n.notes||'')}</textarea></div>
+      <label style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><span>Immer Daten ausgeben</span><input type="checkbox" ${n.alwaysOutputData?'checked':''} onchange="updateNodeProp('alwaysOutputData',this.checked)"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><span>Bei Fehler fortfahren</span><input type="checkbox" ${n.continueOnFail?'checked':''} onchange="updateNodeProp('continueOnFail',this.checked)"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><span>Bei Fehler wiederholen</span><input type="checkbox" ${n.retryOnFail?'checked':''} onchange="updateNodeProp('retryOnFail',this.checked)"></label>
     `;
     return;
   }
@@ -3229,36 +3240,36 @@ function renderNdvCenter() {
   let fields = '';
   if (n.type === 'n8n-nodes-base.webhook') {
     fields = `
-      <div><span class="n8n-field-lbl">HTTP Method</span><select class="n8n-select" onchange="updateNodeParam('httpMethod',this.value)"><option value="POST" ${p.httpMethod==='POST'?'selected':''}>POST</option><option value="GET" ${p.httpMethod==='GET'?'selected':''}>GET</option></select></div>
-      <div><span class="n8n-field-lbl">Path</span><input class="n8n-input mono" value="${esc(p.path||'')}" onchange="updateNodeParam('path',this.value)"></div>
-      <div><span class="n8n-field-lbl">Response Mode</span><select class="n8n-select" onchange="updateNodeParam('responseMode',this.value)"><option value="responseNode">Using 'Respond to Webhook' Node</option><option value="lastNode">Last Node</option></select></div>
+      <div><span class="n8n-field-lbl">HTTP-Methode</span><select class="n8n-select" onchange="updateNodeParam('httpMethod',this.value)"><option value="POST" ${p.httpMethod==='POST'?'selected':''}>POST</option><option value="GET" ${p.httpMethod==='GET'?'selected':''}>GET</option></select></div>
+      <div><span class="n8n-field-lbl">Pfad</span><input class="n8n-input mono" value="${esc(p.path||'')}" onchange="updateNodeParam('path',this.value)"></div>
+      <div><span class="n8n-field-lbl">Antwortmodus</span><select class="n8n-select" onchange="updateNodeParam('responseMode',this.value)"><option value="responseNode">Über „Auf Webhook antworten“-Node</option><option value="lastNode">Letzte Node</option></select></div>
     `;
   } else if (n.type === 'n8n-nodes-base.code') {
-    fields = `<div><span class="n8n-field-lbl">JavaScript Code</span><textarea class="n8n-code-ed mono" rows="11" onchange="updateNodeParam('jsCode',this.value)">${esc(p.jsCode||'')}</textarea></div>`;
+    fields = `<div><span class="n8n-field-lbl">JavaScript-Code</span><textarea class="n8n-code-ed mono" rows="11" onchange="updateNodeParam('jsCode',this.value)">${esc(p.jsCode||'')}</textarea></div>`;
   } else if (n.type === 'n8n-nodes-base.httpRequest') {
     fields = `
-      <div><span class="n8n-field-lbl">Method</span><select class="n8n-select" onchange="updateNodeParam('method',this.value)"><option ${p.method==='GET'?'selected':''}>GET</option><option ${p.method!=='GET'?'selected':''}>POST</option></select></div>
+      <div><span class="n8n-field-lbl">Methode</span><select class="n8n-select" onchange="updateNodeParam('method',this.value)"><option ${p.method==='GET'?'selected':''}>GET</option><option ${p.method!=='GET'?'selected':''}>POST</option></select></div>
       <div><span class="n8n-field-lbl">URL</span><input class="n8n-input mono" value="${esc(p.url||'')}" onchange="updateNodeParam('url',this.value)"></div>
-      <div><span class="n8n-field-lbl">JSON Body</span><textarea class="n8n-code-ed mono" rows="6" onchange="updateNodeParam('jsonBody',this.value)">${esc(p.jsonBody||'')}</textarea></div>
+      <div><span class="n8n-field-lbl">JSON-Body</span><textarea class="n8n-code-ed mono" rows="6" onchange="updateNodeParam('jsonBody',this.value)">${esc(p.jsonBody||'')}</textarea></div>
     `;
   } else if (n.type.includes('agent') || n.type.includes('chainLlm')) {
     fields = `
-      <div><span class="n8n-field-lbl">Prompt (User Message)</span><textarea class="n8n-textarea" rows="3" onchange="updateNodeParam('text',this.value)">${esc(p.text || p.prompt || '={{ $json.message }}')}</textarea></div>
-      <div><span class="n8n-field-lbl">System Message</span><textarea class="n8n-textarea" rows="4" onchange="updateNodeOption('systemMessage',this.value)">${esc(p.options?.systemMessage || '')}</textarea></div>
+      <div><span class="n8n-field-lbl">Prompt (Nutzer-Nachricht)</span><textarea class="n8n-textarea" rows="3" onchange="updateNodeParam('text',this.value)">${esc(p.text || p.prompt || '={{ $json.message }}')}</textarea></div>
+      <div><span class="n8n-field-lbl">Systemnachricht</span><textarea class="n8n-textarea" rows="4" onchange="updateNodeOption('systemMessage',this.value)">${esc(p.options?.systemMessage || '')}</textarea></div>
     `;
   } else if (n.type === 'n8n-nodes-base.postgres') {
-    fields = `<div><span class="n8n-field-lbl">SQL Query</span><textarea class="n8n-code-ed mono" rows="6" onchange="updateNodeParam('query',this.value)">${esc(p.query || 'SELECT id, name, city FROM twenty_companies LIMIT 5')}</textarea></div>`;
+    fields = `<div><span class="n8n-field-lbl">SQL-Abfrage</span><textarea class="n8n-code-ed mono" rows="6" onchange="updateNodeParam('query',this.value)">${esc(p.query || 'SELECT id, name, city FROM twenty_companies LIMIT 5')}</textarea></div>`;
   } else if (n.type.includes('gmail') || n.type.includes('emailSend') || n.type.includes('Outlook')) {
     fields = `
-      <div style="padding:8px 10px;border-radius:6px;background:var(--n8n-green-soft);color:var(--n8n-green);font-size:12px;">Safe Mode active: saves as Draft (draftOnly = true).</div>
-      <div><span class="n8n-field-lbl">Subject</span><input class="n8n-input" value="${esc(p.subject||'')}" onchange="updateNodeParam('subject',this.value)"></div>
-      <div><span class="n8n-field-lbl">Message</span><textarea class="n8n-textarea" rows="5" onchange="updateNodeParam('message',this.value)">${esc(p.message||p.text||'')}</textarea></div>
+      <div style="padding:8px 10px;border-radius:6px;background:var(--n8n-green-soft);color:var(--n8n-green);font-size:12px;">Abgesicherter Modus aktiv: speichert nur als Entwurf (draftOnly = true).</div>
+      <div><span class="n8n-field-lbl">Betreff</span><input class="n8n-input" value="${esc(p.subject||'')}" onchange="updateNodeParam('subject',this.value)"></div>
+      <div><span class="n8n-field-lbl">Nachricht</span><textarea class="n8n-textarea" rows="5" onchange="updateNodeParam('message',this.value)">${esc(p.message||p.text||'')}</textarea></div>
     `;
   }
 
   fields += `
     <details style="margin-top:8px;" open>
-      <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--n8n-text-2);">Raw Parameters (JSON)</summary>
+      <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--n8n-text-2);">Rohparameter (JSON)</summary>
       <textarea id="ndvRawParams" class="n8n-code-ed mono" rows="7" style="margin-top:6px;" onchange="applyRawParams(this.value)">${esc(JSON.stringify(p, null, 2))}</textarea>
     </details>
   `;
@@ -3267,7 +3278,7 @@ function renderNdvCenter() {
 
 function renderNdvOutput() {
   const stat = st.nodeStatusMap[st.ndvNodeName];
-  document.getElementById('ndvOutBadge').textContent = stat ? `1 item · ${stat.durationMs}ms` : '';
+  document.getElementById('ndvOutBadge').textContent = stat ? `1 Element · ${stat.durationMs}ms` : '';
   document.getElementById('ndvOutBody').innerHTML = renderJsonOrTable(stat?.output || null, st.ndvOutFmt);
 }
 
@@ -3287,7 +3298,7 @@ function updateNodeProp(k, v) {
 }
 function applyRawParams(str) {
   const n = st.currentWf?.nodes?.find(x => x.name === st.ndvNodeName); if (!n) return;
-  try { n.parameters = JSON.parse(str); st.dirty = true; updateHeaderState(); toast('Parameters updated'); } catch { toast('Ungültiges JSON'); }
+  try { n.parameters = JSON.parse(str); st.dirty = true; updateHeaderState(); toast('Parameter aktualisiert'); } catch { toast('Ungültiges JSON'); }
 }
 function renameNdvNode(newName) {
   const old = st.ndvNodeName; const nn = newName.trim();
@@ -3307,7 +3318,7 @@ function renameNdvNode(newName) {
 async function executeNdvStep() {
   if (!st.currentWf || !st.ndvNodeName) return;
   const btn = document.getElementById('ndvTestStepBtn');
-  btn.textContent = '⏳ Running...'; btn.disabled = true;
+  btn.textContent = '⏳ Läuft...'; btn.disabled = true;
   const n = st.currentWf.nodes.find(x => x.name === st.ndvNodeName);
   let payload = {};
   try { payload = JSON.parse(document.getElementById('globalPayloadInput').value); } catch { payload = { message: 'Hallo' }; }
@@ -3322,7 +3333,7 @@ async function executeNdvStep() {
     renderNdvOutput();
     renderCanvas();
   } catch (e) { toast('Fehler: ' + e); }
-  btn.textContent = '▶ Test step'; btn.disabled = false;
+  btn.textContent = '▶ Schritt testen'; btn.disabled = false;
 }
 
 // Workflow CRUD
@@ -3332,16 +3343,16 @@ async function saveCurrentWorkflow() {
     method: 'PATCH', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: st.currentWf.name, nodes: st.currentWf.nodes, connections: st.currentWf.connections, tags: st.currentWf.tags || [] })
   });
-  if (r.ok) { st.currentWf = await r.json(); st.dirty = false; updateHeaderState(); toast('Saved ✓'); }
+  if (r.ok) { st.currentWf = await r.json(); st.dirty = false; updateHeaderState(); toast('Gespeichert ✓'); }
 }
 async function renameWorkflow(val) { if (!st.currentWf || !val.trim()) return; st.currentWf.name = val.trim(); await saveCurrentWorkflow(); init(); }
 async function toggleActiveWf() {
   if (!st.currentWf) return;
   const r = await fetch(`/api/n8n/workflows/${encodeURIComponent(st.currentWf.id)}/toggle`, { method: 'POST' });
-  const d = await r.json(); st.currentWf.active = d.active; updateHeaderState(); toast(d.active ? 'Workflow Activated' : 'Workflow Deactivated');
+  const d = await r.json(); st.currentWf.active = d.active; updateHeaderState(); toast(d.active ? 'Workflow aktiviert' : 'Workflow deaktiviert');
 }
 async function promptAddTag() {
-  const t = prompt('Tag hinzufügen:', 'production'); if (!t || !st.currentWf) return;
+  const t = prompt('Tag hinzufügen:', 'produktion'); if (!t || !st.currentWf) return;
   st.currentWf.tags = Array.isArray(st.currentWf.tags) ? [...st.currentWf.tags, t.trim()] : [t.trim()];
   await saveCurrentWorkflow();
 }
@@ -3350,19 +3361,19 @@ async function removeTag(i) {
   st.currentWf.tags.splice(i, 1); await saveCurrentWorkflow();
 }
 async function createBlankWorkflow() {
-  const name = prompt('Workflow Name:', 'Neuer Rust AI Workflow'); if (!name) return;
+  const name = prompt('Workflow-Name:', 'Neuer Rust-KI-Workflow'); if (!name) return;
   const r = await fetch('/api/n8n/workflows', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, active: true }) });
   const wf = await r.json(); await init(); selectWorkflow(wf.id);
 }
 async function duplicateCurrentWorkflow() {
   if (!st.currentWf) return;
   const r = await fetch(`/api/n8n/workflows/${encodeURIComponent(st.currentWf.id)}/duplicate`, { method: 'POST' });
-  if (r.ok) { const wf = await r.json(); await init(); selectWorkflow(wf.id); toast('Duplicated'); }
+  if (r.ok) { const wf = await r.json(); await init(); selectWorkflow(wf.id); toast('Workflow dupliziert'); }
 }
 async function deleteCurrentWorkflow() {
   if (!st.currentWf || !confirm(`Workflow "${st.currentWf.name}" wirklich löschen?`)) return;
   await fetch(`/api/n8n/workflows/${encodeURIComponent(st.currentWf.id)}`, { method: 'DELETE' });
-  toast('Deleted'); await init();
+  toast('Workflow gelöscht'); await init();
 }
 function downloadWorkflowJson() {
   if (!st.currentWf) return;
@@ -3372,11 +3383,11 @@ function downloadWorkflowJson() {
 function openShareModal() {
   if (!st.currentWf) return;
   const wp = st.currentWf.webhookPath || st.currentWf.id;
-  alert(`Webhook Endpoint:\n${window.location.origin}/webhook-rust/${wp}`);
+  alert(`Webhook-Endpunkt:\n${window.location.origin}/webhook-rust/${wp}`);
 }
 async function syncSqlite() {
   const r = await fetch('/api/n8n/sync-sqlite', { method: 'POST' });
-  toast('Synced SQLite ✓'); init();
+  toast('SQLite synchronisiert ✓'); init();
 }
 
 if (window.innerWidth <= 960) document.getElementById('n8nNav').classList.add('collapsed');
@@ -3393,234 +3404,413 @@ pub fn render_showcase_html() -> &'static str {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>5.000 €/Monat IT-Kosten → &lt;20 €/Monat Server · Pure Rust + Tiny AI | Conrad KI</title>
+<title>Kostenvergleich: 5.000 €/Monat → &lt;20 €/Monat · Pure Rust + Tiny AI | Conrad KI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0b0f17;
-  --surface: #121826;
-  --surface-2: #182133;
-  --border: #263248;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --accent: #38bdf8;
-  --coral: #ff6d5a;
-  --green: #22c55e;
-  --amber: #f59e0b;
+  --bg: #fbfaf8;
+  --bg-subtle: #f4f1ea;
+  --bg-card: #ffffff;
+  --ink: #12110e;
+  --ink-secondary: #4a463e;
+  --ink-muted: #747065;
+  --ink-faint: #a8a499;
+  --accent-forest: #1e3822;
+  --accent-forest-hdr: #2c4a2e;
+  --accent-forest-light: #2c4e32;
+  --accent-forest-soft: rgba(30, 56, 34, 0.08);
+  --accent-orange: #c8531a;
+  --accent-orange-hover: #b0450f;
+  --accent-orange-soft: rgba(200, 83, 26, 0.1);
+  --lime: #bef264;
+  --border: rgba(18, 17, 14, 0.08);
+  --border-strong: rgba(18, 17, 14, 0.16);
+  --radius-md: 14px;
+  --radius-lg: 20px;
 }
 * { box-sizing: border-box; }
 html, body {
-  margin: 0; padding: 0; background: var(--bg); color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 14px; line-height: 1.55; overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
+.serif { font-family: 'Fraunces', Georgia, serif; }
 .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 a { color: inherit; text-decoration: none; }
-.nav {
-  position: sticky; top: 0; z-index: 40;
-  background: rgba(11,15,23,0.92); backdrop-filter: blur(10px);
+
+/* Header Nav (Conrad KI CI) */
+.header-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(251, 250, 248, 0.92);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
-.nav-inner {
-  max-width: 1160px; margin: 0 auto; padding: 11px 16px;
-  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+.header-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
 }
-.brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 14.5px; }
-.brand-dot {
-  width: 26px; height: 26px; border-radius: 7px;
-  background: linear-gradient(135deg, var(--coral), var(--accent));
-  display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: #0b0f17;
+.brand-wrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.brand-link { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15.5px; color: var(--ink); }
+.brand-logo { width: 28px; height: 28px; border-radius: 7px; object-fit: contain; background: var(--accent-forest); }
+.ci-pill-tag {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 9999px;
+  font-size: 12px; font-weight: 600; background: var(--accent-forest-soft); color: var(--accent-forest);
 }
-.nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.nav-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .btn {
-  display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 7px;
-  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
-  font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 8px 16px; border-radius: 9999px; font-family: inherit;
+  font-size: 13px; font-weight: 600; border: 1px solid var(--border-strong);
+  background: var(--bg-card); color: var(--ink); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s; white-space: nowrap;
 }
-.btn:hover { border-color: var(--accent); }
-.btn-primary { background: var(--accent); color: #082f49; border-color: var(--accent); }
-.btn-coral { background: var(--coral); color: #fff; border-color: var(--coral); }
-.container { max-width: 1160px; margin: 0 auto; padding: 24px 16px 56px; }
-.pill {
-  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px;
-  background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.3);
-  font-size: 12px; font-weight: 600;
+.btn:hover { background: var(--bg-subtle); border-color: var(--ink-muted); }
+.btn-orange { background: var(--accent-orange); color: #ffffff; border-color: var(--accent-orange); }
+.btn-orange:hover { background: var(--accent-orange-hover); border-color: var(--accent-orange-hover); }
+.btn-forest { background: var(--accent-forest); color: #ffffff; border-color: var(--accent-forest); }
+.btn-forest:hover { background: var(--accent-forest-light); border-color: var(--accent-forest-light); }
+
+/* Main Container */
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
 }
-.hero h1 { font-size: clamp(24px, 4vw, 40px); line-height: 1.15; margin: 12px 0 10px; letter-spacing: -0.02em; }
-.hero p { color: var(--muted); max-width: 780px; font-size: 15.5px; margin: 0 0 18px; }
-.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
-.card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+
+/* Doku Hero (.doku-hero CI) */
+.doku-hero {
+  background: radial-gradient(circle at 86% 16%, rgba(30, 56, 34, 0.78) 0%, #12110e 58%);
+  color: #fbfaf8;
+  border-radius: var(--radius-lg);
+  padding: 34px 32px 30px;
+  border: 1px solid rgba(30, 56, 34, 0.45);
+  box-shadow: 0 18px 40px rgba(18, 17, 14, 0.08);
 }
-.kpi-lbl { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.kpi-val { font-size: 24px; font-weight: 800; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
-.kpi-sub { font-size: 12px; color: var(--muted); }
-.section-title { font-size: 18px; font-weight: 700; margin: 28px 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.table-scroll { width: 100%; overflow-x: auto; }
-table.cmp { width: 100%; border-collapse: collapse; min-width: 620px; }
-table.cmp th, table.cmp td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
-table.cmp th { color: var(--muted); font-size: 11.5px; text-transform: uppercase; background: var(--surface-2); }
-.proof-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-.proof-out {
-  background: #060911; border: 1px solid var(--border); border-radius: 8px; padding: 10px;
-  font-size: 11.5px; color: #cbd5e1; max-height: 240px; overflow: auto; white-space: pre-wrap; word-break: break-word; margin: 0;
+.hero-top-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
 }
-.model-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 6px; }
-.tag { padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 600; background: rgba(56,189,248,0.14); color: var(--accent); }
-.tag-green { background: rgba(34,197,94,0.16); color: #86efac; }
-@media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid-2 { grid-template-columns: 1fr; } }
-@media (max-width: 520px) { .kpi-grid { grid-template-columns: 1fr; } }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 9999px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  background: rgba(190, 242, 100, 0.14); color: var(--lime); border: 1px solid rgba(190, 242, 100, 0.28);
+}
+.hero-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: rgba(251, 250, 248, 0.75); flex-wrap: wrap; }
+.doku-hero h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(26px, 4vw, 42px);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  max-width: 920px;
+}
+.doku-hero h1 .lime { color: var(--lime); }
+.doku-hero h1 .orange-accent { color: #ff8c57; font-style: italic; }
+.hero-sub { margin: 0 0 24px; font-size: 15.5px; color: rgba(251, 250, 248, 0.82); max-width: 820px; }
+.hero-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.doku-metric {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 15px 17px;
+}
+.doku-metric .m-lbl {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: rgba(251, 250, 248, 0.62); margin-bottom: 5px;
+}
+.doku-metric .m-val {
+  font-family: 'Fraunces', Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1.15; color: #ffffff;
+}
+.doku-metric.highlight .m-val { color: var(--lime); }
+.doku-metric .m-sub { margin-top: 6px; font-size: 12px; color: rgba(251, 250, 248, 0.72); }
+
+/* Section Cards */
+.ci-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px 28px;
+  box-shadow: 0 4px 18px rgba(18, 17, 14, 0.025);
+}
+.eyebrow {
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent-orange); margin-bottom: 5px;
+}
+.ci-card h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(21px, 2.5vw, 27px);
+  font-weight: 600; letter-spacing: -0.015em; margin: 0 0 8px; color: var(--ink);
+}
+.sec-lead { margin: 0 0 18px; color: var(--ink-secondary); font-size: 14.5px; }
+
+/* Cost Table */
+.table-scroll {
+  width: 100%; overflow-x: auto;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+}
+.cost-table { width: 100%; border-collapse: collapse; min-width: 700px; background: var(--bg-card); }
+.cost-table thead th {
+  background: var(--accent-forest); color: #fbfaf8; font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; text-align: left; padding: 13px 15px;
+}
+.cost-table thead th.num, .cost-table tbody td.num { text-align: right; white-space: nowrap; }
+.cost-table tbody td {
+  padding: 13px 15px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 13.5px;
+}
+.cost-table tbody tr:last-child td { border-bottom: none; }
+.cost-table tbody tr.sum-row { background: var(--bg-subtle); font-weight: 700; border-top: 2px solid var(--accent-forest); }
+.legacy-price {
+  color: #991b1b; background: rgba(153, 27, 27, 0.08);
+  padding: 3px 9px; border-radius: 9999px; font-weight: 600; display: inline-block;
+}
+.rust-price {
+  color: var(--accent-forest); background: var(--accent-forest-soft);
+  padding: 3px 9px; border-radius: 9999px; font-weight: 700; display: inline-block;
+}
+.save-pill {
+  color: var(--accent-orange); background: var(--accent-orange-soft);
+  padding: 3px 10px; border-radius: 9999px; font-weight: 700; display: inline-block;
+}
+
+/* Grids & Proofs */
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.model-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 13px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 8px;
+}
+.arch-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.arch-list li {
+  padding: 11px 14px; background: var(--bg); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-forest); border-radius: 10px; font-size: 13.5px; color: var(--ink-secondary);
+}
+.arch-list li strong { color: var(--ink); }
+.proof-card {
+  background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  padding: 18px; display: flex; flex-direction: column; gap: 11px;
+}
+.proof-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.lat-badge {
+  font-size: 11.5px; padding: 3px 9px; border-radius: 9999px;
+  background: var(--accent-forest-soft); color: var(--accent-forest); font-weight: 600;
+}
+.proof-pre {
+  margin: 0; padding: 12px; border-radius: 10px; background: #12110e; color: #e7e5e0;
+  font-size: 11.5px; line-height: 1.45; max-height: 220px; overflow: auto;
+  white-space: pre-wrap; word-break: break-word;
+}
+.proof-select {
+  height: 36px; padding: 0 12px; border-radius: 9999px;
+  border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--ink); font-size: 12px;
+}
+
+/* Footer */
+.ci-footer {
+  background: var(--bg-subtle); border-top: 1px solid var(--border);
+  padding: 26px 24px; font-size: 13px; color: var(--ink-secondary);
+}
+.footer-inner {
+  max-width: 1180px; margin: 0 auto; display: flex; align-items: center;
+  justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.footer-links { display: flex; gap: 16px; flex-wrap: wrap; font-weight: 600; color: var(--accent-forest); }
+.footer-links a:hover { text-decoration: underline; }
+
+@media (max-width: 960px) {
+  .hero-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .header-inner, .container { padding-left: 16px; padding-right: 16px; }
+  .doku-hero { padding: 24px 18px; }
+  .ci-card { padding: 20px 16px; }
+  .hero-metrics { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
-<nav class="nav">
-  <div class="nav-inner">
-    <div class="brand">
-      <span class="brand-dot">CK</span>
-      <span>Conrad KI · Vorzeigeprojekt</span>
+
+<header class="header-nav">
+  <div class="header-inner">
+    <div class="brand-wrap">
+      <a class="brand-link" href="/showcase">
+        <img class="brand-logo" src="https://conrad-ki.com/assets/logo.png" alt="Conrad KI Logo">
+        <span>Conrad KI</span>
+      </a>
+      <span class="ci-pill-tag">Kostenvergleich · Pure Rust &amp; Tiny AI</span>
     </div>
-    <div class="nav-links">
+    <nav class="nav-links">
       <a class="btn" href="/twenty">Twenty CRM</a>
       <a class="btn" href="/n8n">n8n Studio</a>
-      <a class="btn btn-primary" href="/showcase">5k € → 20 € Case</a>
       <a class="btn" href="https://conrad-ki.com/showcase-doku.html" target="_blank" rel="noopener">Doku &amp; Blueprint ↗</a>
-    </div>
+      <a class="btn btn-orange" href="#kostenvergleich">5.000 € → 19 € Vergleich</a>
+    </nav>
   </div>
-</nav>
+</header>
 
 <main class="container">
-  <section class="hero">
-    <span class="pill">● Live-Telemetrie von diesem Hetzner-Server (188.34.207.215)</span>
-    <h1>5.000 €/Monat SaaS- &amp; Cloud-Stack durch einen &lt;20-€-Server in Pure Rust ersetzt.</h1>
-    <p>
-      Kein Node.js-Cluster, kein Docker-Zoo, keine teuren Enterprise-Lizenzen: <strong>Twenty CRM</strong> (<span class="mono">/twenty</span> &amp; <span class="mono">/graphql</span>),
-      <strong>n8n Engine</strong> (<span class="mono">/n8n</span> mit 58 Workflows) und <strong>nachtrainierte Tiny-Models</strong> (<span class="mono">270M</span>, <span class="mono">0.6B</span>, <span class="mono">1.2B</span>)
-      laufen als einzelne statisch gelinkte Rust-Binary plus SQLite WAL direkt auf kleinster Hardware.
-    </p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a class="btn btn-primary" href="/twenty">🏢 Twenty CRM öffnen</a>
-      <a class="btn btn-coral" href="/n8n">🔀 n8n Studio (58 Workflows)</a>
-      <button class="btn" onclick="loadMetrics()">↻ Live-Metriken aktualisieren</button>
+  <section class="doku-hero">
+    <div class="hero-top-row">
+      <span class="hero-badge">Produktiv-Architektur · Hetzner Cloud (188.34.207.215) · SQLite WAL</span>
+      <div class="hero-meta">
+        <span id="tsLabel" class="mono">wird geladen...</span>
+        <button class="btn" style="padding:5px 12px;font-size:12px;" onclick="loadMetrics()">↻ Live-Metriken aktualisieren</button>
+      </div>
+    </div>
+    <h1>Wie wir <span class="lime">5.000 €/Monat</span> IT- &amp; SaaS-Kosten mit einem <span class="orange-accent">&lt;20 €/Monat</span> Server ersetzen.</h1>
+    <p class="hero-sub">Echte 1:1-Nachbauten von <strong>Twenty CRM</strong> (<span class="mono">/twenty</span> &amp; <span class="mono">/graphql</span>) und <strong>n8n</strong> (<span class="mono">/n8n</span>) in kompiliertem Rust, gekoppelt mit lokal nachtrainierten Tiny-Models (<span class="mono">270M</span>, <span class="mono">0.6B</span>, <span class="mono">1.2B</span>). Alle Kennzahlen werden in Echtzeit aus dem laufenden Prozess gelesen.</p>
+
+    <div class="hero-metrics">
+      <div class="doku-metric highlight">
+        <div class="m-lbl">Monatliche Ersparnis</div>
+        <div class="m-val" id="kSavings">4.981 €</div>
+        <div class="m-sub" id="kSavingsSub">5.000 €/Mo Legacy vs. 19 €/Mo Server</div>
+      </div>
+      <div class="doku-metric">
+        <div class="m-lbl">Rust-Binary RAM (VmRSS)</div>
+        <div class="m-val" id="kRss">— MB</div>
+        <div class="m-sub" id="kHostMem">Host frei: — MB · SQLite: — MB</div>
+      </div>
+      <div class="doku-metric">
+        <div class="m-lbl">Twenty CRM (SQLite WAL)</div>
+        <div class="m-val" id="kCrmTotal">—</div>
+        <div class="m-sub" id="kCrmBreakdown">Firmen · Kontakte · Deals · Notizen</div>
+      </div>
+      <div class="doku-metric">
+        <div class="m-lbl">n8n Engine &amp; Tiny AI</div>
+        <div class="m-val" id="kN8n">—</div>
+        <div class="m-sub" id="kAiDefault">Standardmodell: conrad-n8n-agent:0.6b</div>
+      </div>
     </div>
   </section>
 
-  <section class="kpi-grid">
-    <div class="card">
-      <div class="kpi-lbl">Monatliche Kosten-Ersparnis</div>
-      <div class="kpi-val" style="color:var(--green);" id="kSavings">4.981 €</div>
-      <div class="kpi-sub" id="kSavingsSub">5.000 €/Mo Legacy vs. 19 €/Mo Server</div>
-    </div>
-    <div class="card">
-      <div class="kpi-lbl">Rust-Binary RAM (VmRSS Live)</div>
-      <div class="kpi-val" style="color:var(--accent);" id="kRss">— MB</div>
-      <div class="kpi-sub" id="kHostMem">Host frei: — MB · SQLite: — MB</div>
-    </div>
-    <div class="card">
-      <div class="kpi-lbl">Produktive CRM-Daten</div>
-      <div class="kpi-val" id="kCrmTotal">—</div>
-      <div class="kpi-sub" id="kCrmBreakdown">Companies · People · Notes · Tasks</div>
-    </div>
-    <div class="card">
-      <div class="kpi-lbl">n8n Rust Engine &amp; Tiny AI</div>
-      <div class="kpi-val" style="color:var(--coral);" id="kN8n">—</div>
-      <div class="kpi-sub" id="kAiDefault">Default: conrad-n8n-agent:0.6b</div>
+  <section class="ci-card" id="kostenvergleich">
+    <div class="eyebrow">01 · Monatlicher Kostenvergleich</div>
+    <h2>Enterprise-SaaS-Rechnung vs. Conrad KI Pure-Rust Eigenbetrieb</h2>
+    <p class="sec-lead">Direkter Vergleich eines klassischen KMU-SaaS-Stacks (CRM-Seats, Automatisierungs-Plattform, Cloud-KI-Tokens und verwaltete Cluster) gegenüber unserer statischen Rust-Binary auf einem einzelnen Hetzner Cloud-Server.</p>
+    <div class="table-scroll">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Komponente</th>
+            <th>Bisheriger Enterprise-Stack</th>
+            <th class="num">Alt / Mon.</th>
+            <th>Conrad KI Pure-Rust + Tiny-AI</th>
+            <th class="num">Neu / Mon.</th>
+            <th class="num">Ersparnis</th>
+          </tr>
+        </thead>
+        <tbody id="costTbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--ink-muted);">Lade Live-Aufschlüsselung...</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
-  <div class="section-title">
-    <span>1. Kostenvergleich: 5.000 €/Monat Cloud vs. Pure-Rust + Local AI (&lt;20 €/Monat)</span>
-    <span class="mono" style="font-size:12px;color:var(--muted);" id="tsLabel">Live</span>
-  </div>
-  <div class="card table-scroll">
-    <table class="cmp">
-      <thead>
-        <tr>
-          <th>Kategorie</th>
-          <th>Klassischer 5.000-€-Stack</th>
-          <th style="text-align:right;">Alt / Monat</th>
-          <th>Conrad Pure-Rust + Tiny-AI</th>
-          <th style="text-align:right;">Neu / Monat</th>
-        </tr>
-      </thead>
-      <tbody id="costTbody">
-        <tr><td colspan="5" style="color:var(--muted);">Lade Live-Aufschlüsselung...</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="grid-2" style="margin-top:20px;">
-    <div class="card">
-      <div class="section-title" style="margin-top:0;">
-        <span>2. Installierte Tiny-Models (Non-Qwen3 + ORPO)</span>
-        <span class="tag">Ollama 127.0.0.1</span>
-      </div>
-      <p style="color:var(--muted);font-size:12.5px;margin-top:0;">
-        Mehrere Ultra-Small-Tool-Calling-Modelle für kleine CPU-VPS ohne GPU — inklusive Google <strong>FunctionGemma 270M</strong> (~80 tok/s) und Liquid AI <strong>LFM2.5 1.2B</strong> sowie unserem ORPO-trainierten <strong>0.6B</strong> Agenten.
-      </p>
-      <div id="modelsList" style="margin-top:10px;">Lade Modelle...</div>
+  <section class="grid-2">
+    <div class="ci-card">
+      <div class="eyebrow">02 · Lokale Tiny-Language-Models</div>
+      <h2>Nachtrainierte Spezial-Modelle (Non-Qwen3 + ORPO)</h2>
+      <p class="sec-lead">Ultrakleine Tool-Calling-Modelle für CPU-Server ohne GPU — inklusive Google <strong>FunctionGemma 270M</strong>, Liquid AI <strong>LFM2.5 1.2B</strong> und unserem ORPO-trainierten <strong>0.6B</strong>-Agenten auf <span class="mono">127.0.0.1:11434</span>.</p>
+      <div id="modelsList">Lade Modelle...</div>
     </div>
 
-    <div class="card">
-      <div class="section-title" style="margin-top:0;">
-        <span>3. Architektur auf 1 Blick</span>
-        <span class="tag tag-green">Zero-Docker-Overhead</span>
-      </div>
-      <ul style="margin:0;padding-left:18px;color:#cbd5e1;display:flex;flex-direction:column;gap:8px;font-size:13px;">
-        <li><strong>Single Binary (`conrad-crm`):</strong> Axum HTTP + SQLite WAL bedient CRM, GraphQL, Webhooks &amp; n8n Workflow-Runner mit zweistelligem MB-RAM-Bedarf.</li>
-        <li><strong>Echte E2E-Kompatibilität:</strong> Importierte SQLite-/Workflow-Strukturen aus Twenty CRM &amp; n8n laufen 1:1 ohne SaaS-Seat-Gebühren.</li>
-        <li><strong>Dual-Engine Tool Calling:</strong> Parst OpenAI/Qwen3 <span class="mono">&lt;tool_call&gt;</span> und natives FunctionGemma <span class="mono">&lt;start_function_call&gt;call:Name{...}</span> automatisch in einheitliche CRM- &amp; Draft-Aktionen.</li>
-        <li><strong>Sicherheit by Design:</strong> E-Mails werden strikt als Entwurf (<span class="mono">draftOnly: true</span>) gespeichert; kein automatischer Versand.</li>
+    <div class="ci-card">
+      <div class="eyebrow">03 · Architektur-Prinzip</div>
+      <h2>Warum Pure Rust auf 4 GB RAM läuft</h2>
+      <p class="sec-lead">Statt schwerer Container für TypeScript, Node.js, PostgreSQL, Redis und Worker-Queues erledigt eine einzige Binary alles im selben Speicherraum.</p>
+      <ul class="arch-list">
+        <li><strong>Single Binary (<span class="mono">conrad-crm</span>):</strong> Axum HTTP + SQLite WAL bedient Twenty CRM (<a href="/twenty" style="color:var(--accent-orange);text-decoration:underline;">/twenty</a>), GraphQL (<span class="mono">/graphql</span>) &amp; n8n (<a href="/n8n" style="color:var(--accent-orange);text-decoration:underline;">/n8n</a>) mit unter 25 MB RAM.</li>
+        <li><strong>In-Process Kurzschluss:</strong> Wenn ein n8n-Workflow CRM-Daten abruft, greift Rust direkt im Arbeitsspeicher auf SQLite WAL zu — ohne Netzwerk-Latenz.</li>
+        <li><strong>Dual-Engine Tool-Calling:</strong> Parst OpenAI/Qwen3 <span class="mono">&lt;tool_call&gt;</span> sowie natives FunctionGemma <span class="mono">&lt;start_function_call&gt;call:Name{...}</span> zuverlässig in CRM-Aktionen.</li>
+        <li><strong>Sicherheit by Design (<span class="mono">draftOnly: true</span>):</strong> E-Mails werden strikt als Entwurf gespeichert; es erfolgt niemals ein automatischer Versand.</li>
       </ul>
     </div>
-  </div>
+  </section>
 
-  <div class="section-title">
-    <span>4. Live-Beweis direkt gegen diesen Server ausführen</span>
-    <span style="font-size:12px;color:var(--muted);">Echte API-Antworten inkl. gemessener Latenz</span>
-  </div>
-  <section class="grid-2">
-    <div class="proof-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-        <strong>Proof A · Twenty GraphQL Query</strong>
-        <span class="mono" style="font-size:11.5px;color:var(--accent);" id="latA">bereit</span>
+  <section class="ci-card" id="live-beweise">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+      <div>
+        <div class="eyebrow">04 · Verifizierbare Live-Beweise</div>
+        <h2 style="margin-bottom:4px;">Echtzeit-Tests direkt gegen diesen Server</h2>
+        <p class="sec-lead" style="margin-bottom:0;">Jede Aktion startet echte GraphQL-, Tool-Calling- und Workflow-Aufrufe gegen den Rust-Produktionsprozess.</p>
       </div>
-      <div style="font-size:12.5px;color:var(--muted);">Fragt reale Firmen-Daten per <span class="mono">POST /api/twenty/graphql</span> direkt aus SQLite ab.</div>
-      <div><button class="btn btn-primary" onclick="runProofA()">▶ GraphQL Live abfragen</button></div>
-      <pre class="proof-out mono" id="outA">Klicke auf "GraphQL Live abfragen"...</pre>
-    </div>
-
-    <div class="proof-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-        <strong>Proof B · Tiny-Model Tool-Calling Live</strong>
-        <span class="mono" style="font-size:11.5px;color:var(--accent);" id="latB">bereit</span>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-        <select id="proofModelSel" class="btn" style="padding:5px 8px;font-weight:500;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <label for="proofModelSel" style="font-size:12.5px;font-weight:600;color:var(--ink-secondary);">Test-Modell:</label>
+        <select id="proofModelSel" class="proof-select mono">
           <option value="conrad-n8n-agent:0.6b">conrad-n8n-agent:0.6b</option>
           <option value="conrad-gemma:270m">conrad-gemma:270m</option>
           <option value="conrad-lfm2:1.2b">conrad-lfm2:1.2b</option>
           <option value="conrad-n8n-agent:1.7b">conrad-n8n-agent:1.7b</option>
         </select>
-        <button class="btn btn-primary" onclick="runProofB()">▶ Tool-Call testen</button>
       </div>
-      <pre class="proof-out mono" id="outB">Sendet lesenden Prompt ("Suche Firmen mit Name Ohrladen") an /api/twenty/agent...</pre>
     </div>
-  </section>
 
-  <section class="proof-card" style="margin-top:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-      <strong>Proof C · Pure-Rust n8n Workflow (<span class="mono">conradKiAgent001</span>)</strong>
-      <span class="mono" style="font-size:11.5px;color:var(--coral);" id="latC">bereit</span>
+    <div class="grid-3">
+      <div class="proof-card">
+        <div class="proof-head">
+          <strong>Beweis A · Twenty GraphQL Query</strong>
+          <span class="lat-badge mono" id="latA">bereit</span>
+        </div>
+        <div style="font-size:13px;color:var(--ink-secondary);">Fragt reale Firmendaten über <span class="mono">POST /graphql</span> direkt aus SQLite WAL ab.</div>
+        <div><button class="btn btn-forest" onclick="runProofA()">▶ GraphQL live abfragen</button></div>
+        <pre class="proof-pre mono" id="outA">Klicke auf „GraphQL live abfragen“...</pre>
+      </div>
+
+      <div class="proof-card">
+        <div class="proof-head">
+          <strong>Beweis B · Tiny-Model Tool-Calling</strong>
+          <span class="lat-badge mono" id="latB">bereit</span>
+        </div>
+        <div style="font-size:13px;color:var(--ink-secondary);">Sendet einen Tool-Calling-Prompt (<span class="mono">Ohrladen</span>) an <span class="mono">/api/twenty/agent</span>.</div>
+        <div><button class="btn btn-orange" onclick="runProofB()">▶ Tool-Call testen</button></div>
+        <pre class="proof-pre mono" id="outB">Sendet lesenden Prompt („Suche Firmen mit Name Ohrladen“) an /api/twenty/agent...</pre>
+      </div>
+
+      <div class="proof-card">
+        <div class="proof-head">
+          <strong>Beweis C · Pure-Rust n8n Workflow</strong>
+          <span class="lat-badge mono" id="latC">bereit</span>
+        </div>
+        <div style="font-size:13px;color:var(--ink-secondary);">Führt <span class="mono">conradKiAgent001</span> vollständig in der Rust-DAG-Engine aus.</div>
+        <div><button class="btn btn-forest" onclick="runProofC()">▶ n8n Workflow live starten</button></div>
+        <pre class="proof-pre mono" id="outC">Klicke auf „n8n Workflow live starten“...</pre>
+      </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between;">
-      <span style="font-size:12.5px;color:var(--muted);">Führt Input-Guard + HTTP/Ollama 0.6B-Node + Output-Router vollständig in Rust aus.</span>
-      <button class="btn btn-coral" onclick="runProofC()">▶ n8n Workflow live starten</button>
-    </div>
-    <pre class="proof-out mono" id="outC">Klicke auf "n8n Workflow live starten"...</pre>
   </section>
 </main>
+
+<footer class="ci-footer">
+  <div class="footer-inner">
+    <div><strong>Conrad KI</strong> · Merlin Conrad · Königsäcker 94 · 68723 Schwetzingen · Telefon: +49 157 30495853 · E-Mail: merlin@conrad-ki.com · www.conrad-ki.com</div>
+    <div class="footer-links">
+      <a href="/twenty">Twenty CRM</a>
+      <a href="/n8n">n8n Studio</a>
+      <a href="/api/showcase/metrics" target="_blank" rel="noopener">Telemetrie (JSON)</a>
+    </div>
+  </div>
+</footer>
 
 <script>
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -3632,52 +3822,55 @@ async function loadMetrics() {
     const d = await r.json();
     const c = d.costComparison || {};
     document.getElementById('kSavings').textContent = fmtNum(c.monthlySavingsEur || 4981) + ' € / Mo';
-    document.getElementById('kSavingsSub').textContent = `${fmtNum(c.legacyMonthlyEur)} € Alt vs. ${fmtNum(c.conradMonthlyEur)} € Server (-${c.savingsPercent || 99.6}%)`;
-    document.getElementById('kRss').textContent = `${d.rustBinary?.rssMb ?? '—'} MB`;
-    document.getElementById('kHostMem').textContent = `Host frei: ${fmtNum(d.serverMemory?.availableMb)} / ${fmtNum(d.serverMemory?.totalMb)} MB · DB: ${d.rustBinary?.sqliteDbMb ?? '—'} MB`;
+    document.getElementById('kSavingsSub').textContent = `${fmtNum(c.legacyMonthlyEur)} € Alt vs. ${fmtNum(c.conradMonthlyEur)} € Server (−${String(c.savingsPercent || 99.6).replace('.', ',')} %)`;
+    document.getElementById('kRss').textContent = `${String(d.rustBinary?.rssMb ?? '—').replace('.', ',')} MB`;
+    document.getElementById('kHostMem').textContent = `Host frei: ${fmtNum(d.serverMemory?.availableMb)} / ${fmtNum(d.serverMemory?.totalMb)} MB · DB: ${String(d.rustBinary?.sqliteDbMb ?? '—').replace('.', ',')} MB`;
     document.getElementById('kCrmTotal').textContent = fmtNum(d.crm?.totalRecords || 0);
-    document.getElementById('kCrmBreakdown').textContent = `${fmtNum(d.crm?.companies)} Firmen · ${fmtNum(d.crm?.notes)} Notizen · ${fmtNum(d.crm?.tasks)} Tasks`;
+    document.getElementById('kCrmBreakdown').textContent = `${fmtNum(d.crm?.companies)} Firmen · ${fmtNum(d.crm?.notes)} Notizen · ${fmtNum(d.crm?.tasks)} Aufgaben`;
     document.getElementById('kN8n').textContent = `${fmtNum(d.n8n?.activeWorkflows)} / ${fmtNum(d.n8n?.workflows)} aktiv`;
-    document.getElementById('kAiDefault').textContent = `Default: ${d.ollama?.defaultModel || 'conrad-n8n-agent:0.6b'} · ${fmtNum(d.n8n?.executions)} Runs`;
+    document.getElementById('kAiDefault').textContent = `Standard: ${d.ollama?.defaultModel || 'conrad-n8n-agent:0.6b'} · ${fmtNum(d.n8n?.executions)} Läufe`;
     document.getElementById('tsLabel').textContent = `Stand ${(d.timestamp || '').slice(11, 19)} UTC`;
 
     const tb = document.getElementById('costTbody');
     const rows = c.breakdown || [];
-    tb.innerHTML = rows.map(row => `
-      <tr>
+    tb.innerHTML = rows.map(row => {
+      const saved = Number(row.legacyEur || 0) - Number(row.rustEur || 0);
+      return `<tr>
         <td><strong>${esc(row.category)}</strong></td>
-        <td style="color:var(--muted);">${esc(row.legacyStack)}</td>
-        <td class="mono" style="text-align:right;color:#fca5a5;">${fmtNum(row.legacyEur)} €</td>
-        <td style="color:#bae6fd;">${esc(row.rustStack)}</td>
-        <td class="mono" style="text-align:right;color:#86efac;">${fmtNum(row.rustEur)} €</td>
-      </tr>
-    `).join('') + `
-      <tr style="background:var(--surface-2);font-weight:700;">
+        <td style="color:var(--ink-secondary);">${esc(row.legacyStack)}</td>
+        <td class="num"><span class="legacy-price">${fmtNum(row.legacyEur)} €</span></td>
+        <td><strong>${esc(row.rustStack)}</strong></td>
+        <td class="num"><span class="rust-price">${fmtNum(row.rustEur)} €</span></td>
+        <td class="num"><span class="save-pill">−${fmtNum(saved)} €</span></td>
+      </tr>`;
+    }).join('') + `
+      <tr class="sum-row">
         <td colspan="2">Summe pro Monat (Jahresersparnis: ${fmtNum(c.annualSavingsEur || 59772)} €)</td>
-        <td class="mono" style="text-align:right;color:#fca5a5;">${fmtNum(c.legacyMonthlyEur)} €</td>
-        <td style="color:#86efac;">-${c.savingsPercent || 99.6}% Infrastrukturkosten</td>
-        <td class="mono" style="text-align:right;color:#86efac;">${fmtNum(c.conradMonthlyEur)} €</td>
+        <td class="num">${fmtNum(c.legacyMonthlyEur)} €</td>
+        <td style="color:var(--accent-forest);">−${String(c.savingsPercent || 99.6).replace('.', ',')} % Infrastrukturkosten</td>
+        <td class="num" style="color:var(--accent-forest);">${fmtNum(c.conradMonthlyEur)} €</td>
+        <td class="num" style="color:var(--accent-orange);">−${fmtNum(c.monthlySavingsEur || 4981)} €</td>
       </tr>
     `;
 
-    const loadedSet = new Set((d.ollama?.loadedNow || []).map(m => m.name));
+    const loadedSet = new Set((d.ollama?.loadedNow || []).map(m => typeof m === 'string' ? m : m.name));
     const regs = d.ollama?.registeredModels || [];
     const sel = document.getElementById('proofModelSel');
     const chatModels = regs.filter(m => !String(m.name).includes('embed'));
     if (chatModels.length) {
       const cur = sel.value;
-      sel.innerHTML = chatModels.map(m => `<option value="${esc(m.name)}">${esc(m.name)} (${m.sizeMb} MB)</option>`).join('');
+      sel.innerHTML = chatModels.map(m => `<option value="${esc(m.name)}">${esc(m.name)} (${String(m.sizeMb).replace('.', ',')} MB)</option>`).join('');
       if (chatModels.some(m => m.name === cur)) sel.value = cur;
     }
     document.getElementById('modelsList').innerHTML = regs.map(m => `
       <div class="model-row">
         <div>
-          <span class="mono" style="font-weight:600;font-size:12.5px;">${esc(m.name)}</span>
-          ${loadedSet.has(m.name) ? '<span class="tag tag-green" style="margin-left:6px;">geladen</span>' : ''}
+          <span class="mono" style="font-weight:600;font-size:13px;">${esc(m.name)}</span>
+          <div style="font-size:12px;color:var(--ink-muted);">${String(m.sizeMb).replace('.', ',')} MB GGUF</div>
         </div>
-        <span class="mono" style="font-size:12px;color:var(--muted);">${m.sizeMb} MB</span>
+        <span class="ci-pill-tag" style="${loadedSet.has(m.name) ? 'background:var(--accent-orange-soft);color:var(--accent-orange);' : ''}">${loadedSet.has(m.name) ? 'Geladen (aktiv)' : 'Lokal bereit'}</span>
       </div>
-    `).join('') || '<div style="color:var(--muted);">Keine Ollama-Modelle gemeldet.</div>';
+    `).join('') || '<div style="color:var(--ink-muted);">Keine Ollama-Modelle gemeldet.</div>';
   } catch (e) {
     document.getElementById('tsLabel').textContent = 'Fehler: ' + e;
   }

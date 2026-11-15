@@ -2985,10 +2985,10 @@ pub async fn showcase_metrics_handler(State(state): State<AppState>) -> impl Int
             "savingsPercent": savings_pct,
             "breakdown": [
                 {
-                    "category": "Enterprise CRM (15 Seats, Workflows & API)",
+                    "category": "Unternehmens-CRM (15 Lizenzen, Workflows & API)",
                     "legacyStack": "Salesforce / HubSpot Enterprise",
                     "legacyEur": 1800,
-                    "rustStack": "Pure-Rust Twenty CRM Klon (/twenty + /graphql)",
+                    "rustStack": "Pure-Rust Twenty CRM (/twenty + /graphql, unbegrenzte Nutzer)",
                     "rustEur": 0
                 },
                 {
@@ -3000,16 +3000,16 @@ pub async fn showcase_metrics_handler(State(state): State<AppState>) -> impl Int
                 },
                 {
                     "category": "KI-Assistent, Tool Calling & E-Mail-Triage",
-                    "legacyStack": "OpenAI / Claude Team + Copilot Add-Ons",
+                    "legacyStack": "OpenAI / Claude Team + KI-Add-ons",
                     "legacyEur": 1450,
                     "rustStack": "Nachtrainierte 0.6B / 270M / 1.2B Modelle (Ollama 127.0.0.1)",
                     "rustEur": 0
                 },
                 {
                     "category": "Cloud-Datenbank, Node/Docker-Cluster & Hosting",
-                    "legacyStack": "Managed Postgres, Redis, K8s Cluster & Monitoring",
+                    "legacyStack": "Managed PostgreSQL, Redis, Kubernetes-Cluster & Monitoring",
                     "legacyEur": 900,
-                    "rustStack": "1x Hetzner VPS (<20 €/Monat) + SQLite WAL",
+                    "rustStack": "1x Hetzner Cloud-Server (<20 €/Monat) + SQLite WAL",
                     "rustEur": 19
                 }
             ]
